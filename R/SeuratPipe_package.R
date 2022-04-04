@@ -5,25 +5,31 @@
 #' @docType package
 #' @name SeuratPipe
 #'
-#' @return seurat_pipeline main package documentation.
+#' @return SeuratPipe main package documentation.
 #'
 #'
 #' @author C.A.Kapourani \email{kapouranis.andreas@@gmail.com}
 #'
 #' @rawNamespace importFrom(magrittr, "%>%")
 #' @rawNamespace importFrom(rlang, "%||%")
-#' @importFrom grDevices png dev.off dev.list colorRampPalette
+#' @importFrom grDevices png pdf dev.off dev.list colorRampPalette
 #' @importFrom stats filter median
-#' @importFrom utils head read.csv write.csv
+#' @importFrom rlang fn_fmls
+#' @importFrom utils head read.csv write.csv combn
 #' @import ggplot2 BiocStyle
 #'
-.datatable.aware <- TRUE
 NULL
 #> NULL
 
+# global reference to scrub (will be initialized in .onLoad)
+scrub <- NULL
 
 .onLoad <- function(libname = find.package("SeuratPipe"),
                     pkgname = "SeuratPipe"){
+  # use superassignment to update global reference to scrub
+  scrub <<- reticulate::import(module = "scrublet", convert = FALSE,
+                               delay_load = TRUE)
+
   # CRAN Note avoidance
   if (getRversion() >= "2.15.1")
     utils::globalVariables(
@@ -32,5 +38,5 @@ NULL
         "."
       )
     )
-  invisible()
+  base::invisible()
 }

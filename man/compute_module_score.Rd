@@ -16,7 +16,7 @@ compute_module_score(seu, features, name, ctrl = 100, seed = 1, ...)
 \item{ctrl}{Number of control features selected from the same bin per
 analyzed feature.}
 
-\item{seed}{Set a random seed.}
+\item{seed}{Set a random seed, for reproducibility.}
 
 \item{...}{Additional parameters passed to Seurat's AddModuleScore.}
 }
@@ -24,7 +24,8 @@ analyzed feature.}
 A ggplot2 object.
 }
 \description{
-This function adapts the AddModuleScore Seurat function.
+This function adapts the AddModuleScore Seurat function to
+compute module scores based on a group of genes of interest.
 }
 \author{
 C.A.Kapourani \email{C.A.Kapourani@ed.ac.uk}

@@ -6,27 +6,28 @@
 \usage{
 cluster_analysis(
   seu,
-  ndim = 20,
+  dims = 1:20,
   res = seq(0.1, 0.1, by = 0.1),
-  logfc.threshol = 0.5,
+  logfc.threshold = 0.5,
   min.pct = 0.25,
   only.pos = TRUE,
-  topn = 10,
+  topn_genes = 10,
   plot_dir = NULL,
   plot_cluster_markers = TRUE,
   modules_group = NULL,
-  cluster_reduction = "harmony",
+  cluster_reduction = "pca",
   plot_reduction = "umap",
   max.cutoff = "q98",
-  cl.legend.position = "right",
-  legend.position = "top",
-  col_pal = NULL,
-  pt.size = 1.4,
+  assay = "RNA",
+  seed = 1,
+  ctrl = 100,
+  force_reanalysis = TRUE,
   label = TRUE,
   label.size = 8,
-  assay = "RNA",
-  ctrl = 100,
-  seed = 1,
+  legend.position = "right",
+  pt.size = 1.4,
+  cont_col_pal = NULL,
+  discrete_col_pal = NULL,
   fig.res = 200,
   ...
 )
@@ -34,12 +35,12 @@ cluster_analysis(
 \arguments{
 \item{seu}{Seurat object (required).}
 
-\item{ndim}{Number of dimensions to use for clustering (from
-cluster_reduction' object).}
+\item{dims}{Vector denoting dimensions to use for nearest neighnors and
+clustering (from 'cluster_reduction' parameter below).}
 
 \item{res}{Vector with clustering resolutions (e.g. seq(0.1, 0.6, by = 0.1)).}
 
-\item{logfc.threshol}{Limit testing to genes which show, on average, at
+\item{logfc.threshold}{Limit testing to genes which show, on average, at
 least X-fold difference (log-scale) between the two groups of cells.}
 
 \item{min.pct}{Only test genes that are detected in a minimum fraction of
@@ -47,14 +48,14 @@ min.pct cells in either of the two populations.}
 
 \item{only.pos}{Only return positive markers (TRUE by default).}
 
-\item{topn}{Top cluster marker genes to use for plot (in heatmap and
+\item{topn_genes}{Top cluster marker genes to use for plot (in heatmap and
 feature plots), default is 10.}
 
 \item{plot_dir}{Directory to save generated plots. If NULL, plots are
 not saved.}
 
 \item{plot_cluster_markers}{Logical, wheather to create feature plots with
-'topn' cluster markers. Added mostly to reduce number of files (and size)
+'topn_genes' cluster markers. Added mostly to reduce number of files (and size)
 in analysis folders. Default is TRUE.}
 
 \item{modules_group}{Group of modules (named list of lists) storing features
@@ -65,8 +66,8 @@ by calling the 'module_score_analysis' function. If 'plot_dir' is NULL,
 no plots will be generated.}
 
 \item{cluster_reduction}{Dimensionality reduction to use for performing
-clustering. Default is 'harmony', should be set to 'pca' if we do not
-perform data integration.}
+clustering. Default is 'pca', should be set to 'harmony' if we perform data
+integration.}
 
 \item{plot_reduction}{Dimensionality reduction to use for plotting
 functions. Default is 'umap'.}
@@ -75,26 +76,31 @@ functions. Default is 'umap'.}
 may specify quantile in the form of 'q##' where '##' is the quantile
 (eg, 'q1', 'q10').}
 
-\item{cl.legend.position}{Position of legend for clusters, default "right"
-(set to "none" for clean plot)}
-
-\item{legend.position}{Position of legend, default "top" (set to "none"
-for clean plot).}
-
-\item{col_pal}{Colour palette to use.}
-
-\item{pt.size}{Adjust point size for plotting.}
-
-\item{label}{Whether to label the clusters.}
-
-\item{label.size}{Sets size of labels.}
-
 \item{assay}{Assay to perform analysis, default "RNA".}
+
+\item{seed}{Set a random seed, for reproducibility.}
 
 \item{ctrl}{Number of control features selected from the same bin per
 analyzed feature.}
 
-\item{seed}{Set a random seed.}
+\item{force_reanalysis}{Logical, if cluster marker genes file
+exists and force_reanalysis = FALSE, run identification of cluster markers.
+Otherwise, read cluster markers from file. Added for computing time
+efficiency purposes.}
+
+\item{label}{Whether to label the clusters in 'plot_reduction' space.}
+
+\item{label.size}{Sets size of labels.}
+
+\item{legend.position}{Position of legend, default "right" (set to "none"
+for clean plot).}
+
+\item{pt.size}{Adjust point size for plotting.}
+
+\item{cont_col_pal}{Continuous colour palette to use, default "RdYlBu".}
+
+\item{discrete_col_pal}{Discrete colour palette to use, default is Hue palette
+(hue_pal) from 'scales' package.}
 
 \item{fig.res}{Figure resolution in ppi (see 'png' function).}
 

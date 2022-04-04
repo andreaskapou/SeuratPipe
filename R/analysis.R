@@ -1,6 +1,6 @@
 #' @rdname dimred_qc_plots
 #'
-#' @title QC and general metadata plots visualised on dimensiona
+#' @title QC and general metadata plots visualised on dimensional reduced space
 #'
 #' @description This function generates QC and general metadata plots that
 #' are visualised in dimensional reduced space (e.g. PCA and UMAP). The aim is
@@ -24,24 +24,30 @@
 #' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
 #'
 #' @export
-dimred_qc_plots <- function(seu, reductions = c("umap", "pca"),
+dimred_qc_plots <- function(seu, reductions = c("pca"),
                             metadata_to_plot = NULL, qc_to_plot = NULL,
-                            plot_dir, max.cutoff = "q98", legend.position = "top",
-                            col_pal = NULL, dims_plot = c(1,2), pt.size = 1.4,
+                            plot_dir, max.cutoff = "q98",
+                            legend.position = "right",
+                            cont_col_pal = NULL, discrete_col_pal = NULL,
+                            dims_plot = c(1,2), pt.size = 1.4,
                             fig.res = 200, ...) {
   # TODO: Compute variance of first PCs and show them in the plot
 
   # Plots based on metadata columns
   for (meta in metadata_to_plot) {
     for (red in reductions) {
-      if (red != c("umap", "tsne")) { dims_plot <- dims_plot }
-      else { dims_plot <- c(1,2) }
+      if (red %in% c("umap", "tsne")) {
+        dims_plot <- c(1,2)
+      } else {
+        dims_plot <- dims_plot
+      }
       png(paste0(plot_dir,"01_", red, "_", meta, ".png"), width = 7,
           height = 7, res = fig.res, units = "in")
       plot(dim_plot(seu = seu, reduction = red, group.by = meta,
                     split.by = NULL, ncol = 1, legend.position = legend.position,
-                    col_pal = col_pal, dims_plot = dims_plot, pt.size = pt.size,
-                    label = FALSE, combine = TRUE, ...) & Seurat::NoAxes())
+                    col_pal = discrete_col_pal, dims_plot = dims_plot,
+                    pt.size = pt.size, label = FALSE,
+                    combine = TRUE, ...) & Seurat::NoAxes())
       dev.off()
 
       # Split by metadata plots
@@ -53,8 +59,9 @@ dimred_qc_plots <- function(seu, reductions = c("umap", "pca"),
       plot(dim_plot(seu = seu, reduction = red, group.by = meta,
                     split.by = meta, ncol = plot_dim$ncols,
                     legend.position = legend.position,
-                    col_pal = col_pal, dims_plot = dims_plot, pt.size = pt.size,
-                    label = FALSE, combine = TRUE, ...) & Seurat::NoAxes())
+                    col_pal = discrete_col_pal, dims_plot = dims_plot,
+                    pt.size = pt.size, label = FALSE,
+                    combine = TRUE, ...) & Seurat::NoAxes())
       dev.off()
     }
   }
@@ -62,8 +69,11 @@ dimred_qc_plots <- function(seu, reductions = c("umap", "pca"),
   # Major QCs plots
   if (!is.null(qc_to_plot)) {
     for (red in reductions) {
-      if (red != c("umap", "tsne")) { dims_plot <- dims_plot }
-      else { dims_plot <- c(1,2) }
+      if (red %in% c("umap", "tsne")) {
+        dims_plot <- c(1,2)
+      } else {
+        dims_plot <- dims_plot
+      }
 
       plot_dim <- .plot_dims(feat_len = length(qc_to_plot))
       png(paste0(plot_dir, "02_qc_", red, ".png"), width = plot_dim$width,
@@ -71,7 +81,7 @@ dimred_qc_plots <- function(seu, reductions = c("umap", "pca"),
       plot(feature_plot(seu = seu, reduction = red, features = qc_to_plot,
                         max.cutoff = max.cutoff, ncol = plot_dim$ncols,
                         legend.position = legend.position,
-                        col_pal = col_pal, dims_plot = dims_plot,
+                        col_pal = cont_col_pal, dims_plot = dims_plot,
                         pt.size = pt.size, ...) &
              Seurat::NoAxes())
       dev.off()
@@ -87,8 +97,8 @@ dimred_qc_plots <- function(seu, reductions = c("umap", "pca"),
 #' @description This function implements all the analysis steps for performing
 #' Harmony integration on a Seurat object. These include, 1. merge all samples
 #' in a single Seurat object (if a list of Seurat objects is provided) 2.
-#' data normalisation, 2. identification of HVGs, 3. scaling of expression
-#' values, 4. Computing PCA, 5. running Harmony integration, 6. Generating
+#' data normalisation, 3. identification of HVGs, 4. Scaling of expression
+#' values and computing PCA, 5. running Harmony integration, 8. Generating
 #' plots.
 #'
 #' @param npcs Number of Principal Components (PCs) to compute.
@@ -105,46 +115,35 @@ dimred_qc_plots <- function(seu, reductions = c("umap", "pca"),
 #' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
 #'
 #' @export
-harmony_analysis <- function(seu, npcs, dims.use, plot_dir = NULL, n_hvgs = 3000,
-                             max.iter.harmony = 50, assay = "RNA", seed = 1,
-                             fig.res = 200, ...) {
+harmony_analysis <- function(seu, npcs, dims.use = NULL, plot_dir = NULL,
+                             n_hvgs = 3000, max.iter.harmony = 50,
+                             assay = "RNA", seed = 1, fig.res = 200, ...) {
   # If list, then we have un-merged independent samples
   if (is.list(seu)) {
-    # Normalise data
-    seu <- lapply(X = seu, FUN = function(x) {
-      x <- Seurat::NormalizeData(x, normalization.method = "LogNormalize",
-                                 assay = assay,
-                                 scale.factor = 10000)
-      x <- Seurat::FindVariableFeatures(x, selection.method = "vst",
-                                        assay = assay,
-                                        nfeatures = n_hvgs)
-      # Plot HVGs
-      png(paste0(plot_dir,"hvgs_", x$sample[1], ".png"), width = 10,
-          height = 5, res = fig.res, units = "in")
-      print(Seurat::LabelPoints(plot = Seurat::VariableFeaturePlot(x),
-                                points = head(Seurat::VariableFeatures(x), 10),
-                                repel = TRUE))
+    # Normalise and obtain HVGs
+    seu <- lognormalize_and_pca(seu, npcs = NULL, n_hvgs = n_hvgs,
+                                assay = assay, ...)
+    # Plot HVGs
+    for (s in names(seu)) {
+      png(paste0(plot_dir, "hvgs_", s, ".png"), width = 10, height = 5,
+          res = fig.res, units = "in")
+      print(Seurat::LabelPoints(plot = Seurat::VariableFeaturePlot(seu[[s]]),
+               points = head(Seurat::VariableFeatures(seu[[s]]), 10), repel = TRUE))
       dev.off()
-      return(x)
-    })
-    seu <- merge(x = seu[[1]], y = seu[2:length(seu)], project = "Liver")
+    }
+    # Merge all samples
+    seu <- merge(x = seu[[1]], y = seu[2:length(seu)])
     # Seurat merge bug which converts factors to character.
-    seu <- .as_factor_metadata_seurat(seu)
+    seu <- .as_factor_metadata(seu)
   }
-  seu <- seu %>% Seurat::NormalizeData(normalization.method = "LogNormalize",
-                                       assay = assay,
-                                       scale.factor = 10000) %>%
-    Seurat::FindVariableFeatures(selection.method = "vst",
-                                 assay = assay,
-                                 nfeatures = n_hvgs) %>%
-    Seurat::ScaleData(assay = assay, ...) %>%
-    # PCA reduction -> Harmony integration
-    Seurat::RunPCA(features = Seurat::VariableFeatures(.),
-                   npcs = npcs, assay = assay, ...)
+  # Process merged data and run PCA
+  seu <- lognormalize_and_pca(seu, npcs = npcs, n_hvgs = n_hvgs,
+                              assay = assay, ...)
 
   # Run Harmony
   set.seed(seed) # Set seed due to Harmony being stochastic
-  seu <- run_harmony(seu, group.by.vars = c("sample"), dims.use = dims.use,
+  seu <- run_harmony(object = seu, group.by.vars = c("sample"),
+                     reduction = "pca", dims.use = dims.use,
                      max.iter.harmony = max.iter.harmony, assay.use = assay, ...)
 
   # Plots
@@ -182,6 +181,7 @@ harmony_analysis <- function(seu, npcs, dims.use, plot_dir = NULL, n_hvgs = 3000
 #' in `plot_dir` directory.
 #'
 #' @param reduction Which dimensionality reduction to use (required).
+#' @param col_pal Continuous colour palette to use, default "RdYlBu".
 #' @param dims_plot Dimensions to plot, must be a two-length numeric vector
 #' specifying x- and y-dimensions.
 #' @param ... Additional named parameters passed to Seurat's AddModuleScore
@@ -195,11 +195,9 @@ harmony_analysis <- function(seu, npcs, dims.use, plot_dir = NULL, n_hvgs = 3000
 #' @export
 module_score_analysis <- function(seu, modules_group, plot_dir = NULL,
                                   reduction = "umap", max.cutoff = "q98",
-                                  ctrl = 100, seed = 1, fig.res = 200,
                                   legend.position = "top", col_pal = NULL,
-                                  dims_plot = c(1, 2), ...) {
-  # Required for the really low quality samples so they pass without errors
-  ctrl <- ifelse(NCOL(seu) <= ctrl, NCOL(seu) - 10, ctrl)
+                                  dims_plot = c(1, 2), seed = 1, ctrl = 100,
+                                  pt.size = 1.4, fig.res = 200, ...) {
   # Iterate over the group of modules
   for (mg in names(modules_group)) {
     # Extract list of modules within the group
@@ -216,10 +214,12 @@ module_score_analysis <- function(seu, modules_group, plot_dir = NULL,
         plot_dim <- .plot_dims(feat_len = length(features))
         png(paste0(plot_dir, "01_markers_", m, ".png"), width = plot_dim$width,
             height = plot_dim$height, res = fig.res, units = "in")
-        plot(feature_plot(seu = seu, reduction = reduction, features = modules[[m]],
+        plot(feature_plot(seu = seu, reduction = reduction,
+                          features = modules[[m]],
                           max.cutoff = max.cutoff, ncol = plot_dim$ncols,
                           legend.position = legend.position, col_pal = col_pal,
-                          dims_plot = dims_plot, combine = TRUE, ...) & Seurat::NoAxes())
+                          dims_plot = dims_plot, pt.size = pt.size,
+                          combine = TRUE, ...) & Seurat::NoAxes())
         dev.off()
       }
     }
@@ -228,10 +228,12 @@ module_score_analysis <- function(seu, modules_group, plot_dir = NULL,
       plot_dim <- .plot_dims(feat_len = length(modules))
       png(paste0(plot_dir, "02_score_", mg, ".png"), width = plot_dim$width,
           height = plot_dim$height, res = fig.res, units = "in")
-      plot(feature_plot(seu = seu, reduction = reduction, features = names(modules),
+      plot(feature_plot(seu = seu, reduction = reduction,
+                        features = names(modules),
                         max.cutoff = max.cutoff, ncol = plot_dim$ncols,
                         legend.position = legend.position, col_pal = col_pal,
-                        dims_plot = dims_plot, combine = TRUE, ...) & Seurat::NoAxes())
+                        dims_plot = dims_plot, pt.size = pt.size,
+                        combine = TRUE, ...) & Seurat::NoAxes())
       dev.off()
     }
   }
@@ -257,20 +259,20 @@ module_score_analysis <- function(seu, modules_group, plot_dir = NULL,
 #' lineage annotation.
 #'
 #' @param seu Seurat object (required).
-#' @param ndim Number of dimensions to use for clustering (from
-#' cluster_reduction' object).
+#' @param dims Vector denoting dimensions to use for nearest neighnors and
+#' clustering (from 'cluster_reduction' parameter below).
 #' @param res Vector with clustering resolutions (e.g. seq(0.1, 0.6, by = 0.1)).
-#' @param logfc.threshol Limit testing to genes which show, on average, at
+#' @param logfc.threshold Limit testing to genes which show, on average, at
 #' least X-fold difference (log-scale) between the two groups of cells.
 #' @param min.pct Only test genes that are detected in a minimum fraction of
 #' min.pct cells in either of the two populations.
 #' @param only.pos Only return positive markers (TRUE by default).
-#' @param topn Top cluster marker genes to use for plot (in heatmap and
+#' @param topn_genes Top cluster marker genes to use for plot (in heatmap and
 #' feature plots), default is 10.
 #' @param plot_dir Directory to save generated plots. If NULL, plots are
 #' not saved.
 #' @param plot_cluster_markers Logical, wheather to create feature plots with
-#' 'topn' cluster markers. Added mostly to reduce number of files (and size)
+#' 'topn_genes' cluster markers. Added mostly to reduce number of files (and size)
 #' in analysis folders. Default is TRUE.
 #' @param modules_group Group of modules (named list of lists) storing features
 #' (e.g. genes) to compute module score for each identified cluster. This step
@@ -279,25 +281,29 @@ module_score_analysis <- function(seu, modules_group, plot_dir = NULL,
 #' by calling the 'module_score_analysis' function. If 'plot_dir' is NULL,
 #' no plots will be generated.
 #' @param cluster_reduction Dimensionality reduction to use for performing
-#' clustering. Default is 'harmony', should be set to 'pca' if we do not
-#' perform data integration.
+#' clustering. Default is 'pca', should be set to 'harmony' if we perform data
+#' integration.
 #' @param plot_reduction Dimensionality reduction to use for plotting
 #' functions. Default is 'umap'.
 #' @param max.cutoff Vector of maximum cutoff values for each feature,
 #' may specify quantile in the form of 'q##' where '##' is the quantile
 #' (eg, 'q1', 'q10').
-#' @param legend.position Position of legend, default "top" (set to "none"
-#' for clean plot).
-#' @param cl.legend.position Position of legend for clusters, default "right"
-#' (set to "none" for clean plot)
-#' @param col_pal Colour palette to use.
-#' @param pt.size Adjust point size for plotting.
-#' @param label Whether to label the clusters.
-#' @param label.size Sets size of labels.
 #' @param assay Assay to perform analysis, default "RNA".
+#' @param seed Set a random seed, for reproducibility.
 #' @param ctrl Number of control features selected from the same bin per
 #' analyzed feature.
-#' @param seed Set a random seed.
+#' @param force_reanalysis Logical, if cluster marker genes file
+#' exists and force_reanalysis = FALSE, run identification of cluster markers.
+#' Otherwise, read cluster markers from file. Added for computing time
+#' efficiency purposes.
+#' @param label Whether to label the clusters in 'plot_reduction' space.
+#' @param label.size Sets size of labels.
+#' @param legend.position Position of legend, default "right" (set to "none"
+#' for clean plot).
+#' @param pt.size Adjust point size for plotting.
+#' @param cont_col_pal Continuous colour palette to use, default "RdYlBu".
+#' @param discrete_col_pal Discrete colour palette to use, default is Hue palette
+#' (hue_pal) from 'scales' package.
 #' @param fig.res Figure resolution in ppi (see 'png' function).
 #' @param ... Additional named parameters passed to Seurat
 #' analysis and plotting functions, such as FindClusters, FindAllMarkers,
@@ -308,38 +314,36 @@ module_score_analysis <- function(seu, modules_group, plot_dir = NULL,
 #' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
 #'
 #' @export
-cluster_analysis <- function(seu, ndim = 20, res = seq(0.1, 0.1, by = 0.1),
-                             logfc.threshol = 0.5, min.pct = 0.25,
-                             only.pos = TRUE, topn = 10, plot_dir = NULL,
+cluster_analysis <- function(seu, dims = 1:20, res = seq(0.1, 0.1, by = 0.1),
+                             logfc.threshold = 0.5, min.pct = 0.25,
+                             only.pos = TRUE, topn_genes = 10, plot_dir = NULL,
                              plot_cluster_markers = TRUE, modules_group = NULL,
-                             cluster_reduction = "harmony",
-                             plot_reduction = "umap", max.cutoff = "q98",
-                             cl.legend.position = "right",
-                             legend.position = "top", col_pal = NULL,
-                             pt.size = 1.4, label = TRUE, label.size = 8,
-                             assay = "RNA", ctrl = 100, seed = 1,
+                             cluster_reduction = "pca", plot_reduction = "umap",
+                             max.cutoff = "q98", assay = "RNA", seed = 1,
+                             ctrl = 100, force_reanalysis = TRUE,
+                             label = TRUE, label.size = 8,
+                             legend.position = "right", pt.size = 1.4,
+                             cont_col_pal = NULL, discrete_col_pal = NULL,
                              fig.res = 200, ...) {
   # So CMD passes without NOTES
   cluster = avg_log2FC <- NULL
-  # Required for the really low quality samples so they pass without errors
-  ctrl <- ifelse(NCOL(seu) <= ctrl, NCOL(seu) - 10, ctrl)
 
-  # Iterate over each resolution
+  # Iterate over each clustering resolution
   for (r in res) {
     cat("Res", r, "\n")
-    # Identify clusters
-    seu <- Seurat::FindNeighbors(seu, dims = 1:ndim, assay = assay,
-                                 reduction = cluster_reduction, ...)
-    seu <- Seurat::FindClusters(seu, resolution = r, random.seed = seed, ...)
+    # Identify nearest neighbors and perform clustering
+    seu <- find_neighbors(seu = seu, dims = dims,
+                          reduction = cluster_reduction, assay = assay, ...)
+    seu <- find_clusters(seu = seu, resolution = r, random.seed = seed, ...)
 
     if (!is.null(plot_dir)) {
       png(paste0(plot_dir,"z_", plot_reduction, "_res", r, ".png"), width = 7,
           height = 7, res = fig.res, units = "in")
       plot(dim_plot(seu = seu, reduction = plot_reduction, split.by = NULL,
-                    group.by = "seurat_clusters", ncol = 1, col_pal = col_pal,
-                    legend.position = cl.legend.position, dims_plot = c(1,2),
-                    pt.size = pt.size, label = label, label.size = label.size,
-                    combine = TRUE, ...) & Seurat::NoAxes())
+                    group.by = "seurat_clusters", ncol = 1,
+                    col_pal = discrete_col_pal, legend.position = legend.position,
+                    dims_plot = c(1,2), pt.size = pt.size, label = label,
+                    label.size = label.size, combine = TRUE, ...) & Seurat::NoAxes())
       dev.off()
     }
 
@@ -352,23 +356,24 @@ cluster_analysis <- function(seu, ndim = 20, res = seq(0.1, 0.1, by = 0.1),
         m_names <- names(modules_group[[mg]])
         # Check that they indeed are computed in Seurat object
         if (sum(m_names %in% colnames(seu@meta.data)) > 0) {
-          png(paste0(plot_dir,"dotplot_module_", mg, "_res", r, ".png"),
+          png(paste0(plot_dir, "dotplot_module_", mg, "_res", r, ".png"),
               width = 6 + 0.3*nlevels(seu@meta.data[["seurat_clusters"]]),
               height = 3 + 0.15*length(m_names), res = fig.res, units = "in")
           plot(dot_plot(seu = seu, features = m_names, labels = NULL,
                         group.by = "seurat_clusters", xlab = "Signature",
                         ylab = "Cluster", legend.position = "right",
-                        col_pal = col_pal, ...))
+                        col_pal = cont_col_pal, ...))
           dev.off()
         }
       }
     }
 
     # Identify cluster markers
-    if (!file.exists(paste0(plot_dir, "seu_markers_res", r, ".csv"))) {
-      mark <- Seurat::FindAllMarkers(seu, only.pos = only.pos,
-                                     min.pct = min.pct,
-                                     logfc.threshold = logfc.threshol, ...)
+    if (!file.exists(paste0(plot_dir, "seu_markers_res", r, ".csv")) ||
+        force_reanalysis == TRUE) {
+      mark <- find_all_markers(seu = seu, random.seed = seed,
+                               only.pos = only.pos, min.pct = min.pct,
+                               logfc.threshold = logfc.threshold, ...)
       write.csv(mark, file = paste0(plot_dir, "seu_markers_res", r, ".csv"))
       write.csv(seu@meta.data,
                 file = paste0(plot_dir, "seu_meta_res", r, ".csv"))
@@ -377,14 +382,15 @@ cluster_analysis <- function(seu, ndim = 20, res = seq(0.1, 0.1, by = 0.1),
     }
 
     # Heatmap of marker genes
-    heatmap_plot(seu = seu, markers = mark, topn = topn, assay = assay,
+    heatmap_plot(seu = seu, markers = mark, topn_genes = topn_genes, assay = assay,
                  filename = paste0(plot_dir, "z_heatmap_res", r, ".png"), ...)
 
     ## Feature and violin plots
     if (plot_cluster_markers & !is.null(plot_dir)) {
       # Extract top marker genes
       top_mark <- mark[mark$gene %in% rownames(seu[[assay]]@data), ] %>%
-        dplyr::group_by(cluster) %>% dplyr::top_n(topn, avg_log2FC)
+        dplyr::group_by(cluster) %>%
+        dplyr::slice_max(n = topn_genes, order_by = avg_log2FC)
       # For each cluster plot marker genes
       for (cl in levels(top_mark$cluster)) {
         if (nrow(top_mark[top_mark$cluster == cl, ]) > 0) {
@@ -396,7 +402,7 @@ cluster_analysis <- function(seu, ndim = 20, res = seq(0.1, 0.1, by = 0.1),
               units = "in")
           plot(feature_plot(seu = seu, reduction = plot_reduction,
                             features = genes, max.cutoff = max.cutoff,
-                            ncol = plot_dim$ncols, col_pal = col_pal,
+                            ncol = plot_dim$ncols, col_pal = cont_col_pal,
                             legend.position = legend.position, dims_plot = c(1,2),
                             pt.size = pt.size, ...) & Seurat::NoAxes())
           dev.off()
@@ -420,8 +426,8 @@ cluster_analysis <- function(seu, ndim = 20, res = seq(0.1, 0.1, by = 0.1),
           units = "in")
       plot(feature_plot(seu = seu, reduction = plot_reduction,
                         features = paste0("Cluster", unique(top_mark$cluster)),
-                        max.cutoff = max.cutoff,
-                        ncol = plot_dim$ncols, col_pal = col_pal,
+                        max.cutoff = max.cutoff, ncol = plot_dim$ncols,
+                        col_pal = cont_col_pal,
                         legend.position = legend.position, dims_plot = c(1,2),
                         pt.size = pt.size, ...) & Seurat::NoAxes())
       dev.off()

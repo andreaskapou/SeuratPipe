@@ -29,10 +29,10 @@ dot_plot(
 
 \item{ylab}{Label for y-axis.}
 
-\item{legend.position}{Position of legend, default "top" (set to "none"
+\item{legend.position}{Position of legend, default "right" (set to "none"
 for clean plot).}
 
-\item{col_pal}{Colour palette to use.}
+\item{col_pal}{Continuous colour palette to use, default "RdYlBu".}
 
 \item{...}{Additional parameters passed to Seurat's DotPlot.}
 }

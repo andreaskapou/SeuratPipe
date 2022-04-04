@@ -10,7 +10,7 @@ feature_plot(
   features = "nFeature_RNA",
   max.cutoff = "q98",
   ncol = 1,
-  legend.position = "top",
+  legend.position = "right",
   col_pal = NULL,
   dims_plot = c(1, 2),
   pt.size = 1.4,
@@ -29,12 +29,12 @@ feature_plot(
 may specify quantile in the form of 'q##' where '##' is the quantile
 (eg, 'q1', 'q10').}
 
-\item{ncol}{Number of columns for display when combining plots}
+\item{ncol}{Number of columns for display when combining plots.}
 
-\item{legend.position}{Position of legend, default "top" (set to "none"
+\item{legend.position}{Position of legend, default "right" (set to "none"
 for clean plot).}
 
-\item{col_pal}{Colour palette to use.}
+\item{col_pal}{Continuous colour palette to use, default "RdYlBu".}
 
 \item{dims_plot}{Dimensions to plot, must be a two-length numeric vector
 specifying x- and y-dimensions.}

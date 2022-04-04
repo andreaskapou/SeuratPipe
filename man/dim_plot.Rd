@@ -10,11 +10,11 @@ dim_plot(
   group.by = "active.ident",
   split.by = NULL,
   ncol = 1,
-  legend.position = "top",
+  legend.position = "right",
   col_pal = NULL,
   dims_plot = c(1, 2),
   pt.size = 1.4,
-  label = TRUE,
+  label = FALSE,
   label.size = 7,
   combine = TRUE,
   ...
@@ -27,21 +27,23 @@ dim_plot(
 
 \item{group.by}{Name of metadata column to group (color) cells by (required).}
 
-\item{split.by}{Name of a metadata column to split plot by}
+\item{split.by}{Name of a metadata column to split plot by.}
 
-\item{ncol}{Number of columns for display when combining plots}
+\item{ncol}{Number of columns for display when combining plots.}
 
-\item{legend.position}{Position of legend, default "top" (set to "none"
+\item{legend.position}{Position of legend, default "right" (set to "none"
 for clean plot).}
 
-\item{col_pal}{Colour palette to use.}
+\item{col_pal}{Discrete colour palette to use, default is Hue palette
+(hue_pal) from 'scales' package. Should be of equal length to number of
+groups in 'group.by'.}
 
 \item{dims_plot}{Dimensions to plot, must be a two-length numeric vector
 specifying x- and y-dimensions.}
 
 \item{pt.size}{Adjust point size for plotting.}
 
-\item{label}{Whether to label the clusters.}
+\item{label}{Whether to label the clusters in 'plot_reduction' space.}
 
 \item{label.size}{Sets size of labels.}
 

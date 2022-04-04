@@ -4,20 +4,106 @@
 \alias{run_harmony_pipeline}
 \title{(Internal) pipeline for Harmony integration}
 \usage{
-run_harmony_pipeline(seu_obj, io, opts, ...)
+run_harmony_pipeline(
+  seu_obj,
+  results_dir,
+  npcs = c(50),
+  ndims = c(30),
+  res = seq(0.1, 0.3, by = 0.1),
+  modules_group = NULL,
+  metadata_to_plot = c("sample", "condition"),
+  qc_to_plot = NULL,
+  logfc.threshold = 0.5,
+  min.pct = 0.25,
+  only.pos = TRUE,
+  topn_genes = 10,
+  pcs_to_remove = NULL,
+  force_reanalysis = TRUE,
+  plot_cluster_markers = TRUE,
+  max.cutoff = "q98",
+  n_hvgs = 3000,
+  max.iter.harmony = 50,
+  seed = 1,
+  assay = "RNA",
+  label = TRUE,
+  label.size = 8,
+  pt.size = 1.4,
+  fig.res = 200,
+  ...
+)
 }
 \arguments{
-\item{seu_obj}{Seurat object (required).}
+\item{seu_obj}{Seurat object or list of Seurat objects(required).}
 
-\item{io}{Input/output settings defined in main function.}
+\item{results_dir}{Output directory for storing analysis results.}
 
-\item{opts}{Options settings defined in main function.}
+\item{npcs}{Number of principal components, can be a vector e.g. c(50, 70).}
+
+\item{ndims}{Top Harmony dimensions to perform UMAP and clustering,
+can be a vector e.g. c(50, 70).}
+
+\item{res}{Vector with clustering resolutions (e.g. seq(0.1, 0.6, by = 0.1)).}
+
+\item{modules_group}{Group of modules (named list of lists) storing features
+(e.g. genes) to compute module score for each identified cluster. This step
+can be useful for annotating the different clusters by saving dot/feature
+plots for each group.}
+
+\item{metadata_to_plot}{Vector with metadata names to plot, they should be
+present in the meta.data slot of the Seurat object.}
+
+\item{qc_to_plot}{Vector with QC names to plot, they should be
+present in the meta.data slot of the Seurat object.}
+
+\item{logfc.threshold}{Limit testing to genes which show, on average, at
+least X-fold difference (log-scale) between the two groups of cells.}
+
+\item{min.pct}{Only test genes that are detected in a minimum fraction of
+min.pct cells in either of the two populations.}
+
+\item{only.pos}{Only return positive markers (TRUE by default).}
+
+\item{topn_genes}{Top cluster marker genes to use for plotting (in heatmap and
+feature plots), default is 10.}
+
+\item{pcs_to_remove}{Which PCs should be removed prior to running Harmony.
+Possibly due to being correlated with technical/batch effects. If NULL,
+all PCs are used.}
+
+\item{force_reanalysis}{Logical, if intermediate object 'seu_harmony_<>.rds'
+exists and force_reanalysis = FALSE, read object instead of re-running
+Harmony integration. Added for computing time efficiency purposes.}
+
+\item{plot_cluster_markers}{Logical, wheather to create feature plots with
+'topn_genes' cluster markers. Added mostly to reduce number of files
+(and size) in analysis folders. Default is TRUE.}
+
+\item{max.cutoff}{Maximum cutoff values for plotting each continuous
+feature, e.g. gene expression levels. May specify quantile in the form of
+'q##' where '##' is the quantile (eg, 'q1', 'q10').}
+
+\item{n_hvgs}{Number of highly variable genes (HVGs) to compute, which will
+be used as inpute to PCA.}
+
+\item{max.iter.harmony}{Maximum number of iterations for Harmony integration.}
+
+\item{seed}{Set a random seed, for reproducibility.}
+
+\item{assay}{Assay to perform analysis, default "RNA".}
+
+\item{label}{Whether to label the clusters in 'plot_reduction' space.}
+
+\item{label.size}{Sets size of labels.d}
+
+\item{pt.size}{Adjust point size for plotting.}
+
+\item{fig.res}{Figure resolution in ppi (see 'png' function).}
 
 \item{...}{Additional named parameters passed to Seurat's or Harmony
 functions.}
 }
 \value{
-None.
+None, runs Harmony analysis pipeline and stores results on the disk.
 }
 \description{
 This is an internal pipeline which wraps all analysis steps in
@@ -25,7 +111,7 @@ a function. This is meant to be used as a guide and in each analysis, users
 should write their own function (possibly adapting the code of this
 function). This is the reason this function is not explicitly 'exported',
 i.e. even if you load the library, you cannot directly call the function,
-but you should call seurat_pipeline:::run_harmony_pipeline. Elements in 'io'
+but you should call SeuratPipe:::run_harmony_pipeline. Elements in 'io'
 and 'opts' are not checked, so function might return errors if not all
 required values are not defined.
 }

@@ -7,7 +7,7 @@
 harmony_analysis(
   seu,
   npcs,
-  dims.use,
+  dims.use = NULL,
   plot_dir = NULL,
   n_hvgs = 3000,
   max.iter.harmony = 50,
@@ -34,7 +34,7 @@ be used as inpute to PCA.}
 
 \item{assay}{Assay to perform analysis, default "RNA".}
 
-\item{seed}{Set a random seed.}
+\item{seed}{Set a random seed, for reproducibility.}
 
 \item{fig.res}{Figure resolution in ppi (see 'png' function).}
 
@@ -48,8 +48,8 @@ Updated Seurat object with integrated and processed data.
 This function implements all the analysis steps for performing
 Harmony integration on a Seurat object. These include, 1. merge all samples
 in a single Seurat object (if a list of Seurat objects is provided) 2.
-data normalisation, 2. identification of HVGs, 3. scaling of expression
-values, 4. Computing PCA, 5. running Harmony integration, 6. Generating
+data normalisation, 3. identification of HVGs, 4. Scaling of expression
+values and computing PCA, 5. running Harmony integration, 8. Generating
 plots.
 }
 \author{

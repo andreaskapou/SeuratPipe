@@ -10,9 +10,7 @@ Authors@R:
            comment = c(ORCID = "0000-0003-2303-1953"))
 Description: This package contains common analysis, processing and plotting 
     functions with an attempt to streamline single-cell genomics analysis 
-    using the Seurat package. This content was created to streamline analysis 
-    in Neil Henderson's lab and was motivated by existing analysis approaches 
-    in the lab by John Wilson-Kanamori, Jordan Portman and Nick Younger.
+    using the Seurat package.
 License: GPL-3 | file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -30,13 +28,17 @@ Imports:
     magrittr,
     MASS,
     methods,
+    patchwork,
     pheatmap,
     RColorBrewer,
+    reticulate,
     rlang,
     scales,
     Seurat,
+    SoupX,
     stats,
-    utils
+    utils,
+    viridis
 Suggests: testthat,
     knitr,
     rmarkdown

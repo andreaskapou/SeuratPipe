@@ -10,12 +10,13 @@ module_score_analysis(
   plot_dir = NULL,
   reduction = "umap",
   max.cutoff = "q98",
-  ctrl = 100,
-  seed = 1,
-  fig.res = 200,
   legend.position = "top",
   col_pal = NULL,
   dims_plot = c(1, 2),
+  seed = 1,
+  ctrl = 100,
+  pt.size = 1.4,
+  fig.res = 200,
   ...
 )
 }
@@ -38,20 +39,22 @@ not saved.}
 may specify quantile in the form of 'q##' where '##' is the quantile
 (eg, 'q1', 'q10').}
 
-\item{ctrl}{Number of control features selected from the same bin per
-analyzed feature.}
-
-\item{seed}{Set a random seed.}
-
-\item{fig.res}{Figure resolution in ppi (see 'png' function).}
-
-\item{legend.position}{Position of legend, default "top" (set to "none"
+\item{legend.position}{Position of legend, default "right" (set to "none"
 for clean plot).}
 
-\item{col_pal}{Colour palette to use.}
+\item{col_pal}{Continuous colour palette to use, default "RdYlBu".}
 
 \item{dims_plot}{Dimensions to plot, must be a two-length numeric vector
 specifying x- and y-dimensions.}
+
+\item{seed}{Set a random seed, for reproducibility.}
+
+\item{ctrl}{Number of control features selected from the same bin per
+analyzed feature.}
+
+\item{pt.size}{Adjust point size for plotting.}
+
+\item{fig.res}{Figure resolution in ppi (see 'png' function).}
 
 \item{...}{Additional named parameters passed to Seurat's AddModuleScore
 and FeaturePlot}

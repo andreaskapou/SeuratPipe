@@ -2,17 +2,18 @@
 % Please edit documentation in R/analysis.R
 \name{dimred_qc_plots}
 \alias{dimred_qc_plots}
-\title{QC and general metadata plots visualised on dimensiona}
+\title{QC and general metadata plots visualised on dimensional reduced space}
 \usage{
 dimred_qc_plots(
   seu,
-  reductions = c("umap", "pca"),
+  reductions = c("pca"),
   metadata_to_plot = NULL,
   qc_to_plot = NULL,
   plot_dir,
   max.cutoff = "q98",
-  legend.position = "top",
-  col_pal = NULL,
+  legend.position = "right",
+  cont_col_pal = NULL,
+  discrete_col_pal = NULL,
   dims_plot = c(1, 2),
   pt.size = 1.4,
   fig.res = 200,
@@ -38,10 +39,13 @@ not saved.}
 may specify quantile in the form of 'q##' where '##' is the quantile
 (eg, 'q1', 'q10').}
 
-\item{legend.position}{Position of legend, default "top" (set to "none"
+\item{legend.position}{Position of legend, default "right" (set to "none"
 for clean plot).}
 
-\item{col_pal}{Colour palette to use.}
+\item{cont_col_pal}{Continuous colour palette to use, default "RdYlBu".}
+
+\item{discrete_col_pal}{Discrete colour palette to use, default is Hue palette
+(hue_pal) from 'scales' package.}
 
 \item{dims_plot}{Dimensions to plot. For UMAP and TSNE this is set to c(1,2).}
 

@@ -4,7 +4,14 @@
 \alias{heatmap_plot}
 \title{Tailored heatmap plot}
 \usage{
-heatmap_plot(seu, markers, topn = 10, assay = "RNA", filename = NULL, ...)
+heatmap_plot(
+  seu,
+  markers,
+  topn_genes = 10,
+  assay = "RNA",
+  filename = NULL,
+  ...
+)
 }
 \arguments{
 \item{seu}{Seurat object (required).}
@@ -12,11 +19,12 @@ heatmap_plot(seu, markers, topn = 10, assay = "RNA", filename = NULL, ...)
 \item{markers}{Data frame with marker genes for each cluster.
 Expects a format as the output of Seurat's FindAllMarkers.}
 
-\item{topn}{Top N marker genes to plot for each cluster.}
+\item{topn_genes}{Top N marker genes to plot for each cluster.}
 
 \item{assay}{Assay to extract gene expression data from (default 'RNA').}
 
-\item{filename}{Filename for saving the heatmap plot. If null, the}
+\item{filename}{Filename for saving the heatmap plot. If null, the heatmap
+is just plotted in device.}
 
 \item{...}{Additional parameters passed to 'pheatmap' function}
 }
@@ -24,8 +32,11 @@ Expects a format as the output of Seurat's FindAllMarkers.}
 A ggplot2 object.
 }
 \description{
-Hetmap plot showing marker genes after the clustering process.
-Expression levels are taken from the \code{scaled.data} slot.
+Heatmap plot showing marker genes after the clustering process.
+Expression levels are taken from the \code{scaled.data} slot. Current
+implementation is 'hard' coded: that is for heatmap column annotation,
+it assumes the Seurat object contains 'condition', 'sample' and
+'seurat_clusters' as columns in meta.data slot.
 }
 \author{
 C.A.Kapourani \email{C.A.Kapourani@ed.ac.uk}

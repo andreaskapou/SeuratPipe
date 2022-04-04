@@ -3,16 +3,9 @@
 \docType{package}
 \name{SeuratPipe}
 \alias{SeuratPipe}
-\alias{.datatable.aware}
 \title{\code{SeuratPipe}: Streamlining Seurat analysis}
-\format{
-An object of class \code{logical} of length 1.
-}
-\usage{
-.datatable.aware
-}
 \value{
-seurat_pipeline main package documentation.
+SeuratPipe main package documentation.
 }
 \description{
 SeuratPipe contains common analysis, processing and
@@ -22,4 +15,3 @@ analysis using the Seurat package.
 \author{
 C.A.Kapourani \email{kapouranis.andreas@gmail.com}
 }
-\keyword{datasets}
