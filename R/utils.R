@@ -620,7 +620,11 @@ install_scrublet <- function(envname = "r-reticulate", method = "auto",
   } else if (feat_len == 0){
     feat_len <- 2
   }
-  if (feat_len <= 3) {
+  if (feat_len == 1) {
+    width = 8.5
+    height = 6
+    ncols = feat_len
+  } else if (feat_len <= 3) {
     width = 7 * feat_len
     height = 6
     ncols = feat_len
