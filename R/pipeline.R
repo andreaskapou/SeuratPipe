@@ -19,14 +19,15 @@
 #' expressed.
 #' @param mito_thresh Filter cells with more than 'mito_thresh'% counts.
 #' @param meta_colnames Sample metadata column names to store in Seurat metadata.
-#' @param results_dir Output directory for storing analysis results.
+#' @param out_dir Output directory for storing analysis results.
 #' @param qc_to_plot Vector of features in metadata to plot.
 #' @param use_scrublet Logical, wether to use Scrublet for doublet detection.
 #' @param use_soupx Logical, wether to use SoupX for ambient RNA removal.
-#' @param tenx_dir Name of 10x directory that count matrices are stored.
-#' Default 'outs' for whole-cell data and 'premrna_outs' for single-nuclei.
-#' If NULL, it checks the 'technology' column in sample metadata to infer the
-#' sequencing technology.
+#' @param tenx_dir Name of 10x base directory, e.g. with outputs after running
+#' cellranger. Default 'premrna_outs', i.e. assumes single-nuclei RNA-seq.
+#' @param tenx_counts_dir Name of 10x directory where count matrices are stored.
+#' Default 'filtered_feature_bc_matrix'
+#' @param obj_filename Filename of the stored Seurat object, default 'seu_qc'.
 #' @param expected_doublet_rate The expected fraction of transcriptomes that
 #' are doublets, typically 0.05 - 0.1
 #' @param force_reanalysis Logical, if intermediate file 'seu_preqc.rds' (with
@@ -36,7 +37,6 @@
 #' @param min.cells Include features/genes detected in at least this many cells.
 #' @param min.features Include cells where at least this many features/genes
 #' are detected.
-#' @param assay Assay to perform analysis, default "RNA".
 #' @param ... Additional named parameters passed to Seurat, Scrublet or SoupX.
 #'
 #' @return List of Seurat objects as the length of the number of samples in
@@ -46,52 +46,47 @@
 #' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
 #'
 #' @export
-run_qc_pipeline <- function(data_dir, sample_meta, sample_meta_filename = NULL,
-                        nfeat_thresh = 500, mito_thresh = 5,
-                        meta_colnames = c("donor", "condition", "pass_qc"),
-                        results_dir = NULL,
-                        qc_to_plot = c("nFeature_RNA", "nCount_RNA", "percent.mito"),
-                        use_scrublet = TRUE, use_soupx = FALSE,
-                        tenx_dir = "/premrna_outs/",
-                        expected_doublet_rate = 0.06,
-                        force_reanalysis = TRUE,
-                        min.cells = 10, min.features = 200,
-                        assay = "RNA", ...) {
+run_qc_pipeline <- function(
+    data_dir, sample_meta, sample_meta_filename = NULL, nfeat_thresh = 500,
+    mito_thresh = 5, meta_colnames = c("donor", "condition", "pass_qc"),
+    out_dir = NULL, qc_to_plot = c("nFeature_RNA", "nCount_RNA", "percent.mito"),
+    use_scrublet = TRUE, use_soupx = FALSE, tenx_dir = "premrna_outs",
+    tenx_counts_dir = "filtered_feature_bc_matrix", obj_filename = "seu_qc",
+    expected_doublet_rate = 0.06, force_reanalysis = TRUE, min.cells = 10,
+    min.features = 100, ...) {
 
   # Store all parameters for reproducibility
-  f  <- rlang::fn_fmls()
-  mc <- as.list(match.call())[-1]
-  opts <- append(mc, f[!names(f) %in% names(mc)])[names(f)]
+  opts <- c(as.list(environment()), list(...))
+  # f  <- rlang::fn_fmls()
+  # mc <- as.list(match.call())[-1]
+  # opts <- append(mc, f[!names(f) %in% names(mc)])[names(f)]
+
+  # SO CMD passes without NOTES
+  x = y = dens = plot_dir = seu <- NULL
 
   # Check and return if metadata object or filename is given as input
   opts$sample_meta <- .get_metadata(sample_meta = sample_meta,
                                     sample_meta_filename = sample_meta_filename)
-
-  # SO CMD passes without NOTES
-  x = y = dens = plot_dir = seu <- NULL
-  # Create plot directoy if it doesn't exist
-  if (!is.null(results_dir)) {
-    plot_dir <- paste0(results_dir, "/plots/")
+  # Create plot directory if it doesn't exist
+  if (!is.null(out_dir)) {
+    plot_dir <- paste0(out_dir, "/plots/")
     if (!dir.exists(plot_dir)) { dir.create(plot_dir, recursive = TRUE) }
   }
 
-  if (!file.exists(paste0(results_dir, "/", "seu_preqc.rds")) ||
+  if (!file.exists(paste0(out_dir, "/", "seu_preqc.rds")) ||
       force_reanalysis == TRUE) {
     # Create Seurat object
-    seu <- create_seurat_object(data_dir = data_dir, sample_meta = sample_meta,
-                                sample_meta_filename = sample_meta_filename,
-                                meta_colnames = meta_colnames,
-                                plot_dir = plot_dir, use_scrublet = use_scrublet,
-                                use_soupx = use_soupx, tenx_dir = tenx_dir,
-                                expected_doublet_rate = expected_doublet_rate,
-                                min.cells = min.cells,
-                                min.features = min.features, assay = assay, ...)
+    seu <- create_seurat_object(
+      data_dir = data_dir, sample_meta = opts$sample_meta, sample_meta_filename = NULL,
+      meta_colnames = meta_colnames, plot_dir = plot_dir, use_scrublet = use_scrublet,
+      use_soupx = use_soupx, tenx_dir = tenx_dir, expected_doublet_rate = expected_doublet_rate,
+      min.cells = min.cells, min.features = min.features, ...)
     # Save pre-QC Seurat object and opts
-    saveRDS(object = list(seu = seu, opts = opts,
-                          file = paste0(results_dir, "/", "seu_preqc.rds")))
+    saveRDS(object = list(seu = seu, opts = opts),
+                          file = paste0(out_dir, "/", "seu_preqc.rds"))
 
   } else {
-    obj <- readRDS(file = paste0(results_dir, "/", "seu_preqc.rds"))
+    obj <- readRDS(file = paste0(out_dir, "/", "seu_preqc.rds"))
     seu <- obj$seu
     # Keep only samples that are present in current metadata file
     if (is.list(seu)) { seu <- seu[opts$sample_meta$sample] }
@@ -102,10 +97,12 @@ run_qc_pipeline <- function(data_dir, sample_meta, sample_meta_filename = NULL,
   # In case we have one sample, we make the Seurat object a list
   if (!is.list(seu)) {
     # Extract sample name
-    sample <- sample_meta$sample
+    sample <- opts$sample_meta$sample
     seu <- list(seu)
     names(seu) <- sample
   }
+  # Instantiate default assay by looking at DefaultAssay of first sample
+  assay <- Seurat::DefaultAssay(object = seu[[1]])
 
   # Plot QC prior to filtering
   if (!is.null(plot_dir) && !is.null(qc_to_plot)) {
@@ -155,15 +152,14 @@ run_qc_pipeline <- function(data_dir, sample_meta, sample_meta_filename = NULL,
         prop_filt_mito = round(
           sum(tmp$percent.mito >= mito_thresh &
                 tmp[[paste0("nFeature_", assay)]] > nfeat_thresh) / NROW(tmp), 2)
-      )
-      )
+      ))
     }
     write.csv(preqc_summary, file = paste0(plot_dir, "preqc_sample_summary.csv"))
   }
 
   # Perform actual QC filtering
   seu <- filter_seurat_object(seu = seu, nfeat_thresh = nfeat_thresh,
-                              mito_thresh = mito_thresh, assay = assay)
+                              mito_thresh = mito_thresh)
 
   if (!is.null(plot_dir)) {
     # Plot QC after filtering
@@ -190,19 +186,19 @@ run_qc_pipeline <- function(data_dir, sample_meta, sample_meta_filename = NULL,
         median_nGenes = round(median(tmp[[paste0("nFeature_", assay)]])),
         median_nCounts = round(median(tmp[[paste0("nCount_", assay)]])),
         median_mito = round(median(tmp$percent.mito), 2)
-      )
-      )
+      ))
     }
     write.csv(qc_summary, file = paste0(plot_dir, "qc_sample_summary.csv"))
   }
 
-  # If we have a single sample, remove it from a list
+  # If we have single sample, remove it from list so we return Seurat object
   if (length(seu) == 1) { seu <- seu[[1]] }
 
   # Save Seurat object and opts
-  if (!is.null(results_dir)) {
-    saveRDS(object = list(seu = seu, opts = opts,
-                          file = paste0(results_dir, "/", "seu_qc.rds")))
+  if (!is.null(out_dir)) {
+    if (obj_filename == "") { obj_filename <- "seu_qc.rds" }
+    saveRDS(object = list(seu = seu, opts = opts),
+                          file = paste0(out_dir,"/",obj_filename,".rds"))
   }
   # Return QCed Seurat object
   return(seu)
@@ -211,19 +207,15 @@ run_qc_pipeline <- function(data_dir, sample_meta, sample_meta_filename = NULL,
 
 #' @rdname run_harmony_pipeline
 #'
-#' @title (Internal) pipeline for Harmony integration
+#' @title Pipeline for Harmony integration
 #'
-#' @description This is an internal pipeline which wraps all analysis steps in
-#' a function. This is meant to be used as a guide and in each analysis, users
-#' should write their own function (possibly adapting the code of this
-#' function). This is the reason this function is not explicitly 'exported',
-#' i.e. even if you load the library, you cannot directly call the function,
-#' but you should call SeuratPipe:::run_harmony_pipeline. Elements in 'io'
-#' and 'opts' are not checked, so function might return errors if not all
-#' required values are not defined.
+#' @description This function implements all the analysis steps for perfoming
+#' data integration using Harmony. These include: 1. data processing, e.g.
+#' normalisation, PCA. 2. Running Harmony 3. Perform UMAP and clustering after
+#' data integration. Analysis outputs are stored in corresponding directories.
 #'
 #' @param seu_obj Seurat object or list of Seurat objects(required).
-#' @param results_dir Output directory for storing analysis results.
+#' @param out_dir Output directory for storing analysis results.
 #' @param npcs Number of principal components, can be a vector e.g. c(50, 70).
 #' @param ndims Top Harmony dimensions to perform UMAP and clustering,
 #' can be a vector e.g. c(50, 70).
@@ -246,6 +238,8 @@ run_qc_pipeline <- function(data_dir, sample_meta, sample_meta_filename = NULL,
 #' @param pcs_to_remove Which PCs should be removed prior to running Harmony.
 #' Possibly due to being correlated with technical/batch effects. If NULL,
 #' all PCs are used.
+#' @param obj_filename Filename of the stored Seurat object, default
+#' 'seu_harmony'. Number of PCs will be added to the filename automatically.
 #' @param force_reanalysis Logical, if intermediate object 'seu_harmony_<>.rds'
 #' exists and force_reanalysis = FALSE, read object instead of re-running
 #' Harmony integration. Added for computing time efficiency purposes.
@@ -259,37 +253,40 @@ run_qc_pipeline <- function(data_dir, sample_meta, sample_meta_filename = NULL,
 #' be used as inpute to PCA.
 #' @param max.iter.harmony Maximum number of iterations for Harmony integration.
 #' @param seed Set a random seed, for reproducibility.
-#' @param assay Assay to perform analysis, default "RNA".
 #' @param label Whether to label the clusters in 'plot_reduction' space.
-#' @param label.size Sets size of labels.d
+#' @param label.size Sets size of labels.
 #' @param pt.size Adjust point size for plotting.
 #' @param fig.res Figure resolution in ppi (see 'png' function).
 #' @param ... Additional named parameters passed to Seurat's or Harmony
 #' functions.
 #'
-#' @return None, runs Harmony analysis pipeline and stores results on the disk.
+#' @return An updated Seurat object. Note that if multiple `npcs` and `ndims`
+#' are given, only the last setting will be returned. All analysis results are
+#' also stored on disk.
 #'
 #' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
 #'
-run_harmony_pipeline <- function(seu_obj, results_dir, npcs = c(50),
+#' @export
+run_harmony_pipeline <- function(seu_obj, out_dir, npcs = c(50),
                                  ndims = c(30), res = seq(0.1, 0.3, by = 0.1),
                                  modules_group = NULL,
                                  metadata_to_plot = c("sample", "condition"),
                                  qc_to_plot = NULL, logfc.threshold = 0.5,
                                  min.pct = 0.25, only.pos = TRUE, topn_genes = 10,
-                                 pcs_to_remove = NULL, force_reanalysis = TRUE,
+                                 pcs_to_remove = NULL, obj_filename = "seu_harmony",
+                                 force_reanalysis = TRUE,
                                  plot_cluster_markers = TRUE, max.cutoff = "q98",
                                  n_hvgs = 3000, max.iter.harmony = 50, seed = 1,
-                                 assay = "RNA", label = TRUE, label.size = 8,
-                                 pt.size = 1.4,  fig.res = 200, ...) {
+                                 label = TRUE, label.size = 8,
+                                 pt.size = 1.4, fig.res = 200, ...) {
   # Store all parameters for reproducibility
-  f  <- rlang::fn_fmls()
-  mc <- as.list(match.call())[-1]
-  opts <- append(mc, f[!names(f) %in% names(mc)])[names(f)]
-
-  pcs_remove_name <- ""
+  opts <- c(as.list(environment()), list(...))
   # So CMD passes without NOTES
   seu <- NULL
+
+  if (obj_filename == "") { obj_filename <- "seu_harmony.rds" }
+
+  pcs_remove_name <- ""
   # Iterate over the number of principal components
   for (npc in npcs) {
     # Define number of dimensions to use
@@ -299,27 +296,26 @@ run_harmony_pipeline <- function(seu_obj, results_dir, npcs = c(50),
       dims.use <- dims.use[-pcs_to_remove]
     }
 
-    obj_name <- paste0("harmony_npcs", npc, pcs_remove_name)
-    out_dir <- paste0(results_dir, "/", obj_name, "/")
+    obj_name <- paste0("_npcs", npc, pcs_remove_name)
+    out_dir <- paste0(out_dir, "/", obj_filename, obj_name, "/")
     if (!dir.exists(out_dir)) {dir.create(out_dir, recursive = TRUE)}
 
     qc_dir <- paste0(out_dir, "/qc/")
     if (!dir.exists(qc_dir)) {dir.create(qc_dir, recursive = TRUE)}
 
     # Run Harmony integration analysis
-    if (!file.exists(paste0(results_dir, "/seu_", obj_name, ".rds")) ||
+    if (!file.exists(paste0(out_dir, "/", obj_filename, obj_name, ".rds")) ||
         force_reanalysis == TRUE) {
       seu <- harmony_analysis(seu = seu_obj, npcs = npc, dims.use = dims.use,
                               plot_dir = qc_dir, n_hvgs = n_hvgs,
                               max.iter.harmony = max.iter.harmony,
-                              assay = assay, seed = seed,
-                              fig.res = fig.res, ...)
+                              seed = seed, fig.res = fig.res, ...)
       opts$npcs <- npc
       # Store final object prior to exploring the data
       saveRDS(list(seu = seu, opts = opts),
-              file = paste0(results_dir, "seu_", obj_name, ".rds"))
+              file = paste0(out_dir, "/", obj_filename, obj_name, ".rds"))
     } else{
-      obj <- readRDS(paste0(results_dir, "seu_", obj_name, ".rds"))
+      obj <- readRDS(paste0(out_dir, "/", obj_filename, obj_name, ".rds"))
       seu <- obj$seu
       # Number of principal components
       opts$npcs <- npc
@@ -328,9 +324,8 @@ run_harmony_pipeline <- function(seu_obj, results_dir, npcs = c(50),
     }
 
     # Explore the data
-    tmp <- lapply(X = ndims, FUN = function(ndim) {
-      NCOL(seu@reductions[["harmony"]])
-      if (ndim > NCOL(seu@reductions[["harmony"]])) {
+    for (ndim in ndims) {
+      if (ndim > length(dims.use)) {
         message("Skipping analysis: ndim larger than harmony dimensions.")
         return(0)
       }
@@ -341,6 +336,10 @@ run_harmony_pipeline <- function(seu_obj, results_dir, npcs = c(50),
 
       # Run UMAP
       seu <- run_umap(seu, dims = 1:ndim, reduction="harmony", seed=seed, ...)
+      # Store UMAP embedding for reproducibility
+      write.csv(seu@reductions[["umap"]]@cell.embeddings,
+                file = paste0(dim_dir, "umap_embedding.csv"))
+
       # QC plots
       dimred_qc_plots(seu = seu, reductions = c("umap", "pca", "harmony"),
                       metadata_to_plot = metadata_to_plot,
@@ -371,11 +370,153 @@ run_harmony_pipeline <- function(seu_obj, results_dir, npcs = c(50),
                               cluster_reduction = "harmony",
                               plot_reduction = "umap", max.cutoff = max.cutoff,
                               force_reanalysis = force_reanalysis,
-                              assay = assay, seed = seed, ctrl = 100,
+                              seed = seed, ctrl = 100,
                               label = label, label.size = label.size,
                               legend.position = "right", pt.size = pt.size,
                               cont_col_pal = NULL, discrete_col_pal = NULL,
                               fig.res = fig.res, ...)
-    })
+    }
   }
+  return(seu)
+}
+
+
+#' @rdname run_cluster_pipeline
+#'
+#' @title Pipeline for clustering analysis
+#'
+#' @description This function wraps the most common Seurat analysis pipeline
+#' for cell type identification. These include: 1. data processing, e.g.
+#' normalisation. 2. Running PCA. 3. Perform UMAP and clustering. Analysis
+#' outputs are stored in corresponding directories. Note this pipeline
+#' requires a single Seurat object/sample.
+#'
+#' @param seu_obj Seurat object (required).
+#' @param ndims Top PCA dimensions to perform UMAP and clustering,
+#' can be a vector e.g. c(50, 70).
+#' @param pcs_to_remove Which PCs should be removed prior to performing clustering.
+#' Possibly due to being correlated with technical/batch effects. If NULL,
+#' all PCs are used.
+#' @param ... Additional named parameters passed to Seurat functions.
+#'
+#' @inheritParams run_harmony_pipeline
+#'
+#' @return An updated Seurat object. Note that if multiple `npcs` and `ndims`
+#' are given, only the last setting will be returned. All analysis results are
+#' also stored on disk.
+#'
+#' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
+#'
+#' @export
+run_cluster_pipeline <- function(seu_obj, out_dir, npcs = c(50),
+                                 ndims = c(30), res = seq(0.1, 0.3, by = 0.1),
+                                 modules_group = NULL,
+                                 metadata_to_plot = c("sample", "condition"),
+                                 qc_to_plot = NULL, logfc.threshold = 0.5,
+                                 min.pct = 0.25, only.pos = TRUE, topn_genes = 10,
+                                 pcs_to_remove = NULL, plot_cluster_markers = TRUE,
+                                 max.cutoff = "q98", n_hvgs = 3000, seed = 1,
+                                 label = TRUE, label.size = 8,
+                                 pt.size = 1.4, fig.res = 200, ...) {
+  # Store all parameters for reproducibility
+  opts <- c(as.list(environment()), list(...))
+
+  assertthat::assert_that(methods::is(seu_obj, "Seurat"))
+
+  # So CMD passes without NOTES
+  seu <- NULL
+
+  pcs_remove_name <- ""
+  # Iterate over the number of principal components
+  for (npc in npcs) {
+    # Define number of dimensions to use
+    dims.use <- seq(from = 1, to = npc, by = 1)
+    if (!is.null(pcs_to_remove)) {
+      pcs_remove_name <- "_manual"
+      dims.use <- dims.use[-pcs_to_remove]
+    }
+    obj_name <- paste0("npcs", npc, pcs_remove_name)
+    out_dir <- paste0(out_dir, "/", obj_name, "/")
+    if (!dir.exists(out_dir)) {dir.create(out_dir, recursive = TRUE)}
+
+    qc_dir <- paste0(out_dir, "/qc/")
+    if (!dir.exists(qc_dir)) {dir.create(qc_dir, recursive = TRUE)}
+
+    # Process and run PCA
+    seu <- lognormalize_and_pca(seu = seu_obj, npcs = npc, n_hvgs=n_hvgs, ...)
+    opts$npcs <- npc
+
+    # Plot HVGs and PCs information
+    png(paste0(qc_dir, "hvgs.png"), width = 10, height = 5,
+        res = fig.res, units = "in")
+      print(Seurat::LabelPoints(
+        plot = Seurat::VariableFeaturePlot(seu),
+        points = head(Seurat::VariableFeatures(seu), 10), repel = TRUE))
+    dev.off()
+
+    png(paste0(qc_dir, "pca_heatmap.png"), width = 15, height = 15,
+        res = fig.res, units = "in")
+    Seurat::DimHeatmap(seu, dims = 1:9, nfeatures = 30, cells = 300,
+                       reduction = "pca", balanced = TRUE)
+    dev.off()
+    png(paste0(qc_dir, "pca_elbow.png"), width = 15, height = 15,
+        res = fig.res, units = "in")
+    print(Seurat::ElbowPlot(seu, ndims = npcs, reduction = "pca"))
+    dev.off()
+
+    # Explore the data
+    for (ndim in ndims) {
+      if (ndim > length(dims.use)) {
+        message("Skipping analysis: ndim larger than pca dimensions.")
+        return(0)
+      }
+      # Create directories
+      dim_dir <- paste0(out_dir, "/dim", ndim, "/")
+      qc_dir <- paste0(dim_dir, "/qc/")
+      if (!dir.exists(qc_dir)) {dir.create(qc_dir, recursive = TRUE)}
+
+      # Run UMAP
+      seu <- run_umap(seu, dims = dims.use[1:ndim], reduction="pca", seed=seed, ...)
+      # Store UMAP embedding for reproducibility
+      write.csv(seu@reductions[["umap"]]@cell.embeddings,
+                file = paste0(dim_dir, "umap_embedding.csv"))
+
+      # QC plots
+      dimred_qc_plots(seu = seu, reductions = c("umap", "pca"),
+                      metadata_to_plot = metadata_to_plot,
+                      qc_to_plot = qc_to_plot, plot_dir = qc_dir,
+                      max.cutoff = max.cutoff, legend.position = "right",
+                      dims_plot = c(1,2), pt.size = pt.size,
+                      cont_col_pal = NULL, discrete_col_pal = NULL,
+                      fig.res = fig.res, ...)
+
+      # Compute module scores for modules of interest
+      module_dir <- paste0(dim_dir, "/modules/")
+      if (!dir.exists(module_dir)) {dir.create(module_dir, recursive = TRUE)}
+      seu <- module_score_analysis(seu = seu, modules_group = modules_group,
+                                   plot_dir = module_dir, reduction = "umap",
+                                   max.cutoff = max.cutoff,
+                                   legend.position = "right", col_pal = NULL,
+                                   dims_plot = c(1,2), seed = seed, ctrl = 100,
+                                   fig.res = fig.res, ...)
+      # Different clustering resolutions and DGE
+      cl_dir <- paste0(dim_dir, "/clusters/")
+      if (!dir.exists(cl_dir)) {dir.create(cl_dir, recursive = TRUE)}
+      seu <- cluster_analysis(seu = seu, dims = dims.use[1:ndim], res = res,
+                              logfc.threshold = logfc.threshold,
+                              min.pct = min.pct, only.pos = only.pos,
+                              topn_genes = topn_genes, plot_dir = cl_dir,
+                              plot_cluster_markers = plot_cluster_markers,
+                              modules_group = modules_group,
+                              cluster_reduction = "pca",
+                              plot_reduction = "umap", max.cutoff = max.cutoff,
+                              force_reanalysis = TRUE,
+                              seed = seed, ctrl = 100,
+                              label = label, label.size = label.size,
+                              legend.position = "right", pt.size = pt.size,
+                              cont_col_pal = NULL, discrete_col_pal = NULL,
+                              fig.res = fig.res, ...)
+    }
+  }
+  return(seu)
 }

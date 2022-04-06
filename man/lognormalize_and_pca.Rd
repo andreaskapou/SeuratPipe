@@ -6,16 +6,14 @@
 \alias{lognormalize_and_pca.Seurat}
 \title{Log normalisation and PCA computation}
 \usage{
-lognormalize_and_pca(seu, ...)
+lognormalize_and_pca(seu, npcs = NULL, n_hvgs = 3000, ...)
 
-\method{lognormalize_and_pca}{list}(seu, npcs = NULL, n_hvgs = 3000, assay = "RNA", ...)
+\method{lognormalize_and_pca}{list}(seu, npcs = NULL, n_hvgs = 3000, ...)
 
-\method{lognormalize_and_pca}{Seurat}(seu, npcs = NULL, n_hvgs = 3000, assay = "RNA", ...)
+\method{lognormalize_and_pca}{Seurat}(seu, npcs = NULL, n_hvgs = 3000, ...)
 }
 \arguments{
 \item{seu}{Seurat object or list of Seurat objects(required).}
-
-\item{...}{Additional named parameters passed to Seurat functions.}
 
 \item{npcs}{Number of Principal Components (PCs) to compute.
 If NULL, PCA analysis is skipped.}
@@ -23,7 +21,7 @@ If NULL, PCA analysis is skipped.}
 \item{n_hvgs}{Number of highly variable genes (HVGs) to compute. Only HVGs
 will be used as input to PCA.}
 
-\item{assay}{Assay to perform analysis, default "RNA".}
+\item{...}{Additional named parameters passed to Seurat functions.}
 }
 \value{
 List of processed Seurat objects. If a single sample, returns

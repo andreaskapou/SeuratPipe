@@ -11,16 +11,17 @@ run_qc_pipeline(
   nfeat_thresh = 500,
   mito_thresh = 5,
   meta_colnames = c("donor", "condition", "pass_qc"),
-  results_dir = NULL,
+  out_dir = NULL,
   qc_to_plot = c("nFeature_RNA", "nCount_RNA", "percent.mito"),
   use_scrublet = TRUE,
   use_soupx = FALSE,
-  tenx_dir = "/premrna_outs/",
+  tenx_dir = "premrna_outs",
+  tenx_counts_dir = "filtered_feature_bc_matrix",
+  obj_filename = "seu_qc",
   expected_doublet_rate = 0.06,
   force_reanalysis = TRUE,
   min.cells = 10,
-  min.features = 200,
-  assay = "RNA",
+  min.features = 100,
   ...
 )
 }
@@ -41,7 +42,7 @@ expressed.}
 
 \item{meta_colnames}{Sample metadata column names to store in Seurat metadata.}
 
-\item{results_dir}{Output directory for storing analysis results.}
+\item{out_dir}{Output directory for storing analysis results.}
 
 \item{qc_to_plot}{Vector of features in metadata to plot.}
 
@@ -49,10 +50,13 @@ expressed.}
 
 \item{use_soupx}{Logical, wether to use SoupX for ambient RNA removal.}
 
-\item{tenx_dir}{Name of 10x directory that count matrices are stored.
-Default 'outs' for whole-cell data and 'premrna_outs' for single-nuclei.
-If NULL, it checks the 'technology' column in sample metadata to infer the
-sequencing technology.}
+\item{tenx_dir}{Name of 10x base directory, e.g. with outputs after running
+cellranger. Default 'premrna_outs', i.e. assumes single-nuclei RNA-seq.}
+
+\item{tenx_counts_dir}{Name of 10x directory where count matrices are stored.
+Default 'filtered_feature_bc_matrix'}
+
+\item{obj_filename}{Filename of the stored Seurat object, default 'seu_qc'.}
 
 \item{expected_doublet_rate}{The expected fraction of transcriptomes that
 are doublets, typically 0.05 - 0.1}
@@ -66,8 +70,6 @@ purposes.}
 
 \item{min.features}{Include cells where at least this many features/genes
 are detected.}
-
-\item{assay}{Assay to perform analysis, default "RNA".}
 
 \item{...}{Additional named parameters passed to Seurat, Scrublet or SoupX.}
 }

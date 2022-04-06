@@ -9,7 +9,7 @@ dim_plot(
   reduction = "umap",
   group.by = "active.ident",
   split.by = NULL,
-  ncol = 1,
+  ncol = NULL,
   legend.position = "right",
   col_pal = NULL,
   dims_plot = c(1, 2),

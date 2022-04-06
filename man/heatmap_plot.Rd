@@ -4,14 +4,7 @@
 \alias{heatmap_plot}
 \title{Tailored heatmap plot}
 \usage{
-heatmap_plot(
-  seu,
-  markers,
-  topn_genes = 10,
-  assay = "RNA",
-  filename = NULL,
-  ...
-)
+heatmap_plot(seu, markers, topn_genes = 10, filename = NULL, ...)
 }
 \arguments{
 \item{seu}{Seurat object (required).}
@@ -20,8 +13,6 @@ heatmap_plot(
 Expects a format as the output of Seurat's FindAllMarkers.}
 
 \item{topn_genes}{Top N marker genes to plot for each cluster.}
-
-\item{assay}{Assay to extract gene expression data from (default 'RNA').}
 
 \item{filename}{Filename for saving the heatmap plot. If null, the heatmap
 is just plotted in device.}

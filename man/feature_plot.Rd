@@ -9,7 +9,7 @@ feature_plot(
   reduction = "umap",
   features = "nFeature_RNA",
   max.cutoff = "q98",
-  ncol = 1,
+  ncol = NULL,
   legend.position = "right",
   col_pal = NULL,
   dims_plot = c(1, 2),
@@ -29,7 +29,7 @@ feature_plot(
 may specify quantile in the form of 'q##' where '##' is the quantile
 (eg, 'q1', 'q10').}
 
-\item{ncol}{Number of columns for display when combining plots.}
+\item{ncol}{Number of columns for display when having multiple features.}
 
 \item{legend.position}{Position of legend, default "right" (set to "none"
 for clean plot).}

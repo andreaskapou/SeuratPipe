@@ -6,23 +6,21 @@
 \alias{filter_seurat_object.Seurat}
 \title{Filter Seurat object based on QC metrics.}
 \usage{
-filter_seurat_object(seu, ...)
+filter_seurat_object(seu, nfeat_thresh, mito_thresh, ...)
 
-\method{filter_seurat_object}{list}(seu, nfeat_thresh, mito_thresh, assay = "RNA", ...)
+\method{filter_seurat_object}{list}(seu, nfeat_thresh, mito_thresh, ...)
 
-\method{filter_seurat_object}{Seurat}(seu, nfeat_thresh, mito_thresh, assay = "RNA", ...)
+\method{filter_seurat_object}{Seurat}(seu, nfeat_thresh, mito_thresh, ...)
 }
 \arguments{
 \item{seu}{Seurat object or list of Seurat objects(required).}
-
-\item{...}{Additional parameters.}
 
 \item{nfeat_thresh}{Filter cells that have less than 'nfeat_thresh' counts
 expressed.}
 
 \item{mito_thresh}{Filter cells with more than 'mito_thresh'\% counts.}
 
-\item{assay}{Assay to perform analysis, default "RNA".}
+\item{...}{Additional parameters.}
 }
 \value{
 List of filtered Seurat objects. If a single sample, returns

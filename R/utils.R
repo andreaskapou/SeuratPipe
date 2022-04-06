@@ -15,13 +15,13 @@
 #' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
 #'
 #' @export
-create_seurat_object <- function(data_dir, sample_meta, sample_meta_filename = NULL,
+create_seurat_object <- function(data_dir, sample_meta = NULL, sample_meta_filename = NULL,
                                  meta_colnames = c("donor", "condition", "pass_qc"),
                                  plot_dir = NULL, use_scrublet = TRUE,
-                                 use_soupx = FALSE, tenx_dir = "/premrna_outs/",
+                                 use_soupx = FALSE, tenx_dir = "premrna_outs",
+                                 tenx_counts_dir = "filtered_feature_bc_matrix",
                                  expected_doublet_rate = 0.06,
-                                 min.cells = 10, min.features = 200,
-                                 assay = "RNA", ...) {
+                                 min.cells = 10, min.features = 200, ...) {
   pass_qc = sample <- NULL
   # Check if metadata object or filename is given as input
   sample_meta <- .get_metadata(sample_meta = sample_meta,
@@ -53,11 +53,10 @@ create_seurat_object <- function(data_dir, sample_meta, sample_meta_filename = N
     ##
     # Load data and create intermediate Seurat object
     tmp <-  Seurat::Read10X(
-      data.dir = paste0(data_dir, sample_meta$path[i], tenx_dir,
-                        "/filtered_feature_bc_matrix/"), ...)
+      data.dir = paste0(data_dir, sample_meta$path[i], "/", tenx_dir, "/",
+                        tenx_counts_dir), ...)
     tmp <- Seurat::CreateSeuratObject(counts = tmp, project = s,
                                       min.cells = 0, min.features = 0, ...)
-
     if (use_soupx) {
       # Run SoupX for ambient RNA correction
       soup <- SoupX::load10X(dataDir = paste0(data_dir, sample_meta$path[i],
@@ -77,7 +76,7 @@ create_seurat_object <- function(data_dir, sample_meta, sample_meta_filename = N
       gex <- SoupX::adjustCounts(sc = soup, ...)
     } else {
       # No ambient RNA correction, reduction counts matrix
-      gex <- Seurat::GetAssayData(object = tmp, slot = "counts", assay = assay)
+      gex <- Seurat::GetAssayData(object = tmp, slot = "counts")
     }
 
     ##
@@ -100,13 +99,11 @@ create_seurat_object <- function(data_dir, sample_meta, sample_meta_filename = N
     }
 
     if (use_scrublet) {
-      ##
       # Run scrublet to quantify doublets
-      scrub <- scrub$Scrublet(reticulate::r_to_py(
-        Seurat::GetAssayData(object = seu[[s]], slot = "counts",
-                             assay = assay))$T$tocsc(),
+      scr <- scrub$Scrublet(reticulate::r_to_py(
+        Seurat::GetAssayData(object = seu[[s]], slot = "counts"))$T$tocsc(),
         expected_doublet_rate = expected_doublet_rate)
-      doublet_results <- reticulate::py_to_r(scrub$scrub_doublets(...))
+      doublet_results <- reticulate::py_to_r(scr$scrub_doublets(...))
       doublet_score <- doublet_results[[1]]
       names(doublet_score) <- colnames(seu[[s]])
       doublet_prediction <- doublet_results[[2]]
@@ -149,12 +146,12 @@ NULL
 #' @rdname filter_seurat_object
 #'
 #' @export
-filter_seurat_object <- function(seu, ...){
+filter_seurat_object <- function(seu, nfeat_thresh, mito_thresh, ...){
   UseMethod("filter_seurat_object")
 }
 
 # Default function for the generic function 'filter_seurat_object'
-filter_seurat_object.default <- function(seu, ...){
+filter_seurat_object.default <- function(seu, nfeat_thresh, mito_thresh, ...){
   stop("Object 'seu' should be either list or Seurat object!")
 }
 
@@ -162,27 +159,21 @@ filter_seurat_object.default <- function(seu, ...){
 #' @rdname filter_seurat_object
 #'
 #' @export
-filter_seurat_object.list <- function(seu, nfeat_thresh, mito_thresh,
-                                      assay = "RNA", ...) {
+filter_seurat_object.list <- function(seu, nfeat_thresh, mito_thresh, ...) {
   # Perform actual QC filtering
   for (s in names(seu)) {
-    seu[[s]] <- filter_seurat_object.Seurat(seu = seu,
+    seu[[s]] <- filter_seurat_object.Seurat(seu = seu[[s]],
                                             nfeat_thresh = nfeat_thresh,
-                                            mito_thresh = mito_thresh,
-                                            assay = "RNA", ...)
-    # Identify cells that pass QC
-    cells <- seu[[s]]@meta.data[paste0("nFeature_", assay)] > nfeat_thresh &
-      seu[[s]]@meta.data["percent.mito"] < mito_thresh
-    cells <- rownames(cells[which(cells == TRUE), , drop = FALSE])
-    seu[[s]] <- subset(seu[[s]], cells = cells)
+                                            mito_thresh = mito_thresh, ...)
   }
+  return(seu)
 }
 
 #' @rdname filter_seurat_object
 #'
 #' @export
-filter_seurat_object.Seurat <- function(seu, nfeat_thresh, mito_thresh,
-                                        assay = "RNA", ...) {
+filter_seurat_object.Seurat <- function(seu, nfeat_thresh, mito_thresh, ...) {
+  assay <- Seurat::DefaultAssay(object = seu)
   # Perform actual QC filtering
   cells <- seu@meta.data[paste0("nFeature_", assay)] > nfeat_thresh &
     seu@meta.data["percent.mito"] < mito_thresh
@@ -207,7 +198,6 @@ filter_seurat_object.Seurat <- function(seu, nfeat_thresh, mito_thresh,
 #' If NULL, PCA analysis is skipped.
 #' @param n_hvgs Number of highly variable genes (HVGs) to compute. Only HVGs
 #' will be used as input to PCA.
-#' @param assay Assay to perform analysis, default "RNA".
 #' @param ... Additional named parameters passed to Seurat functions.
 #'
 #' @return List of processed Seurat objects. If a single sample, returns
@@ -220,23 +210,22 @@ NULL
 #' @rdname lognormalize_and_pca
 #'
 #' @export
-lognormalize_and_pca <- function(seu, ...){
+lognormalize_and_pca <- function(seu, npcs = NULL, n_hvgs = 3000, ...){
   UseMethod("lognormalize_and_pca")
 }
 
 # Default function for the generic function 'lognormalize_and_pca'
-lognormalize_and_pca.default <- function(seu, ...){
+lognormalize_and_pca.default <- function(seu, npcs = NULL, n_hvgs = 3000, ...){
   stop("Object 'seu' should be either list or Seurat object!")
 }
 
 #' @rdname lognormalize_and_pca
 #'
 #' @export
-lognormalize_and_pca.list <- function(seu, npcs = NULL, n_hvgs = 3000,
-                                 assay = "RNA", ...) {
+lognormalize_and_pca.list <- function(seu, npcs = NULL, n_hvgs = 3000, ...) {
   for (s in names(seu)) {
     seu[[s]] <- lognormalize_and_pca.Seurat(seu = seu[[s]], npcs = npcs,
-                                       n_hvgs = n_hvgs, assay = assay, ...)
+                                       n_hvgs = n_hvgs, ...)
   }
   return(seu)
 }
@@ -245,17 +234,16 @@ lognormalize_and_pca.list <- function(seu, npcs = NULL, n_hvgs = 3000,
 #' @rdname lognormalize_and_pca
 #'
 #' @export
-lognormalize_and_pca.Seurat <- function(seu, npcs = NULL, n_hvgs = 3000,
-                                   assay = "RNA", ...) {
+lognormalize_and_pca.Seurat <- function(seu, npcs = NULL, n_hvgs = 3000, ...) {
   seu <- Seurat::NormalizeData(seu, normalization.method = "LogNormalize",
-                               assay = assay, scale.factor = 10000)
+                               scale.factor = 10000)
   seu <- Seurat::FindVariableFeatures(seu, selection.method = "vst",
-                                      assay = assay,  nfeatures = n_hvgs, ...)
+                                      nfeatures = n_hvgs, ...)
   # PCA reduction
   if (!is.null(npcs)) {
-    seu <- Seurat::ScaleData(seu, assay = assay, ...)
+    seu <- Seurat::ScaleData(seu, ...)
     seu <- Seurat::RunPCA(seu, features = Seurat::VariableFeatures(seu),
-                          npcs = npcs, assay = assay, ...)
+                          npcs = npcs, ...)
   }
   return(seu)
 }
@@ -314,6 +302,7 @@ run_umap <- function(seu, dims, reduction, seed = 1, ...) {
 #'
 #' @export
 find_neighbors <- function(seu, dims, reduction, ...) {
+  assertthat::assert_that(methods::is(reduction, "character"))
   # Number of dimensions to find neighbors
   dims <- dims[dims <= NCOL(seu@reductions[[reduction]])]
   # Identify neighbors
@@ -548,6 +537,7 @@ run_harmony <- function(object, group.by.vars, reduction = 'pca',
 #' @export
 install_scrublet <- function(envname = "r-reticulate", method = "auto",
                              conda = "auto", pip = TRUE, ...) {
+  # Check: https://github.com/KrishnaswamyLab/phateR/blob/master/R/utils.R
   tryCatch({
     message("Attempting to install Scrublet Python package with reticulate")
     reticulate::py_install("scrublet",
@@ -569,7 +559,7 @@ install_scrublet <- function(envname = "r-reticulate", method = "auto",
 
 # Helper function for checking metadata data.frame or filename and returning
 # the object
-.get_metadata <- function(sample_meta, sample_meta_filename) {
+.get_metadata <- function(sample_meta = NULL, sample_meta_filename = NULL) {
   pass_qc <- NULL
   # Check if metadata object or filename is given as input
   if (!is.null(sample_meta) && !is.null(sample_meta_filename)) {
@@ -624,6 +614,12 @@ install_scrublet <- function(envname = "r-reticulate", method = "auto",
 
 # General function for obtaining consistent plotting dimensions
 .plot_dims <- function(feat_len) {
+  if (!is.numeric(feat_len)) {
+    message("Invalid argument:  Setting 'feat_len' for plotting to 2")
+    feat_len <- 2
+  } else if (feat_len == 0){
+    feat_len <- 2
+  }
   if (feat_len <= 3) {
     width = 7 * feat_len
     height = 6

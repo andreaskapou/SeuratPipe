@@ -6,17 +6,17 @@
 \usage{
 create_seurat_object(
   data_dir,
-  sample_meta,
+  sample_meta = NULL,
   sample_meta_filename = NULL,
   meta_colnames = c("donor", "condition", "pass_qc"),
   plot_dir = NULL,
   use_scrublet = TRUE,
   use_soupx = FALSE,
-  tenx_dir = "/premrna_outs/",
+  tenx_dir = "premrna_outs",
+  tenx_counts_dir = "filtered_feature_bc_matrix",
   expected_doublet_rate = 0.06,
   min.cells = 10,
   min.features = 200,
-  assay = "RNA",
   ...
 )
 }
@@ -38,10 +38,11 @@ parameter above. User should provide one of 'meta' or 'meta_filename'.}
 
 \item{use_soupx}{Logical, wether to use SoupX for ambient RNA removal.}
 
-\item{tenx_dir}{Name of 10x directory that count matrices are stored.
-Default 'outs' for whole-cell data and 'premrna_outs' for single-nuclei.
-If NULL, it checks the 'technology' column in sample metadata to infer the
-sequencing technology.}
+\item{tenx_dir}{Name of 10x base directory, e.g. with outputs after running
+cellranger. Default 'premrna_outs', i.e. assumes single-nuclei RNA-seq.}
+
+\item{tenx_counts_dir}{Name of 10x directory where count matrices are stored.
+Default 'filtered_feature_bc_matrix'}
 
 \item{expected_doublet_rate}{The expected fraction of transcriptomes that
 are doublets, typically 0.05 - 0.1}
@@ -50,8 +51,6 @@ are doublets, typically 0.05 - 0.1}
 
 \item{min.features}{Include cells where at least this many features/genes
 are detected.}
-
-\item{assay}{Assay to perform analysis, default "RNA".}
 
 \item{...}{Additional named parameters passed to Seurat, Scrublet or SoupX.}
 }

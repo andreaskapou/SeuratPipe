@@ -1,7 +1,7 @@
 Package: SeuratPipe
 Type: Package
 Title: Packaging common Seurat analysis tasks
-Version: 0.99.0
+Version: 1.0.0
 Authors@R: 
     person(given = "Andreas C.",
            family = "Kapourani",
@@ -37,6 +37,7 @@ Imports:
     Seurat,
     SoupX,
     stats,
+    tidyr,
     utils,
     viridis
 Suggests: testthat,

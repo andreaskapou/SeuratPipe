@@ -11,7 +11,6 @@ harmony_analysis(
   plot_dir = NULL,
   n_hvgs = 3000,
   max.iter.harmony = 50,
-  assay = "RNA",
   seed = 1,
   fig.res = 200,
   ...
@@ -31,8 +30,6 @@ not saved.}
 be used as inpute to PCA.}
 
 \item{max.iter.harmony}{Maximum number of iterations for Harmony integration.}
-
-\item{assay}{Assay to perform analysis, default "RNA".}
 
 \item{seed}{Set a random seed, for reproducibility.}
 

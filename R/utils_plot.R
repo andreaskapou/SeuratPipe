@@ -23,7 +23,7 @@
 #'
 #' @export
 dim_plot <- function(seu, reduction = "umap", group.by = "active.ident",
-                     split.by = NULL, ncol = 1, legend.position = "right",
+                     split.by = NULL, ncol = NULL, legend.position = "right",
                      col_pal = NULL, dims_plot = c(1, 2), pt.size = 1.4,
                      label = FALSE, label.size = 7, combine = TRUE, ...) {
   # So CMD passes
@@ -110,7 +110,7 @@ dim_plot <- function(seu, reduction = "umap", group.by = "active.ident",
 #'
 #' @param reduction Which dimensionality reduction to use (required).
 #' @param features Vector of features to plot.
-#' @param ncol Number of columns for display when combining plots.
+#' @param ncol Number of columns for display when having multiple features.
 #' @param col_pal Continuous colour palette to use, default "RdYlBu".
 #' @param dims_plot Dimensions to plot, must be a two-length numeric vector
 #' specifying x- and y-dimensions.
@@ -125,7 +125,7 @@ dim_plot <- function(seu, reduction = "umap", group.by = "active.ident",
 #'
 #' @export
 feature_plot <- function(seu, reduction = "umap", features = "nFeature_RNA",
-                         max.cutoff = "q98", ncol = 1, legend.position = "right",
+                         max.cutoff = "q98", ncol = NULL, legend.position = "right",
                          col_pal = NULL, dims_plot = c(1, 2), pt.size = 1.4,
                          combine = TRUE, ...) {
   # Extract features present in the Seurat object
@@ -154,13 +154,21 @@ feature_plot <- function(seu, reduction = "umap", features = "nFeature_RNA",
 
   if (is.null(col_pal)) { col_pal = "RdYlBu" }
 
+  key_height = 0.6
+  key_width = 0.2
+  if (legend.position == "top") {
+    key_height = 0.2
+    key_width = 0.7
+  }
+
   t <- Seurat::FeaturePlot(seu, features = features, reduction = reduction,
                            max.cutoff = max.cutoff, ncol = ncol,
                            combine = combine, pt.size = NULL, ...)
   t <- t &
     ggplot2::theme(legend.position = legend.position,
-          legend.key.size = ggplot2::unit(0.3,"line"),
-          legend.key.width = ggplot2::unit(0.6, "cm"),
+          legend.key.size = ggplot2::unit(0.7,"line"),
+          legend.key.height = ggplot2::unit(key_height, 'cm'),
+          legend.key.width = ggplot2::unit(key_width, "cm"),
           legend.text = ggplot2::element_text(size = 5),
           axis.line = ggplot2::element_line(colour = "black", size = 1.25,
                                             linetype = "solid"),
@@ -214,7 +222,8 @@ scatter_meta_plot <- function(
         ggplot2::geom_point(ggplot2::aes(x = x, y = y, color = dens),
                             pointsize = 1.2) +
         viridis::scale_color_viridis() + ggplot2::theme_classic() +
-        ggplot2::theme(legend.position = "none")
+        ggplot2::theme(legend.position = "none") +
+        ggplot2::xlab(feats[1]) + ggplot2::ylab(feats[2])
     }
   }
   return(gg_list)
@@ -279,7 +288,6 @@ dot_plot <-  function(seu, features, group.by = NULL, labels = NULL,
 #' @param markers Data frame with marker genes for each cluster.
 #' Expects a format as the output of Seurat's FindAllMarkers.
 #' @param topn_genes Top N marker genes to plot for each cluster.
-#' @param assay Assay to extract gene expression data from (default 'RNA').
 #' @param filename Filename for saving the heatmap plot. If null, the heatmap
 #' is just plotted in device.
 #' @param ... Additional parameters passed to 'pheatmap' function
@@ -289,12 +297,13 @@ dot_plot <-  function(seu, features, group.by = NULL, labels = NULL,
 #' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
 #'
 #' @export
-heatmap_plot <- function(seu, markers, topn_genes = 10, assay = "RNA",
-                         filename = NULL, ...){
-  # So CMD passes without NOTES
-  p_val_adj = cluster = avg_log2FC <- NULL
+heatmap_plot <- function(seu, markers, topn_genes = 10, filename = NULL, ...) {
   # TODO: Make the function more generic so the user defines what
   # column annotation is show in the heatmap.
+
+  # So CMD passes without NOTES
+  p_val_adj = cluster = avg_log2FC <- NULL
+
   if (NROW(markers) == 0) { return(-1) }
 
   # Colours for each group (by default cluster, sample, condition)
@@ -309,11 +318,13 @@ heatmap_plot <- function(seu, markers, topn_genes = 10, assay = "RNA",
                              Sample = colours_sample,
                              Condition = colours_condition)
 
+  # Extract scale data
+  scale_data <- Seurat::GetAssayData(object = seu, slot = "scale.data")
   # Make cluster a factor
   markers$cluster <- factor(markers$cluster)
   #markers <- markers[!(grepl("^Rpl|^Rps|^mt-", markers$gene)),]
   #markers <- markers[markers$pct.2 < 0.2,]
-  markers <- markers[markers$gene %in% rownames(seu[[assay]]@scale.data),]
+  markers <- markers[markers$gene %in% rownames(scale_data), ]
   markers <- markers %>% dplyr::filter(p_val_adj < 0.05) %>%
     dplyr::group_by(cluster) %>%
     dplyr::slice_max(n = topn_genes, order_by = avg_log2FC)
@@ -332,9 +343,8 @@ heatmap_plot <- function(seu, markers, topn_genes = 10, assay = "RNA",
   rownames(annotation_row) <- markers$gene
 
   # Subset matrix for heatmap plot
-  seu_filt <- seu[[assay]]@scale.data[
-    as.character(markers$gene[order(annotation_row[,1])]),
-    rownames(annotation_col)[order(annotation_col[,1])]]
+  seu_filt <- scale_data[as.character(markers$gene[order(annotation_row[,1])]),
+                         rownames(annotation_col)[order(annotation_col[,1])]]
   seu_filt[seu_filt > 2.5] <- 2.5
   seu_filt[seu_filt < -2.5] <- -2.5
   gaps_col <- cumsum(summary(seu$seurat_clusters))
@@ -364,4 +374,6 @@ heatmap_plot <- function(seu, markers, topn_genes = 10, assay = "RNA",
                              annotation_legend = TRUE, annotation_names_row = FALSE, annotation_names_col = TRUE,
                              show_rownames = TRUE, show_colnames = FALSE, legend = TRUE, ...))
   }
+  if (length(dev.list()) != 0) { dev.off() }
+  return(0)
 }

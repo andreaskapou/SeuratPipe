@@ -31,7 +31,7 @@ dimred_qc_plots <- function(seu, reductions = c("pca"),
                             cont_col_pal = NULL, discrete_col_pal = NULL,
                             dims_plot = c(1,2), pt.size = 1.4,
                             fig.res = 200, ...) {
-  # TODO: Compute variance of first PCs and show them in the plot
+  PC = QC = cor = NULL
 
   # Plots based on metadata columns
   for (meta in metadata_to_plot) {
@@ -50,9 +50,9 @@ dimred_qc_plots <- function(seu, reductions = c("pca"),
                     combine = TRUE, ...) & Seurat::NoAxes())
       dev.off()
 
-      # Split by metadata plots
       # Plot dimensions
       plot_dim <- .plot_dims(feat_len = length(unique(seu@meta.data[[meta]])))
+      # Split by metadata plots
       png(paste0(plot_dir, "01_", red, "_", meta, "_split.png"),
           width = plot_dim$width, height = plot_dim$height, res = fig.res,
           units = "in")
@@ -86,6 +86,28 @@ dimred_qc_plots <- function(seu, reductions = c("pca"),
              Seurat::NoAxes())
       dev.off()
     }
+
+    # Heatmap showing correlation of QCs with Principal components
+    if ("pca" %in% reductions) {
+      df_corr <- abs(stats::cor(seu@reductions[["pca"]]@cell.embeddings,
+                                seu[[qc_to_plot]])) %>%
+        dplyr::as_tibble(rownames = "PC") %>%
+        tidyr::pivot_longer(cols = -c(PC), names_to = "QC", values_to = "cor")
+      df_corr$PC <- factor(df_corr$PC,
+                           levels = paste0("PC_", seq(1, NCOL(seu@reductions[["pca"]]))))
+      # Create heatmap
+      png(paste0(plot_dir, "pc_qc_cor.png"), width = 12,
+          height = 5, res = fig.res, units = "in")
+      plot(ggplot2::ggplot(df_corr, ggplot2::aes(x = PC, y = QC, fill = cor)) +
+        ggplot2::geom_tile() +
+        ggplot2::scale_fill_distiller(name = "abs(cor)", type = "div",
+                                        palette = "RdYlBu") +
+        ggplot2::theme_classic() +
+        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust=1,
+                                                           hjust = 1, size = 6)))
+      dev.off()
+
+    }
   }
 }
 
@@ -117,12 +139,11 @@ dimred_qc_plots <- function(seu, reductions = c("pca"),
 #' @export
 harmony_analysis <- function(seu, npcs, dims.use = NULL, plot_dir = NULL,
                              n_hvgs = 3000, max.iter.harmony = 50,
-                             assay = "RNA", seed = 1, fig.res = 200, ...) {
+                             seed = 1, fig.res = 200, ...) {
   # If list, then we have un-merged independent samples
   if (is.list(seu)) {
-    # Normalise and obtain HVGs
-    seu <- lognormalize_and_pca(seu, npcs = NULL, n_hvgs = n_hvgs,
-                                assay = assay, ...)
+    # Normalise, obtain HVGs and run PCA
+    seu <- lognormalize_and_pca(seu, npcs = NULL, n_hvgs = n_hvgs, ...)
     # Plot HVGs
     for (s in names(seu)) {
       png(paste0(plot_dir, "hvgs_", s, ".png"), width = 10, height = 5,
@@ -137,14 +158,13 @@ harmony_analysis <- function(seu, npcs, dims.use = NULL, plot_dir = NULL,
     seu <- .as_factor_metadata(seu)
   }
   # Process merged data and run PCA
-  seu <- lognormalize_and_pca(seu, npcs = npcs, n_hvgs = n_hvgs,
-                              assay = assay, ...)
+  seu <- lognormalize_and_pca(seu, npcs = npcs, n_hvgs = n_hvgs, ...)
 
   # Run Harmony
   set.seed(seed) # Set seed due to Harmony being stochastic
   seu <- run_harmony(object = seu, group.by.vars = c("sample"),
                      reduction = "pca", dims.use = dims.use,
-                     max.iter.harmony = max.iter.harmony, assay.use = assay, ...)
+                     max.iter.harmony = max.iter.harmony, ...)
 
   # Plots
   png(paste0(plot_dir, "pca_heatmap.png"), width = 15, height = 15,
@@ -198,6 +218,10 @@ module_score_analysis <- function(seu, modules_group, plot_dir = NULL,
                                   legend.position = "top", col_pal = NULL,
                                   dims_plot = c(1, 2), seed = 1, ctrl = 100,
                                   pt.size = 1.4, fig.res = 200, ...) {
+  # If no modules are given, return Seurat object
+  if (is.null(modules_group)) {
+    return(seu)
+  }
   # Iterate over the group of modules
   for (mg in names(modules_group)) {
     # Extract list of modules within the group
@@ -288,7 +312,6 @@ module_score_analysis <- function(seu, modules_group, plot_dir = NULL,
 #' @param max.cutoff Vector of maximum cutoff values for each feature,
 #' may specify quantile in the form of 'q##' where '##' is the quantile
 #' (eg, 'q1', 'q10').
-#' @param assay Assay to perform analysis, default "RNA".
 #' @param seed Set a random seed, for reproducibility.
 #' @param ctrl Number of control features selected from the same bin per
 #' analyzed feature.
@@ -319,7 +342,7 @@ cluster_analysis <- function(seu, dims = 1:20, res = seq(0.1, 0.1, by = 0.1),
                              only.pos = TRUE, topn_genes = 10, plot_dir = NULL,
                              plot_cluster_markers = TRUE, modules_group = NULL,
                              cluster_reduction = "pca", plot_reduction = "umap",
-                             max.cutoff = "q98", assay = "RNA", seed = 1,
+                             max.cutoff = "q98", seed = 1,
                              ctrl = 100, force_reanalysis = TRUE,
                              label = TRUE, label.size = 8,
                              legend.position = "right", pt.size = 1.4,
@@ -327,23 +350,26 @@ cluster_analysis <- function(seu, dims = 1:20, res = seq(0.1, 0.1, by = 0.1),
                              fig.res = 200, ...) {
   # So CMD passes without NOTES
   cluster = avg_log2FC <- NULL
+  assertthat::assert_that(methods::is(seu, "Seurat"))
 
   # Iterate over each clustering resolution
   for (r in res) {
     cat("Res", r, "\n")
     # Identify nearest neighbors and perform clustering
     seu <- find_neighbors(seu = seu, dims = dims,
-                          reduction = cluster_reduction, assay = assay, ...)
+                          reduction = cluster_reduction, ...)
     seu <- find_clusters(seu = seu, resolution = r, random.seed = seed, ...)
+    # Store metadata with obtained clusters locally
+    write.csv(seu@meta.data, file = paste0(plot_dir, "seu_meta_res",r,".csv"))
 
     if (!is.null(plot_dir)) {
       png(paste0(plot_dir,"z_", plot_reduction, "_res", r, ".png"), width = 7,
           height = 7, res = fig.res, units = "in")
       plot(dim_plot(seu = seu, reduction = plot_reduction, split.by = NULL,
                     group.by = "seurat_clusters", ncol = 1,
-                    col_pal = discrete_col_pal, legend.position = legend.position,
+                    col_pal = discrete_col_pal, legend.position=legend.position,
                     dims_plot = c(1,2), pt.size = pt.size, label = label,
-                    label.size = label.size, combine = TRUE, ...) & Seurat::NoAxes())
+                    label.size=label.size, combine=TRUE,...) & Seurat::NoAxes())
       dev.off()
     }
 
@@ -375,20 +401,18 @@ cluster_analysis <- function(seu, dims = 1:20, res = seq(0.1, 0.1, by = 0.1),
                                only.pos = only.pos, min.pct = min.pct,
                                logfc.threshold = logfc.threshold, ...)
       write.csv(mark, file = paste0(plot_dir, "seu_markers_res", r, ".csv"))
-      write.csv(seu@meta.data,
-                file = paste0(plot_dir, "seu_meta_res", r, ".csv"))
     } else {
       mark <- read.csv(file = paste0(plot_dir, "seu_markers_res", r, ".csv"))
     }
 
     # Heatmap of marker genes
-    heatmap_plot(seu = seu, markers = mark, topn_genes = topn_genes, assay = assay,
+    heatmap_plot(seu = seu, markers = mark, topn_genes = topn_genes,
                  filename = paste0(plot_dir, "z_heatmap_res", r, ".png"), ...)
 
     ## Feature and violin plots
     if (plot_cluster_markers & !is.null(plot_dir)) {
       # Extract top marker genes
-      top_mark <- mark[mark$gene %in% rownames(seu[[assay]]@data), ] %>%
+      top_mark <- mark[mark$gene %in% rownames(x = seu), ] %>%
         dplyr::group_by(cluster) %>%
         dplyr::slice_max(n = topn_genes, order_by = avg_log2FC)
       # For each cluster plot marker genes
@@ -420,17 +444,19 @@ cluster_analysis <- function(seu, dims = 1:20, res = seq(0.1, 0.1, by = 0.1),
         }
       }
       # Module scores in one plot
-      plot_dim <- .plot_dims(feat_len = length(unique(top_mark$cluster)))
-      png(paste0(plot_dir, "03_score_seu_res", r, ".png"),
-          width = plot_dim$width, height = plot_dim$height, res = fig.res,
-          units = "in")
-      plot(feature_plot(seu = seu, reduction = plot_reduction,
-                        features = paste0("Cluster", unique(top_mark$cluster)),
-                        max.cutoff = max.cutoff, ncol = plot_dim$ncols,
-                        col_pal = cont_col_pal,
-                        legend.position = legend.position, dims_plot = c(1,2),
-                        pt.size = pt.size, ...) & Seurat::NoAxes())
-      dev.off()
+      if (NROW(top_mark) >0) {
+        plot_dim <- .plot_dims(feat_len = length(unique(top_mark$cluster)))
+        png(paste0(plot_dir, "03_score_seu_res", r, ".png"),
+            width = plot_dim$width, height = plot_dim$height, res = fig.res,
+            units = "in")
+        plot(feature_plot(seu = seu, reduction = plot_reduction,
+                          features = paste0("Cluster", unique(top_mark$cluster)),
+                          max.cutoff = max.cutoff, ncol = plot_dim$ncols,
+                          col_pal = cont_col_pal,
+                          legend.position = legend.position, dims_plot = c(1,2),
+                          pt.size = pt.size, ...) & Seurat::NoAxes())
+        dev.off()
+      }
     }
   }
   return(seu)

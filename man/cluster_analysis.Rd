@@ -18,7 +18,6 @@ cluster_analysis(
   cluster_reduction = "pca",
   plot_reduction = "umap",
   max.cutoff = "q98",
-  assay = "RNA",
   seed = 1,
   ctrl = 100,
   force_reanalysis = TRUE,
@@ -75,8 +74,6 @@ functions. Default is 'umap'.}
 \item{max.cutoff}{Vector of maximum cutoff values for each feature,
 may specify quantile in the form of 'q##' where '##' is the quantile
 (eg, 'q1', 'q10').}
-
-\item{assay}{Assay to perform analysis, default "RNA".}
 
 \item{seed}{Set a random seed, for reproducibility.}
 
