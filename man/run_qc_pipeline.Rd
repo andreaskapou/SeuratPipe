@@ -63,8 +63,9 @@ are doublets, typically 0.05 - 0.1}
 
 \item{force_reanalysis}{Logical, if intermediate file 'seu_preqc.rds' (with
 created Seurat object) exists and force_reanalysis = FALSE, read object
-instead of re-running whole analysis. Added for computing time efficiency
-purposes.}
+instead of re-running whole analysis with soupX. Added for computing time
+efficiency purposes and intermediate object will be created only when
+'use_soupx = TRUE'.}
 
 \item{min.cells}{Include features/genes detected in at least this many cells.}
 

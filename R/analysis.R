@@ -41,10 +41,12 @@ dimred_qc_plots <- function(seu, reductions = c("pca"),
       } else {
         dims_plot <- dims_plot
       }
-      png(paste0(plot_dir,"01_", red, "_", meta, ".png"), width = 7,
-          height = 7, res = fig.res, units = "in")
+      plot_dim <- .plot_dims(feat_len = 1)
+      png(paste0(plot_dir,"01_", red, "_", meta, ".png"), width = plot_dim$width,
+          height = plot_dim$height, res = fig.res, units = "in")
       plot(dim_plot(seu = seu, reduction = red, group.by = meta,
-                    split.by = NULL, ncol = 1, legend.position = legend.position,
+                    split.by = NULL, ncol = plot_dim$ncols,
+                    legend.position = legend.position,
                     col_pal = discrete_col_pal, dims_plot = dims_plot,
                     pt.size = pt.size, label = FALSE,
                     combine = TRUE, ...) & Seurat::NoAxes())
@@ -363,8 +365,10 @@ cluster_analysis <- function(seu, dims = 1:20, res = seq(0.1, 0.1, by = 0.1),
     write.csv(seu@meta.data, file = paste0(plot_dir, "seu_meta_res",r,".csv"))
 
     if (!is.null(plot_dir)) {
-      png(paste0(plot_dir,"z_", plot_reduction, "_res", r, ".png"), width = 7,
-          height = 7, res = fig.res, units = "in")
+      plot_dim <- .plot_dims(feat_len = 1)
+      png(paste0(plot_dir,"z_", plot_reduction, "_res", r, ".png"),
+          width = plot_dim$width, height = plot_dim$height, res = fig.res,
+          units = "in")
       plot(dim_plot(seu = seu, reduction = plot_reduction, split.by = NULL,
                     group.by = "seurat_clusters", ncol = 1,
                     col_pal = discrete_col_pal, legend.position=legend.position,

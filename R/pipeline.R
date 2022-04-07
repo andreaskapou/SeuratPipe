@@ -32,8 +32,9 @@
 #' are doublets, typically 0.05 - 0.1
 #' @param force_reanalysis Logical, if intermediate file 'seu_preqc.rds' (with
 #' created Seurat object) exists and force_reanalysis = FALSE, read object
-#' instead of re-running whole analysis. Added for computing time efficiency
-#' purposes.
+#' instead of re-running whole analysis with soupX. Added for computing time
+#' efficiency purposes and intermediate object will be created only when
+#' 'use_soupx = TRUE'.
 #' @param min.cells Include features/genes detected in at least this many cells.
 #' @param min.features Include cells where at least this many features/genes
 #' are detected.
@@ -81,10 +82,11 @@ run_qc_pipeline <- function(
       meta_colnames = meta_colnames, plot_dir = plot_dir, use_scrublet = use_scrublet,
       use_soupx = use_soupx, tenx_dir = tenx_dir, expected_doublet_rate = expected_doublet_rate,
       min.cells = min.cells, min.features = min.features, ...)
-    # Save pre-QC Seurat object and opts
-    saveRDS(object = list(seu = seu, opts = opts),
-                          file = paste0(out_dir, "/", "seu_preqc.rds"))
-
+    # Save pre-QC Seurat object and opts if we use SoupX that takes a long time
+    if (use_soupx) {
+      saveRDS(object = list(seu = seu, opts = opts),
+              file = paste0(out_dir, "/", "seu_preqc.rds"))
+    }
   } else {
     obj <- readRDS(file = paste0(out_dir, "/", "seu_preqc.rds"))
     seu <- obj$seu
@@ -281,6 +283,8 @@ run_harmony_pipeline <- function(seu_obj, out_dir, npcs = c(50),
                                  pt.size = 1.4, fig.res = 200, ...) {
   # Store all parameters for reproducibility
   opts <- c(as.list(environment()), list(...))
+  # Do not store the Seurat object in opts
+  opts$seu_obj <- NULL
   # So CMD passes without NOTES
   seu <- NULL
 
@@ -297,10 +301,10 @@ run_harmony_pipeline <- function(seu_obj, out_dir, npcs = c(50),
     }
 
     obj_name <- paste0("_npcs", npc, pcs_remove_name)
-    out_dir <- paste0(out_dir, "/", obj_filename, obj_name, "/")
-    if (!dir.exists(out_dir)) {dir.create(out_dir, recursive = TRUE)}
+    npc_dir <- paste0(out_dir, "/", obj_filename, obj_name, "/")
+    if (!dir.exists(npc_dir)) {dir.create(npc_dir, recursive = TRUE)}
 
-    qc_dir <- paste0(out_dir, "/qc/")
+    qc_dir <- paste0(npc_dir, "/qc/")
     if (!dir.exists(qc_dir)) {dir.create(qc_dir, recursive = TRUE)}
 
     # Run Harmony integration analysis
@@ -327,10 +331,10 @@ run_harmony_pipeline <- function(seu_obj, out_dir, npcs = c(50),
     for (ndim in ndims) {
       if (ndim > length(dims.use)) {
         message("Skipping analysis: ndim larger than harmony dimensions.")
-        return(0)
+        next
       }
       # Create directories
-      dim_dir <- paste0(out_dir, "/dim", ndim, "/")
+      dim_dir <- paste0(npc_dir, "/dim", ndim, "/")
       qc_dir <- paste0(dim_dir, "/qc/")
       if (!dir.exists(qc_dir)) {dir.create(qc_dir, recursive = TRUE)}
 
@@ -420,6 +424,8 @@ run_cluster_pipeline <- function(seu_obj, out_dir, npcs = c(50),
                                  pt.size = 1.4, fig.res = 200, ...) {
   # Store all parameters for reproducibility
   opts <- c(as.list(environment()), list(...))
+  # Do not store the Seurat object in opts
+  opts$seu_obj <- NULL
 
   assertthat::assert_that(methods::is(seu_obj, "Seurat"))
 
@@ -436,10 +442,10 @@ run_cluster_pipeline <- function(seu_obj, out_dir, npcs = c(50),
       dims.use <- dims.use[-pcs_to_remove]
     }
     obj_name <- paste0("npcs", npc, pcs_remove_name)
-    out_dir <- paste0(out_dir, "/", obj_name, "/")
-    if (!dir.exists(out_dir)) {dir.create(out_dir, recursive = TRUE)}
+    npc_dir <- paste0(out_dir, "/", obj_name, "/")
+    if (!dir.exists(npc_dir)) {dir.create(npc_dir, recursive = TRUE)}
 
-    qc_dir <- paste0(out_dir, "/qc/")
+    qc_dir <- paste0(npc_dir, "/qc/")
     if (!dir.exists(qc_dir)) {dir.create(qc_dir, recursive = TRUE)}
 
     # Process and run PCA
@@ -468,10 +474,10 @@ run_cluster_pipeline <- function(seu_obj, out_dir, npcs = c(50),
     for (ndim in ndims) {
       if (ndim > length(dims.use)) {
         message("Skipping analysis: ndim larger than pca dimensions.")
-        return(0)
+        next
       }
       # Create directories
-      dim_dir <- paste0(out_dir, "/dim", ndim, "/")
+      dim_dir <- paste0(npc_dir, "/dim", ndim, "/")
       qc_dir <- paste0(dim_dir, "/qc/")
       if (!dir.exists(qc_dir)) {dir.create(qc_dir, recursive = TRUE)}
 
