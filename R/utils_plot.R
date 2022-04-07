@@ -230,6 +230,44 @@ scatter_meta_plot <- function(
 }
 
 
+#' @title PCA and feature metadata correlation heatmap plot
+#'
+#' @description This function computes correlation of principal components
+#' with specific feature metadata (e.g. nFeature) to identify potential
+#' technical/batch effects in the data.
+#'
+#' @param seu Seurat object (required).
+#' @param features Vector of features in metadata to plot.
+#'
+#' @return A ggplot2 object.
+#'
+#' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
+#'
+#' @export
+pca_feature_cor_plot <- function(seu, features) {
+  PC = QC = cor <- NULL
+  # Heatmap showing correlation of metadata with Principal Components
+  if ("pca" %in% names(seu@reductions)) {
+    df_corr <- abs(stats::cor(seu@reductions[["pca"]]@cell.embeddings,
+                              seu[[features]])) %>%
+      dplyr::as_tibble(rownames = "PC") %>%
+      tidyr::pivot_longer(cols = -c(PC), names_to = "QC", values_to = "cor")
+    df_corr$PC <- factor(df_corr$PC,
+                         levels = paste0("PC_", seq(1, NCOL(seu@reductions[["pca"]]))))
+    # Create heatmap
+    gg <- ggplot2::ggplot(df_corr, ggplot2::aes(x = PC, y = QC, fill = cor)) +
+      ggplot2::geom_tile() +
+      ggplot2::scale_fill_distiller(name = "abs(cor)", type="div", palette="RdYlBu") +
+      ggplot2::theme_classic() +
+      ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1,
+                                                         hjust = 1, size = 6))
+    return(gg)
+  } else {
+    return(ggplot2::ggplot())
+  }
+}
+
+
 #' @title Tailored dot plot
 #'
 #' @description This function adapts the DotPlot Seurat function by

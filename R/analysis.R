@@ -89,24 +89,11 @@ dimred_qc_plots <- function(seu, reductions = c("pca"),
       dev.off()
     }
 
-    # Heatmap showing correlation of QCs with Principal components
+    # Heatmap showing correlation of QCs with Principal Components
     if ("pca" %in% reductions) {
-      df_corr <- abs(stats::cor(seu@reductions[["pca"]]@cell.embeddings,
-                                seu[[qc_to_plot]])) %>%
-        dplyr::as_tibble(rownames = "PC") %>%
-        tidyr::pivot_longer(cols = -c(PC), names_to = "QC", values_to = "cor")
-      df_corr$PC <- factor(df_corr$PC,
-                           levels = paste0("PC_", seq(1, NCOL(seu@reductions[["pca"]]))))
-      # Create heatmap
       png(paste0(plot_dir, "pc_qc_cor.png"), width = 12,
           height = 5, res = fig.res, units = "in")
-      plot(ggplot2::ggplot(df_corr, ggplot2::aes(x = PC, y = QC, fill = cor)) +
-        ggplot2::geom_tile() +
-        ggplot2::scale_fill_distiller(name = "abs(cor)", type = "div",
-                                        palette = "RdYlBu") +
-        ggplot2::theme_classic() +
-        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust=1,
-                                                           hjust = 1, size = 6)))
+      plot(pca_feature_cor_plot(seu = seu, features = qc_to_plot))
       dev.off()
 
     }
