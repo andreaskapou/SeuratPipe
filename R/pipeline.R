@@ -465,7 +465,7 @@ run_cluster_pipeline <- function(seu_obj, out_dir, npcs = c(50),
     Seurat::DimHeatmap(seu, dims = 1:9, nfeatures = 30, cells = 300,
                        reduction = "pca", balanced = TRUE)
     dev.off()
-    png(paste0(qc_dir, "pca_elbow.png"), width = 15, height = 15,
+    png(paste0(qc_dir, "pca_elbow.png"), width = 12, height = 8,
         res = fig.res, units = "in")
     print(Seurat::ElbowPlot(seu, ndims = npcs, reduction = "pca"))
     dev.off()
