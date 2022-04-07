@@ -122,8 +122,8 @@ create_seurat_object <- function(data_dir, sample_meta = NULL, sample_meta_filen
 }
 
 
-#' @name filter_seurat_object
-#' @rdname filter_seurat_object
+#' @name qc_filter_seurat_object
+#' @rdname qc_filter_seurat_object
 #'
 #' @title Filter Seurat object based on QC metrics.
 #'
@@ -136,43 +136,43 @@ create_seurat_object <- function(data_dir, sample_meta = NULL, sample_meta_filen
 #'
 #' @inheritParams run_qc_pipeline
 #'
-#' @return List of filtered Seurat objects. If a single sample, returns
-#' a filtered Seurat object instead of a list.
+#' @return List of QC filtered Seurat objects. If a single sample, returns
+#' a QC filtered Seurat object instead of a list.
 #'
 #' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
 #'
 NULL
 
-#' @rdname filter_seurat_object
+#' @rdname qc_filter_seurat_object
 #'
 #' @export
-filter_seurat_object <- function(seu, nfeat_thresh, mito_thresh, ...){
-  UseMethod("filter_seurat_object")
+qc_filter_seurat_object <- function(seu, nfeat_thresh, mito_thresh, ...){
+  UseMethod("qc_filter_seurat_object")
 }
 
-# Default function for the generic function 'filter_seurat_object'
-filter_seurat_object.default <- function(seu, nfeat_thresh, mito_thresh, ...){
+# Default function for the generic function 'qc_filter_seurat_object'
+qc_filter_seurat_object.default <- function(seu, nfeat_thresh,
+                                            mito_thresh, ...){
   stop("Object 'seu' should be either list or Seurat object!")
 }
 
 
-#' @rdname filter_seurat_object
+#' @rdname qc_filter_seurat_object
 #'
 #' @export
-filter_seurat_object.list <- function(seu, nfeat_thresh, mito_thresh, ...) {
+qc_filter_seurat_object.list <- function(seu, nfeat_thresh, mito_thresh, ...) {
   # Perform actual QC filtering
   for (s in names(seu)) {
-    seu[[s]] <- filter_seurat_object.Seurat(seu = seu[[s]],
-                                            nfeat_thresh = nfeat_thresh,
-                                            mito_thresh = mito_thresh, ...)
+    seu[[s]] <- qc_filter_seurat_object.Seurat(
+      seu = seu[[s]], nfeat_thresh=nfeat_thresh, mito_thresh=mito_thresh, ...)
   }
   return(seu)
 }
 
-#' @rdname filter_seurat_object
+#' @rdname qc_filter_seurat_object
 #'
 #' @export
-filter_seurat_object.Seurat <- function(seu, nfeat_thresh, mito_thresh, ...) {
+qc_filter_seurat_object.Seurat <- function(seu, nfeat_thresh, mito_thresh, ...) {
   assay <- Seurat::DefaultAssay(object = seu)
   # Perform actual QC filtering
   cells <- seu@meta.data[paste0("nFeature_", assay)] > nfeat_thresh &
@@ -555,7 +555,6 @@ install_scrublet <- function(envname = "r-reticulate", method = "auto",
   }
   )
 }
-
 
 # Helper function for checking metadata data.frame or filename and returning
 # the object

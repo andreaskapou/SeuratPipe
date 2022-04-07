@@ -160,8 +160,8 @@ run_qc_pipeline <- function(
   }
 
   # Perform actual QC filtering
-  seu <- filter_seurat_object(seu = seu, nfeat_thresh = nfeat_thresh,
-                              mito_thresh = mito_thresh)
+  seu <- qc_filter_seurat_object(seu = seu, nfeat_thresh = nfeat_thresh,
+                                 mito_thresh = mito_thresh)
 
   if (!is.null(plot_dir)) {
     # Plot QC after filtering
