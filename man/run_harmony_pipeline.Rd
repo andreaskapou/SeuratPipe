@@ -7,6 +7,7 @@
 run_harmony_pipeline(
   seu_obj,
   out_dir,
+  batch_id = "sample",
   npcs = c(50),
   ndims = c(30),
   res = seq(0.1, 0.3, by = 0.1),
@@ -36,6 +37,11 @@ run_harmony_pipeline(
 \item{seu_obj}{Seurat object or list of Seurat objects(required).}
 
 \item{out_dir}{Output directory for storing analysis results.}
+
+\item{batch_id}{Name of batch to try and remove with data integration
+(required). Can also be a vector if multiple batch information are present.
+Should be a column name in Seurat 'meta.data'. Default is "sample".
+This parameter is called 'group.by.vars' in Harmony.}
 
 \item{npcs}{Number of principal components, can be a vector e.g. c(50, 70).}
 
@@ -86,7 +92,7 @@ feature, e.g. gene expression levels. May specify quantile in the form of
 'q##' where '##' is the quantile (eg, 'q1', 'q10').}
 
 \item{n_hvgs}{Number of highly variable genes (HVGs) to compute, which will
-be used as inpute to PCA.}
+be used as input to PCA.}
 
 \item{max.iter.harmony}{Maximum number of iterations for Harmony integration.}
 

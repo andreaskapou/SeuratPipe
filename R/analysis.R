@@ -112,23 +112,23 @@ dimred_qc_plots <- function(seu, reductions = c("pca"),
 #' values and computing PCA, 5. running Harmony integration, 8. Generating
 #' plots.
 #'
-#' @param npcs Number of Principal Components (PCs) to compute.
+#' @param seu Seurat object (required).
+#' @param npcs Number of principal components.
 #' @param dims.use Vector with PCs to use for Harmony integration, e.g. 1:50.
-#' @param n_hvgs Number of highly variable genes (HVGs) to compute, which will
-#' be used as inpute to PCA.
-#' @param max.iter.harmony Maximum number of iterations for Harmony integration.
+#' @param plot_dir Directory to save generated plots. If NULL, plots are
+#' not saved.
 #' @param ... Additional named parameters passed to RunHarmony and other Seurat
 #' processing functions, such as RunPCA and ScaleData.
-#' @inheritParams cluster_analysis
+#' @inheritParams run_harmony_pipeline
 #'
 #' @return Updated Seurat object with integrated and processed data.
 #'
 #' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
 #'
 #' @export
-harmony_analysis <- function(seu, npcs, dims.use = NULL, plot_dir = NULL,
-                             n_hvgs = 3000, max.iter.harmony = 50,
-                             seed = 1, fig.res = 200, ...) {
+harmony_analysis <- function(
+    seu, batch_id = "sample", npcs, dims.use = NULL, plot_dir = NULL,
+    n_hvgs = 3000, max.iter.harmony = 50, seed = 1, fig.res = 200, ...) {
   # If list, then we have un-merged independent samples
   if (is.list(seu)) {
     # Normalise, obtain HVGs and run PCA
@@ -151,7 +151,7 @@ harmony_analysis <- function(seu, npcs, dims.use = NULL, plot_dir = NULL,
 
   # Run Harmony
   set.seed(seed) # Set seed due to Harmony being stochastic
-  seu <- run_harmony(object = seu, group.by.vars = c("sample"),
+  seu <- run_harmony(object = seu, group.by.vars = batch_id,
                      reduction = "pca", dims.use = dims.use,
                      max.iter.harmony = max.iter.harmony, ...)
 
@@ -166,11 +166,11 @@ harmony_analysis <- function(seu, npcs, dims.use = NULL, plot_dir = NULL,
   Seurat::DimHeatmap(seu, dims = 1:9, nfeatures = 30, cells = 300,
                      reduction = "harmony", balanced = TRUE)
   dev.off()
-  png(paste0(plot_dir, "pca_elbow.png"), width = 12, height = 8,
+  png(paste0(plot_dir, "pca_elbow.png"), width = 10, height = 6,
       res = fig.res, units = "in")
   print(Seurat::ElbowPlot(seu, ndims = npcs, reduction = "pca"))
   dev.off()
-  png(paste0(plot_dir, "harmony_elbow.png"), width = 12, height = 8,
+  png(paste0(plot_dir, "harmony_elbow.png"), width = 10, height = 6,
       res = fig.res, units = "in")
   print(Seurat::ElbowPlot(seu, ndims = npcs, reduction = "harmony"))
   dev.off()

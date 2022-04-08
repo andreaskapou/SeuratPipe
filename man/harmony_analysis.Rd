@@ -6,6 +6,7 @@
 \usage{
 harmony_analysis(
   seu,
+  batch_id = "sample",
   npcs,
   dims.use = NULL,
   plot_dir = NULL,
@@ -19,7 +20,12 @@ harmony_analysis(
 \arguments{
 \item{seu}{Seurat object (required).}
 
-\item{npcs}{Number of Principal Components (PCs) to compute.}
+\item{batch_id}{Name of batch to try and remove with data integration
+(required). Can also be a vector if multiple batch information are present.
+Should be a column name in Seurat 'meta.data'. Default is "sample".
+This parameter is called 'group.by.vars' in Harmony.}
+
+\item{npcs}{Number of principal components.}
 
 \item{dims.use}{Vector with PCs to use for Harmony integration, e.g. 1:50.}
 
@@ -27,7 +33,7 @@ harmony_analysis(
 not saved.}
 
 \item{n_hvgs}{Number of highly variable genes (HVGs) to compute, which will
-be used as inpute to PCA.}
+be used as input to PCA.}
 
 \item{max.iter.harmony}{Maximum number of iterations for Harmony integration.}
 

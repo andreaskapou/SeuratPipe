@@ -76,7 +76,7 @@ feature, e.g. gene expression levels. May specify quantile in the form of
 'q##' where '##' is the quantile (eg, 'q1', 'q10').}
 
 \item{n_hvgs}{Number of highly variable genes (HVGs) to compute, which will
-be used as inpute to PCA.}
+be used as input to PCA.}
 
 \item{seed}{Set a random seed, for reproducibility.}
 

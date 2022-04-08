@@ -218,6 +218,10 @@ run_qc_pipeline <- function(
 #'
 #' @param seu_obj Seurat object or list of Seurat objects(required).
 #' @param out_dir Output directory for storing analysis results.
+#' @param batch_id Name of batch to try and remove with data integration
+#' (required). Can also be a vector if multiple batch information are present.
+#' Should be a column name in Seurat 'meta.data'. Default is "sample".
+#' This parameter is called 'group.by.vars' in Harmony.
 #' @param npcs Number of principal components, can be a vector e.g. c(50, 70).
 #' @param ndims Top Harmony dimensions to perform UMAP and clustering,
 #' can be a vector e.g. c(50, 70).
@@ -252,7 +256,7 @@ run_qc_pipeline <- function(
 #' feature, e.g. gene expression levels. May specify quantile in the form of
 #' 'q##' where '##' is the quantile (eg, 'q1', 'q10').
 #' @param n_hvgs Number of highly variable genes (HVGs) to compute, which will
-#' be used as inpute to PCA.
+#' be used as input to PCA.
 #' @param max.iter.harmony Maximum number of iterations for Harmony integration.
 #' @param seed Set a random seed, for reproducibility.
 #' @param label Whether to label the clusters in 'plot_reduction' space.
@@ -269,18 +273,16 @@ run_qc_pipeline <- function(
 #' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
 #'
 #' @export
-run_harmony_pipeline <- function(seu_obj, out_dir, npcs = c(50),
-                                 ndims = c(30), res = seq(0.1, 0.3, by = 0.1),
-                                 modules_group = NULL,
-                                 metadata_to_plot = c("sample", "condition"),
-                                 qc_to_plot = NULL, logfc.threshold = 0.5,
-                                 min.pct = 0.25, only.pos = TRUE, topn_genes = 10,
-                                 pcs_to_remove = NULL, obj_filename = "seu_harmony",
-                                 force_reanalysis = TRUE,
-                                 plot_cluster_markers = TRUE, max.cutoff = "q98",
-                                 n_hvgs = 3000, max.iter.harmony = 50, seed = 1,
-                                 label = TRUE, label.size = 8,
-                                 pt.size = 1.4, fig.res = 200, ...) {
+run_harmony_pipeline <- function(
+    seu_obj, out_dir, batch_id = "sample", npcs = c(50), ndims = c(30),
+    res = seq(0.1, 0.3, by = 0.1), modules_group = NULL,
+    metadata_to_plot = c("sample", "condition"), qc_to_plot = NULL,
+    logfc.threshold = 0.5, min.pct = 0.25, only.pos = TRUE, topn_genes = 10,
+    pcs_to_remove = NULL, obj_filename = "seu_harmony", force_reanalysis = TRUE,
+    plot_cluster_markers = TRUE, max.cutoff = "q98", n_hvgs = 3000,
+    max.iter.harmony = 50, seed = 1, label = TRUE, label.size = 8,
+    pt.size = 1.4, fig.res = 200, ...) {
+
   # Store all parameters for reproducibility
   opts <- c(as.list(environment()), list(...))
   # Do not store the Seurat object in opts
@@ -296,7 +298,7 @@ run_harmony_pipeline <- function(seu_obj, out_dir, npcs = c(50),
     # Define number of dimensions to use
     dims.use <- seq(from = 1, to = npc, by = 1)
     if (!is.null(pcs_to_remove)) {
-      pcs_remove_name <- "_manual"
+      pcs_remove_name <- paste0("_r", paste(pcs_to_remove, collapse = ""))
       dims.use <- dims.use[-pcs_to_remove]
     }
 
@@ -310,7 +312,8 @@ run_harmony_pipeline <- function(seu_obj, out_dir, npcs = c(50),
     # Run Harmony integration analysis
     if (!file.exists(paste0(out_dir, "/", obj_filename, obj_name, ".rds")) ||
         force_reanalysis == TRUE) {
-      seu <- harmony_analysis(seu = seu_obj, npcs = npc, dims.use = dims.use,
+      seu <- harmony_analysis(seu = seu_obj, batch_id = batch_id,
+                              npcs = npc, dims.use = dims.use,
                               plot_dir = qc_dir, n_hvgs = n_hvgs,
                               max.iter.harmony = max.iter.harmony,
                               seed = seed, fig.res = fig.res, ...)
