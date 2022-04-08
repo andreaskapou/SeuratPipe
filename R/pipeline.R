@@ -441,7 +441,7 @@ run_cluster_pipeline <- function(seu_obj, out_dir, npcs = c(50),
     # Define number of dimensions to use
     dims.use <- seq(from = 1, to = npc, by = 1)
     if (!is.null(pcs_to_remove)) {
-      pcs_remove_name <- "_manual"
+      pcs_remove_name <- paste0("_r", paste(pcs_to_remove, collapse = ""))
       dims.use <- dims.use[-pcs_to_remove]
     }
     obj_name <- paste0("npcs", npc, pcs_remove_name)
