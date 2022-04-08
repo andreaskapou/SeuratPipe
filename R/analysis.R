@@ -128,7 +128,7 @@ dimred_qc_plots <- function(seu, reductions = c("pca"),
 #' @export
 harmony_analysis <- function(
     seu, batch_id = "sample", npcs, dims.use = NULL, plot_dir = NULL,
-    n_hvgs = 2000, max.iter.harmony = 50, seed = 1, fig.res = 200, ...) {
+    n_hvgs = 3000, max.iter.harmony = 50, seed = 1, fig.res = 200, ...) {
   # If list, then we have un-merged independent samples
   if (is.list(seu)) {
     # Normalise, obtain HVGs and run PCA

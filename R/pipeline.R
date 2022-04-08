@@ -279,7 +279,7 @@ run_harmony_pipeline <- function(
     metadata_to_plot = c("sample", "condition"), qc_to_plot = NULL,
     logfc.threshold = 0.5, min.pct = 0.25, only.pos = TRUE, topn_genes = 10,
     pcs_to_remove = NULL, obj_filename = "seu_harmony", force_reanalysis = TRUE,
-    plot_cluster_markers = TRUE, max.cutoff = "q98", n_hvgs = 2000,
+    plot_cluster_markers = TRUE, max.cutoff = "q98", n_hvgs = 3000,
     max.iter.harmony = 50, seed = 1, label = TRUE, label.size = 8,
     pt.size = 1.4, fig.res = 200, ...) {
 
@@ -422,7 +422,7 @@ run_cluster_pipeline <- function(seu_obj, out_dir, npcs = c(50),
                                  qc_to_plot = NULL, logfc.threshold = 0.5,
                                  min.pct = 0.25, only.pos = TRUE, topn_genes = 10,
                                  pcs_to_remove = NULL, plot_cluster_markers = TRUE,
-                                 max.cutoff = "q98", n_hvgs = 2000, seed = 1,
+                                 max.cutoff = "q98", n_hvgs = 3000, seed = 1,
                                  label = TRUE, label.size = 8,
                                  pt.size = 1.4, fig.res = 200, ...) {
   # Store all parameters for reproducibility
