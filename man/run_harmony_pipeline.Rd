@@ -23,7 +23,7 @@ run_harmony_pipeline(
   force_reanalysis = TRUE,
   plot_cluster_markers = TRUE,
   max.cutoff = "q98",
-  n_hvgs = 3000,
+  n_hvgs = 2000,
   max.iter.harmony = 50,
   seed = 1,
   label = TRUE,

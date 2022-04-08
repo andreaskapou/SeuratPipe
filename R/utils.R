@@ -210,19 +210,19 @@ NULL
 #' @rdname lognormalize_and_pca
 #'
 #' @export
-lognormalize_and_pca <- function(seu, npcs = NULL, n_hvgs = 3000, ...){
+lognormalize_and_pca <- function(seu, npcs = NULL, n_hvgs = 2000, ...){
   UseMethod("lognormalize_and_pca")
 }
 
 # Default function for the generic function 'lognormalize_and_pca'
-lognormalize_and_pca.default <- function(seu, npcs = NULL, n_hvgs = 3000, ...){
+lognormalize_and_pca.default <- function(seu, npcs = NULL, n_hvgs = 2000, ...){
   stop("Object 'seu' should be either list or Seurat object!")
 }
 
 #' @rdname lognormalize_and_pca
 #'
 #' @export
-lognormalize_and_pca.list <- function(seu, npcs = NULL, n_hvgs = 3000, ...) {
+lognormalize_and_pca.list <- function(seu, npcs = NULL, n_hvgs = 2000, ...) {
   for (s in names(seu)) {
     seu[[s]] <- lognormalize_and_pca.Seurat(seu = seu[[s]], npcs = npcs,
                                        n_hvgs = n_hvgs, ...)
@@ -234,7 +234,7 @@ lognormalize_and_pca.list <- function(seu, npcs = NULL, n_hvgs = 3000, ...) {
 #' @rdname lognormalize_and_pca
 #'
 #' @export
-lognormalize_and_pca.Seurat <- function(seu, npcs = NULL, n_hvgs = 3000, ...) {
+lognormalize_and_pca.Seurat <- function(seu, npcs = NULL, n_hvgs = 2000, ...) {
   seu <- Seurat::NormalizeData(seu, normalization.method = "LogNormalize",
                                scale.factor = 10000)
   seu <- Seurat::FindVariableFeatures(seu, selection.method = "vst",
