@@ -20,7 +20,7 @@ run_cluster_pipeline(
   pcs_to_remove = NULL,
   plot_cluster_markers = TRUE,
   max.cutoff = "q98",
-  n_hvgs = 2000,
+  n_hvgs = 3000,
   seed = 1,
   label = TRUE,
   label.size = 8,

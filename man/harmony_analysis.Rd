@@ -10,7 +10,7 @@ harmony_analysis(
   npcs,
   dims.use = NULL,
   plot_dir = NULL,
-  n_hvgs = 2000,
+  n_hvgs = 3000,
   max.iter.harmony = 50,
   seed = 1,
   fig.res = 200,

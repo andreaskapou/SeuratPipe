@@ -6,11 +6,11 @@
 \alias{lognormalize_and_pca.Seurat}
 \title{Log normalisation and PCA computation}
 \usage{
-lognormalize_and_pca(seu, npcs = NULL, n_hvgs = 2000, ...)
+lognormalize_and_pca(seu, npcs = NULL, n_hvgs = 3000, ...)
 
-\method{lognormalize_and_pca}{list}(seu, npcs = NULL, n_hvgs = 2000, ...)
+\method{lognormalize_and_pca}{list}(seu, npcs = NULL, n_hvgs = 3000, ...)
 
-\method{lognormalize_and_pca}{Seurat}(seu, npcs = NULL, n_hvgs = 2000, ...)
+\method{lognormalize_and_pca}{Seurat}(seu, npcs = NULL, n_hvgs = 3000, ...)
 }
 \arguments{
 \item{seu}{Seurat object or list of Seurat objects(required).}

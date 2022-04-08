@@ -38,5 +38,24 @@ scrub <- NULL
         "."
       )
     )
+
+  col_pal <- c(
+    "firebrick", # red
+    "skyblue2", # lightblue
+    "#CAB2D6", # lt purple
+    "#FB9A99", # lt pink
+    "#FDBF6F", # lt orange
+    "green4", # darkgreen
+    "darkgrey", # darkgrey
+    "steelblue4",
+    "#FF7F00", # orange
+    "dodgerblue", # deepblue
+    "maroon",
+    "#6A3D9A", # purple
+    "khaki2", "yellow4", "orchid1", "blue1", "deeppink1", "gold1", "ivory4",
+    "darkturquoise", "palegreen2", "green1", "black", "darkorange4", "yellow3"
+  )
+
+  assign("discrete_col_pal", col_pal, envir = topenv())
   base::invisible()
 }
