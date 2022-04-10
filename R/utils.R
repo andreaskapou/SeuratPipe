@@ -92,8 +92,12 @@ create_seurat_object <- function(data_dir, sample_meta = NULL, sample_meta_filen
     seu[[s]]$percent.mito <- Seurat::PercentageFeatureSet(seu[[s]],
                                                           pattern = "^MT-|^mt-")
 
-    # Add sample metadata information
+    # Add required sample metadata information
     seu[[s]]$sample <- as.factor(s)
+    seu[[s]]$donor <- as.factor(sample_meta$donor[i])
+    seu[[s]]$condition <- as.factor(sample_meta$condition[i])
+
+    # Add user defined sample metadata information
     for (m in meta_colnames) {
       seu[[s]][[m]] <- as.factor(sample_meta[[m]][i])
     }
