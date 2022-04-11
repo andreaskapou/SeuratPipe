@@ -615,6 +615,17 @@ install_scrublet <- function(envname = "r-reticulate", method = "auto",
   return(seu)
 }
 
+# General function for dropping unwanted factors in a (filterred) Seurat dataset.
+.drop_factors <- function(seu) {
+  for (meta_ids in colnames(seu@meta.data)) {
+    meta_vals <- seu@meta.data[[meta_ids]]
+    if (is.factor(meta_vals)) {
+      seu@meta.data[[meta_ids]] <- droplevels(seu@meta.data[[meta_ids]])
+    }
+  }
+  return(seu)
+}
+
 # General function for obtaining consistent plotting dimensions
 .plot_dims <- function(feat_len) {
   if (!is.numeric(feat_len)) {

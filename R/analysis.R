@@ -146,6 +146,9 @@ harmony_analysis <- function(
     # Seurat merge bug which converts factors to character.
     seu <- .as_factor_metadata(seu)
   }
+  # Drop unused factor levels - mostly done when a Seurat object is filtered
+  seu <- .drop_factors(seu)
+
   # Process merged data and run PCA
   seu <- lognormalize_and_pca(seu, npcs = npcs, n_hvgs = n_hvgs, ...)
 
@@ -340,6 +343,8 @@ cluster_analysis <- function(seu, dims = 1:20, res = seq(0.1, 0.1, by = 0.1),
   # So CMD passes without NOTES
   cluster = avg_log2FC <- NULL
   assertthat::assert_that(methods::is(seu, "Seurat"))
+  # Drop unused factor levels - mostly done when a Seurat object is filtered
+  seu <- .drop_factors(seu)
 
   # Iterate over each clustering resolution
   for (r in res) {
