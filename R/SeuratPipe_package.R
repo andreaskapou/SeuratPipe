@@ -40,20 +40,23 @@ scrub <- NULL
     )
 
   col_pal <- c(
-    "firebrick", # red
-    "skyblue2", # lightblue
+    "tomato3", # red
+    "#6699CC",
+    "#FDBF6F", # lt orange
     "#CAB2D6", # lt purple
     "#FB9A99", # lt pink
-    "#FDBF6F", # lt orange
-    "green4", # darkgreen
+    "tan3",
+    "darkolivegreen4", # darkgreen
     "darkgrey", # darkgrey
+    "skyblue2", # lightblue
     "steelblue4",
-    "#FF7F00", # orange
-    "dodgerblue", # deepblue
     "maroon",
+    "yellowgreen",
+    "khaki2", "ivory3",
     "#6A3D9A", # purple
-    "khaki2", "yellow4", "orchid1", "blue1", "deeppink1", "gold1", "ivory4",
-    "darkturquoise", "palegreen2", "green1", "black", "darkorange4", "yellow3"
+    "seagreen", "orchid1", "blue1", "deeppink1", "gold1",
+    "darkturquoise", "darkorange4", "#FF7F00",
+    "dodgerblue", "yellow3", "mediumorchid1", "firebrick4", "wheat4"
   )
 
   assign("discrete_col_pal", col_pal, envir = topenv())
