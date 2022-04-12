@@ -2,9 +2,16 @@
 
 The aim of the `SeuratPipe` package is to remove technical details from the user, enabling wet lab researchers to have an 'initial look' at the data themselves.
 
+The __vignette__ demonstrating the use of `SeuratPipe` for scRNA-seq analysis can be found on Rpubs [https://rpubs.com/cakapourani/seuratpipe-analysis](https://rpubs.com/cakapourani/seuratpipe-analysis) and the __data__ can be downloaded from this Github repository [https://github.com/andreaskapou/SeuratPipe_tutorial](https://github.com/andreaskapou/SeuratPipe_tutorial).
+
 ## Installation
 ```R
 # install.packages("remotes")
+
+# To install the stable release
+remotes::install_github("andreaskapou/SeuratPipe@release/v1.0.0")
+
+# To install the latest source version (not recommended)
 remotes::install_github("andreaskapou/SeuratPipe")
 ```
 
