@@ -353,7 +353,6 @@ run_harmony_pipeline <- function(
                       qc_to_plot = qc_to_plot, plot_dir = qc_dir,
                       max.cutoff = max.cutoff, legend.position = "right",
                       dims_plot = c(1,2), pt.size = pt.size,
-                      cont_col_pal = NULL, discrete_col_pal = NULL,
                       fig.res = fig.res, ...)
 
       # Compute module scores for modules of interest
@@ -362,7 +361,7 @@ run_harmony_pipeline <- function(
       seu <- module_score_analysis(seu = seu, modules_group = modules_group,
                                    plot_dir = module_dir, reduction = "umap",
                                    max.cutoff = max.cutoff,
-                                   legend.position = "right", col_pal = NULL,
+                                   legend.position = "right",
                                    dims_plot = c(1,2), seed = seed, ctrl = 100,
                                    fig.res = fig.res, ...)
       # Different clustering resolutions and DGE
@@ -380,7 +379,6 @@ run_harmony_pipeline <- function(
                               seed = seed, ctrl = 100,
                               label = label, label.size = label.size,
                               legend.position = "right", pt.size = pt.size,
-                              cont_col_pal = NULL, discrete_col_pal = NULL,
                               fig.res = fig.res, ...)
     }
   }
@@ -496,7 +494,6 @@ run_cluster_pipeline <- function(seu_obj, out_dir, npcs = c(50),
                       qc_to_plot = qc_to_plot, plot_dir = qc_dir,
                       max.cutoff = max.cutoff, legend.position = "right",
                       dims_plot = c(1,2), pt.size = pt.size,
-                      cont_col_pal = NULL, discrete_col_pal = NULL,
                       fig.res = fig.res, ...)
 
       # Compute module scores for modules of interest
@@ -505,7 +502,7 @@ run_cluster_pipeline <- function(seu_obj, out_dir, npcs = c(50),
       seu <- module_score_analysis(seu = seu, modules_group = modules_group,
                                    plot_dir = module_dir, reduction = "umap",
                                    max.cutoff = max.cutoff,
-                                   legend.position = "right", col_pal = NULL,
+                                   legend.position = "right",
                                    dims_plot = c(1,2), seed = seed, ctrl = 100,
                                    fig.res = fig.res, ...)
       # Different clustering resolutions and DGE
@@ -523,7 +520,6 @@ run_cluster_pipeline <- function(seu_obj, out_dir, npcs = c(50),
                               seed = seed, ctrl = 100,
                               label = label, label.size = label.size,
                               legend.position = "right", pt.size = pt.size,
-                              cont_col_pal = NULL, discrete_col_pal = NULL,
                               fig.res = fig.res, ...)
     }
   }

@@ -399,6 +399,8 @@ cluster_analysis <- function(seu, dims = 1:20, res = seq(0.1, 0.1, by = 0.1),
       write.csv(mark, file = paste0(plot_dir, "seu_markers_res", r, ".csv"))
     } else {
       mark <- read.csv(file = paste0(plot_dir, "seu_markers_res", r, ".csv"))
+      # Make cluster a factor from character
+      mark$cluster <- factor(mark$cluster)
     }
 
     # Heatmap of marker genes
