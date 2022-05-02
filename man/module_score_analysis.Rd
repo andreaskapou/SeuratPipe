@@ -17,6 +17,10 @@ module_score_analysis(
   ctrl = 100,
   pt.size = 1.4,
   fig.res = 200,
+  alpha = c(0.1, 0.9),
+  pt.size.factor = 1.6,
+  spatial_col_pal = "inferno",
+  crop = TRUE,
   ...
 )
 }
@@ -55,6 +59,17 @@ analyzed feature.}
 \item{pt.size}{Adjust point size for plotting.}
 
 \item{fig.res}{Figure resolution in ppi (see 'png' function).}
+
+\item{alpha}{Controls opacity of spots. Provide as a vector specifying the
+min and max range of values (between 0 and 1).}
+
+\item{pt.size.factor}{Scale the size of the spots.}
+
+\item{spatial_col_pal}{Continuous colour palette to use from viridis package to
+colour spots on tissue, default "inferno".}
+
+\item{crop}{Crop the plot in to focus on points plotted. Set to FALSE to
+show entire background image.}
 
 \item{...}{Additional named parameters passed to Seurat's AddModuleScore
 and FeaturePlot}

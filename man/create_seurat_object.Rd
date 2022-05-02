@@ -21,7 +21,7 @@ create_seurat_object(
 )
 }
 \arguments{
-\item{data_dir}{Parent directory where all sample 10x files are stores.
+\item{data_dir}{Parent directory where all sample 10x files are stored.
 Think of it as project directory.}
 
 \item{sample_meta}{Sample metadata information in a Data.frame like object.

@@ -30,6 +30,11 @@ run_harmony_pipeline(
   label.size = 8,
   pt.size = 1.4,
   fig.res = 200,
+  cont_alpha = c(0.1, 0.9),
+  discrete_alpha = 0.6,
+  pt.size.factor = 1.6,
+  spatial_col_pal = "inferno",
+  crop = TRUE,
   ...
 )
 }
@@ -105,6 +110,19 @@ be used as input to PCA.}
 \item{pt.size}{Adjust point size for plotting.}
 
 \item{fig.res}{Figure resolution in ppi (see 'png' function).}
+
+\item{cont_alpha}{Controls opacity of spots. Provide as a vector specifying the
+min and max range of values (between 0 and 1).}
+
+\item{discrete_alpha}{Controls opacity of spots. Provide a single alpha value.}
+
+\item{pt.size.factor}{Scale the size of the spots.}
+
+\item{spatial_col_pal}{Continuous colour palette to use from viridis package to
+colour spots on tissue, default "inferno".}
+
+\item{crop}{Crop the plot in to focus on points plotted. Set to FALSE to
+show entire background image.}
 
 \item{...}{Additional named parameters passed to Seurat's or Harmony
 functions.}

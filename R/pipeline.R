@@ -9,7 +9,7 @@
 #' corresponding parameters. 3. Filter Seurat object according to QC
 #' criteria 4. Generate correspond QC plots.
 #'
-#' @param data_dir Parent directory where all sample 10x files are stores.
+#' @param data_dir Parent directory where all sample 10x files are stored.
 #' Think of it as project directory.
 #' @param sample_meta Sample metadata information in a Data.frame like object.
 #' Columns should at least contain 'sample', 'donor', 'condition' and 'pass_qc'.
@@ -80,7 +80,8 @@ run_qc_pipeline <- function(
     seu <- create_seurat_object(
       data_dir = data_dir, sample_meta = opts$sample_meta, sample_meta_filename = NULL,
       meta_colnames = meta_colnames, plot_dir = plot_dir, use_scrublet = use_scrublet,
-      use_soupx = use_soupx, tenx_dir = tenx_dir, expected_doublet_rate = expected_doublet_rate,
+      use_soupx = use_soupx, tenx_dir = tenx_dir, tenx_counts_dir = tenx_counts_dir,
+      expected_doublet_rate = expected_doublet_rate,
       min.cells = min.cells, min.features = min.features, ...)
     # Save pre-QC Seurat object and opts if we use SoupX that takes a long time
     if (use_soupx) {
@@ -263,6 +264,14 @@ run_qc_pipeline <- function(
 #' @param label.size Sets size of labels.
 #' @param pt.size Adjust point size for plotting.
 #' @param fig.res Figure resolution in ppi (see 'png' function).
+#' @param cont_alpha Controls opacity of spots. Provide as a vector specifying the
+#' min and max range of values (between 0 and 1).
+#' @param discrete_alpha Controls opacity of spots. Provide a single alpha value.
+#' @param pt.size.factor Scale the size of the spots.
+#' @param spatial_col_pal Continuous colour palette to use from viridis package to
+#' colour spots on tissue, default "inferno".
+#' @param crop Crop the plot in to focus on points plotted. Set to FALSE to
+#' show entire background image.
 #' @param ... Additional named parameters passed to Seurat's or Harmony
 #' functions.
 #'
@@ -281,7 +290,9 @@ run_harmony_pipeline <- function(
     pcs_to_remove = NULL, obj_filename = "seu_harmony", force_reanalysis = TRUE,
     plot_cluster_markers = TRUE, max.cutoff = "q98", n_hvgs = 3000,
     max.iter.harmony = 50, seed = 1, label = TRUE, label.size = 8,
-    pt.size = 1.4, fig.res = 200, ...) {
+    pt.size = 1.4, fig.res = 200, cont_alpha = c(0.1, 0.9),
+    discrete_alpha = 0.6, pt.size.factor = 1.6,
+    spatial_col_pal = "inferno", crop = TRUE, ...) {
 
   # Store all parameters for reproducibility
   opts <- c(as.list(environment()), list(...))
@@ -363,7 +374,9 @@ run_harmony_pipeline <- function(
                                    max.cutoff = max.cutoff,
                                    legend.position = "right",
                                    dims_plot = c(1,2), seed = seed, ctrl = 100,
-                                   fig.res = fig.res, ...)
+                                   fig.res = fig.res, alpha = cont_alpha,
+                                   pt.size.factor = pt.size.factor,
+                                   spatial_col_pal = spatial_col_pal, crop = crop, ...)
       # Different clustering resolutions and DGE
       cl_dir <- paste0(dim_dir, "/clusters/")
       if (!dir.exists(cl_dir)) {dir.create(cl_dir, recursive = TRUE)}
@@ -379,7 +392,10 @@ run_harmony_pipeline <- function(
                               seed = seed, ctrl = 100,
                               label = label, label.size = label.size,
                               legend.position = "right", pt.size = pt.size,
-                              fig.res = fig.res, ...)
+                              fig.res = fig.res, cont_alpha = cont_alpha,
+                              discrete_alpha = discrete_alpha,
+                              pt.size.factor = pt.size.factor,
+                              spatial_col_pal = spatial_col_pal, crop = crop, ...)
     }
   }
   return(seu)
@@ -413,16 +429,14 @@ run_harmony_pipeline <- function(
 #' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
 #'
 #' @export
-run_cluster_pipeline <- function(seu_obj, out_dir, npcs = c(50),
-                                 ndims = c(30), res = seq(0.1, 0.3, by = 0.1),
-                                 modules_group = NULL,
-                                 metadata_to_plot = c("sample", "condition"),
-                                 qc_to_plot = NULL, logfc.threshold = 0.5,
-                                 min.pct = 0.25, only.pos = TRUE, topn_genes = 10,
-                                 pcs_to_remove = NULL, plot_cluster_markers = TRUE,
-                                 max.cutoff = "q98", n_hvgs = 3000, seed = 1,
-                                 label = TRUE, label.size = 8,
-                                 pt.size = 1.4, fig.res = 200, ...) {
+run_cluster_pipeline <- function(
+    seu_obj, out_dir, npcs = c(50), ndims = c(30), res = seq(0.1, 0.3, by = 0.1),
+    modules_group = NULL, metadata_to_plot = c("sample", "condition"),
+    qc_to_plot = NULL, logfc.threshold = 0.5, min.pct = 0.25, only.pos = TRUE,
+    topn_genes = 10, pcs_to_remove = NULL, plot_cluster_markers = TRUE,
+    max.cutoff = "q98", n_hvgs = 3000, seed = 1, label = TRUE, label.size = 8,
+    pt.size = 1.4, fig.res = 200, cont_alpha = c(0.1, 0.9), discrete_alpha = 0.6,
+    pt.size.factor = 1.6, spatial_col_pal = "inferno", crop = TRUE, ...) {
   # Store all parameters for reproducibility
   opts <- c(as.list(environment()), list(...))
   # Do not store the Seurat object in opts
@@ -504,7 +518,9 @@ run_cluster_pipeline <- function(seu_obj, out_dir, npcs = c(50),
                                    max.cutoff = max.cutoff,
                                    legend.position = "right",
                                    dims_plot = c(1,2), seed = seed, ctrl = 100,
-                                   fig.res = fig.res, ...)
+                                   fig.res = fig.res, alpha = cont_alpha,
+                                   pt.size.factor = pt.size.factor,
+                                   spatial_col_pal = spatial_col_pal, crop = crop, ...)
       # Different clustering resolutions and DGE
       cl_dir <- paste0(dim_dir, "/clusters/")
       if (!dir.exists(cl_dir)) {dir.create(cl_dir, recursive = TRUE)}
@@ -520,7 +536,10 @@ run_cluster_pipeline <- function(seu_obj, out_dir, npcs = c(50),
                               seed = seed, ctrl = 100,
                               label = label, label.size = label.size,
                               legend.position = "right", pt.size = pt.size,
-                              fig.res = fig.res, ...)
+                              fig.res = fig.res, cont_alpha = cont_alpha,
+                              discrete_alpha = discrete_alpha,
+                              pt.size.factor = pt.size.factor,
+                              spatial_col_pal = spatial_col_pal, crop = crop, ...)
     }
   }
   return(seu)

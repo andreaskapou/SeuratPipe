@@ -71,10 +71,10 @@ dim_plot <- function(seu, reduction = "umap", group.by = "active.ident",
         combine = combine, label.size = label.size, label = FALSE, ...)
   t <- t &
     ggplot2::theme(legend.position = legend.position,
-                   legend.key.size = ggplot2::unit(1.3,"line"),
+          legend.key.size = ggplot2::unit(1.3,"line"),
           legend.text = ggplot2::element_text(size = 11),
           axis.line = ggplot2::element_line(colour = "black",
-                  size = 1.25, linetype = "solid"),
+                                            size = 1.25, linetype = "solid"),
           axis.text.x = ggplot2::element_blank(),
           axis.text.y = ggplot2::element_blank(),
           axis.title.x = ggplot2::element_text(size = 16),
@@ -93,7 +93,7 @@ dim_plot <- function(seu, reduction = "umap", group.by = "active.ident",
   if (label) {
     # Compute cluster centres
     dim_dt$ident <- group
-    centres <- dim_dt %>% dplyr::group_by(ident) %>%
+    centres <- dim_dt |> dplyr::group_by(ident) |>
       dplyr::summarize(x = median(D1), y = median(D2))
     t <- t + ggplot2::geom_text(centres,
               mapping = ggplot2::aes(x = x, y = y, label = ident),
@@ -128,6 +128,9 @@ feature_plot <- function(seu, reduction = "umap", features = "nFeature_RNA",
                          max.cutoff = "q98", ncol = NULL, legend.position = "right",
                          col_pal = NULL, dims_plot = c(1, 2), pt.size = 1.4,
                          combine = TRUE, ...) {
+  assertthat::assert_that(!is.null(reduction))
+  assertthat::assert_that(!is.null(features))
+
   # Extract features present in the Seurat object
   features <- features[(features %in% rownames(seu)) |
                          (features %in% colnames(seu@meta.data))]
@@ -135,8 +138,6 @@ feature_plot <- function(seu, reduction = "umap", features = "nFeature_RNA",
     message("No features present to plot.")
     return(ggplot2::ggplot())
   }
-  assertthat::assert_that(!is.null(reduction))
-  assertthat::assert_that(!is.null(features))
 
   if (reduction %in% c("umap", "tsne")) {
     dims_plot <- c(1,2)
@@ -185,6 +186,447 @@ feature_plot <- function(seu, reduction = "umap", features = "nFeature_RNA",
                                 limits = xlim) &
     ggplot2::scale_y_continuous(name = NULL, minor_breaks = NULL,
                                 limits = ylim)
+  return(t)
+}
+
+
+#' @title Subset dim plot
+#'
+#' @description This function splits the dim plots according to a grouping
+#' variable defined in `subset.by`. The main difference is that the whole
+#' dataset is also shown in the background as smaller points.
+#'
+#' @param subset.by Metadata column whose unique values will generate split
+#' dim plots.
+#' @param col_pal Discrete colour palette to use.
+#' @inheritParams subset_feature_plot
+#'
+#' @return A ggplot2 object.
+#'
+#' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
+#'
+#' @export
+subset_dim_plot <- function(
+    seu, subset.by, reduction = "umap", ncol = NULL, col_pal = NULL,
+    pt.size = 2, stroke = 0.05, back.pt.size = 0.5, back.alpha = 0.1,
+    back.color = "grey", combine = TRUE) {
+
+  # Extract dimensionally reduced data from full object
+  dim_dt <- as.data.frame(seu@reductions[[reduction]]@cell.embeddings)
+  # Keep only specified dimensions and provide generic column names
+  dim_dt <- dim_dt[, c(1,2)]
+  # Extract x and y plotting limits
+  xlim <- c(min(dim_dt[,1]) - 0.5, max(dim_dt[,1]) + 0.5)
+  ylim <- c(min(dim_dt[,2]) - 0.5, max(dim_dt[,2]) + 0.5)
+  # Add cell ID as column
+  dim_dt[["subset"]] <- seu[[subset.by]][[1]]
+
+  # Split to list
+  dim_dt_list <- dim_dt |> dplyr::group_by(subset) |> dplyr::group_split()
+  names(dim_dt_list) <- unique(seu[[subset.by]][[1]])
+
+  if (is.null(ncol)) {
+    if (length(dim_dt_list) <= 3) {
+      ncol <- length(dim_dt_list)
+    } else {
+      ncol <- 4
+    }
+  }
+
+  if (is.null(col_pal)) {
+    if (length(dim_dt_list) > 35) {
+      col_pal <- scales::hue_pal()(length(dim_dt_list))
+    } else {
+      col_pal = .internal_col_pal()[1:length(dim_dt_list)]
+    }
+    names(col_pal) <- names(dim_dt_list)
+  }
+
+  gg_list <- list()
+  for (s in names(dim_dt_list)) {
+    gg_list[[s]] <- local({
+      s <- s
+      dim_subset <- as.data.frame(dim_dt_list[[s]])
+      gg <- ggplot2::ggplot(dim_dt, ggplot2::aes(x = dim_dt[, 1], y = dim_dt[, 2], fill = dim_dt[, 3])) +
+        ggplot2::geom_point(size = back.pt.size, alpha = back.alpha, color = back.color) +
+        ggplot2::geom_point(data = dim_subset,
+                            mapping = aes(x = dim_subset[, 1],
+                                          y = dim_subset[, 2],
+                                          fill = dim_subset[, 3]),
+                            shape = 21, size = pt.size, stroke = stroke) +
+        ggplot2::scale_fill_manual(name = NULL, values = col_pal) +
+        ggplot2::scale_x_continuous(name = NULL, minor_breaks = NULL,
+                                    limits = xlim) +
+        ggplot2::scale_y_continuous(name = NULL, minor_breaks = NULL,
+                                    limits = ylim) +
+        ggplot2::labs(title = s) +
+        ggplot2::theme_classic() +
+        ggplot2::theme(legend.position = "none",
+                       plot.title = ggplot2::element_text(face = "bold", hjust = 0.5))
+      return(gg)
+    })
+  }
+  if (combine) {
+    gg_list <- patchwork::wrap_plots(gg_list, ncol = ncol)
+  }
+  return(gg_list)
+}
+
+
+#' @title Subset feature plot
+#'
+#' @description This function splits the feature plots according to a grouping
+#' variable defined in `subset.by`. The main difference is that the whole
+#' dataset is also shown in the background as smaller points.
+#'
+#' @param seu Seurat object
+#' @param subset.by Metadata column whose unique values will generate split
+#' feature plots.
+#' @param feature Feature to plot.
+#' @param min.cutoff Minimum cutoff value for feature, may specify quantile
+#' in the form of 'q##' where '##' is the quantile (eg, 'q1', 'q10').
+#' @param max.cutoff Maximum cutoff value for feature, may specify quantile
+#' in the form of 'q##' where '##' is the quantile (eg, 'q1', 'q10').
+#' @param reduction Dimensionality reduction to use.
+#' @param slot Slot to extract data from.
+#' @param ncol Number of columns for display when having multiple features.
+#' @param col_pal Continuous colour palette to use, default "RdYlBu".
+#' @param pt.size Adjust point size for plotting.
+#' @param stroke Stroke value for each point.
+#' @param legend.position Position of legend, default "right" (set to "none"
+#' for clean plot).
+#' @param back.pt.size Adjust background point size for plotting.
+#' @param back.alpha Adjust opacity for background points.
+#' @param back.color Colour for background points.
+#' @param combine Combine plots into a single patchworked ggplot object.
+#'    If FALSE, return a list of ggplot objects
+#'
+#' @return A ggplot2 object.
+#'
+#' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
+#'
+#' @export
+subset_feature_plot <- function(
+    seu, subset.by, feature, min.cutoff = NA, max.cutoff = NA,
+    reduction = "umap", slot = "data", ncol = NULL, col_pal = NULL,
+    pt.size = 2, stroke = 0.05, legend.position = "right",
+    back.pt.size = 0.5, back.alpha = 0.1, back.color = "grey", combine = TRUE) {
+
+  # Extract dimensionally reduced data from full object
+  dim_dt <- as.data.frame(seu@reductions[[reduction]]@cell.embeddings)
+  # Keep only specified dimensions and provide generic column names
+  dim_dt <- dim_dt[, c(1,2)]
+  # Extract x and y plotting limits
+  xlim <- c(min(dim_dt[,1]) - 0.5, max(dim_dt[,1]) + 0.5)
+  ylim <- c(min(dim_dt[,2]) - 0.5, max(dim_dt[,2]) + 0.5)
+  # Add feature to plot as 3rd column
+  dim_dt[, 3] <- Seurat::FetchData(object = seu, vars = feature, slot = slot)
+  # Add cell ID as column
+  dim_dt[["subset"]] <- seu[[subset.by]][[1]]
+
+  # Determine cutoffs
+  min.cutoff <- mapply(
+    FUN = function(cutoff, feature) {
+      return(ifelse(
+        test = is.na(x = cutoff),
+        yes = min(dim_dt[, 3]),
+        no = cutoff
+      ))
+    },
+    cutoff = min.cutoff,
+    feature = feature
+  )
+  max.cutoff <- mapply(
+    FUN = function(cutoff, feature) {
+      return(ifelse(
+        test = is.na(x = cutoff),
+        yes = max(dim_dt[, 3]),
+        no = cutoff
+      ))
+    },
+    cutoff = max.cutoff,
+    feature = feature
+  )
+
+  # Apply cutoffs
+  data.feature <- as.vector(x = dim_dt[, 3])
+  min.use <- Seurat::SetQuantile(cutoff = min.cutoff, data.feature)
+  max.use <- Seurat::SetQuantile(cutoff = max.cutoff, data.feature)
+  data.feature[data.feature < min.use] <- min.use
+  data.feature[data.feature > max.use] <- max.use
+  dim_dt[, 3] <- data.feature
+
+  # Split to list
+  dim_dt_list <- dim_dt |> dplyr::group_by(subset) |> dplyr::group_split()
+  names(dim_dt_list) <- unique(seu[[subset.by]][[1]])
+
+  if (is.null(ncol)) {
+    if (length(dim_dt_list) <= 3) {
+      ncol <- length(dim_dt_list)
+    } else {
+      ncol <- 4
+    }
+  }
+
+  if (is.null(col_pal)) { col_pal = "RdYlBu" }
+
+  key_height = 0.6
+  key_width = 0.2
+  if (legend.position == "top") {
+    key_height = 0.2
+    key_width = 0.7
+  }
+
+  gg_list <- list()
+  for (s in names(dim_dt_list)) {
+    gg_list[[s]] <- local({
+      s <- s
+      dim_subset <- as.data.frame(dim_dt_list[[s]])
+      gg <- ggplot2::ggplot(dim_dt, ggplot2::aes(x = dim_dt[, 1], y = dim_dt[, 2])) +
+        ggplot2::geom_point(size = back.pt.size, alpha = back.alpha, color = back.color) +
+        ggplot2::geom_point(data = dim_subset,
+                            mapping = aes(x = dim_subset[, 1],
+                                          y = dim_subset[, 2],
+                                          fill = dim_subset[, 3]),
+                            shape = 21, size = pt.size, stroke = stroke) +
+        ggplot2::scale_fill_distiller(palette = col_pal, limits = c(min.use, max.use)) +
+        ggplot2::scale_x_continuous(name = NULL, minor_breaks = NULL,
+                                    limits = xlim) +
+        ggplot2::scale_y_continuous(name = NULL, minor_breaks = NULL,
+                                    limits = ylim) +
+        ggplot2::labs(fill = feature, title = s) +
+        ggplot2::theme_classic() +
+        ggplot2::theme(legend.position = legend.position,
+                       legend.key.size = ggplot2::unit(0.7, "line"),
+                       legend.key.height = ggplot2::unit(key_height, "cm"),
+                       legend.key.width = ggplot2::unit(key_width, "cm"),
+                       legend.text = ggplot2::element_text(size = 3),
+                       plot.title = ggplot2::element_text(face = "bold", hjust = 0.5))
+      return(gg)
+    })
+  }
+  if (combine) {
+    gg_list <- patchwork::wrap_plots(gg_list, ncol = ncol)
+  }
+  return(gg_list)
+}
+
+
+#' @title Tailored feature plot
+#'
+#' @description This function generates the same plot as `feature_plot`,
+#' although it focuses on a single feature and generates slightly better
+#' looking plot.
+#'
+#' @param seu Seurat object
+#' @param feature Feature to plot.
+#' @param min.cutoff Minimum cutoff value for feature, may specify quantile
+#' in the form of 'q##' where '##' is the quantile (eg, 'q1', 'q10').
+#' @param max.cutoff Maximum cutoff value for feature, may specify quantile
+#' in the form of 'q##' where '##' is the quantile (eg, 'q1', 'q10').
+#' @param reduction Dimensionality reduction to use.
+#' @param slot Slot to extract data from.
+#' @param col_pal Continuous colour palette to use, default "RdYlBu".
+#' @param pt.size Adjust point size for plotting.
+#' @param stroke Stroke value for each point.
+#' @param legend.position Position of legend, default "right" (set to "none"
+#' for clean plot).
+#'
+#' @return A ggplot2 object.
+#'
+#' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
+#'
+#' @export
+feature_plot_tailored <- function(seu, feature, min.cutoff = NA, max.cutoff = NA,
+    reduction = "umap", slot = "data", col_pal = NULL, pt.size = 2,
+    stroke = 0.05, legend.position = "right") {
+
+  # Extract dimensionally reduced data from full object
+  dim_dt <- as.data.frame(seu@reductions[[reduction]]@cell.embeddings)
+  # Keep only specified dimensions and provide generic column names
+  dim_dt <- dim_dt[, c(1,2)]
+  # Extract x and y plotting limits
+  xlim <- c(min(dim_dt[,1]) - 0.5, max(dim_dt[,1]) + 0.5)
+  ylim <- c(min(dim_dt[,2]) - 0.5, max(dim_dt[,2]) + 0.5)
+  # Add feature to plot as 3rd column
+  dim_dt[, 3] <- Seurat::FetchData(object = seu, vars = feature, slot = slot)
+
+  # Determine cutoffs
+  min.cutoff <- mapply(
+    FUN = function(cutoff, feature) {
+      return(ifelse(
+        test = is.na(x = cutoff),
+        yes = min(dim_dt[, 3]),
+        no = cutoff
+      ))
+    },
+    cutoff = min.cutoff,
+    feature = feature
+  )
+  max.cutoff <- mapply(
+    FUN = function(cutoff, feature) {
+      return(ifelse(
+        test = is.na(x = cutoff),
+        yes = max(dim_dt[, 3]),
+        no = cutoff
+      ))
+    },
+    cutoff = max.cutoff,
+    feature = feature
+  )
+
+  # Apply cutoffs
+  data.feature <- as.vector(x = dim_dt[, 3])
+  min.use <- Seurat::SetQuantile(cutoff = min.cutoff, data.feature)
+  max.use <- Seurat::SetQuantile(cutoff = max.cutoff, data.feature)
+  data.feature[data.feature < min.use] <- min.use
+  data.feature[data.feature > max.use] <- max.use
+  dim_dt[, 3] <- data.feature
+
+  if (is.null(col_pal)) { col_pal = "RdYlBu" }
+
+  key_height = 0.6
+  key_width = 0.2
+  if (legend.position == "top") {
+    key_height = 0.2
+    key_width = 0.7
+  }
+
+  gg <- ggplot2::ggplot(dim_dt, ggplot2::aes(x = dim_dt[, 1], y = dim_dt[, 2],
+                                             fill = dim_dt[, 3])) +
+    ggplot2::geom_point(shape = 21, size = pt.size, stroke = stroke) +
+    ggplot2::scale_fill_distiller(palette = col_pal, limits = c(min.use, max.use)) +
+    ggplot2::scale_x_continuous(name = NULL, minor_breaks = NULL,
+                                limits = xlim) +
+    ggplot2::scale_y_continuous(name = NULL, minor_breaks = NULL,
+                                limits = ylim) +
+    ggplot2::labs(fill = feature, title = NULL) +
+    ggplot2::theme_classic() +
+    ggplot2::theme(legend.position = legend.position,
+                   legend.key.size = ggplot2::unit(0.7, "line"),
+                   legend.key.height = ggplot2::unit(key_height, "cm"),
+                   legend.key.width = ggplot2::unit(key_width, "cm"),
+                   legend.text = ggplot2::element_text(size = 3),
+                   plot.title = ggplot2::element_text(face = "bold", hjust = 0.5))
+  return(gg)
+}
+
+
+
+#' @title Tailored spatial dim plot
+#'
+#' @description This function adapts the SpatialDimPlot Seurat function by
+#'   providing additional plotting options.
+#'
+#' @param seu Seurat object (required).
+#' @param group.by Name of meta.data column to group the data by.
+#' @param alpha Controls opacity of spots. Provide a single alpha value for
+#' each plot.
+#' @param pt.size.factor Scale the size of the spots.
+#' @param crop Crop the plot in to focus on points plotted. Set to FALSE to
+#' show entire background image.
+#' @param col_pal Discrete colour palette to use, default is Hue palette
+#' (hue_pal) from 'scales' package. Should be of equal length to number of
+#' groups in 'group.by'.
+#' @param legend.position Position of legend, default "right" (set to "none"
+#' for clean plot).
+#' @param combine Combine plots into a single patchworked ggplot object.
+#'    If FALSE, return a list of ggplot objects
+#' @param ... Additional parameters passed to Seurat's SpatialDimPlot.
+#'
+#' @return A ggplot2 object.
+#'
+#' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
+#'
+#' @export
+spatial_dim_plot <- function(
+    seu, group.by = "active.ident", alpha = 0.6, pt.size.factor = 1.6,
+    crop = TRUE, col_pal = NULL, legend.position = "top",
+    combine = TRUE, ...) {
+
+  assertthat::assert_that(!is.null(group.by))
+
+  if (!(is.character(seu@meta.data[[group.by]]) ||
+        is.factor(seu@meta.data[[group.by]]) ||
+        is.logical(seu@meta.data[[group.by]]) ) ) {
+    stop("Error: 'group.by' should not be continuous in metadata slot")
+  }
+
+  group <- as.factor(seu@meta.data[[group.by]])
+  if (is.null(col_pal)) {
+    col_pal <- scales::hue_pal()(nlevels(group))
+    names(col_pal) <- levels(group)
+  }
+
+  t <- Seurat::SpatialDimPlot(
+    seu, group.by = group.by, crop = crop, combine = combine,
+    pt.size.factor = pt.size.factor, alpha = alpha, ...)
+  t <- t &
+    ggplot2::theme(legend.position = legend.position,
+                   legend.key.size = ggplot2::unit(1.3, "line"),
+                   legend.text = ggplot2::element_text(size = 11)) &
+    ggplot2::scale_color_manual(name = NULL, values = col_pal) &
+    ggplot2::scale_fill_manual(name = NULL, values = col_pal)
+    return(t)
+}
+
+
+#' @title Tailored spatial feature plot
+#'
+#' @description This function adapts the SpatialFeaturePlot Seurat function by
+#'   providing additional plotting options.
+#'
+#' @param features Vector of features to plot.
+#' @param alpha Controls opacity of spots. Provide as a vector specifying the
+#' min and max range of values (between 0 and 1).
+#' @param ncol Number of columns for display when having multiple features.
+#' @param max.cutoff Vector of maximum cutoff values for each feature, may
+#' specify quantile in the form of 'q##' where '##' is the quantile
+#' (eg, 'q1', 'q10').
+#' @param col_pal Continuous colour palette to use from viridis package,
+#' default "inferno".
+#' @param ... Additional parameters passed to Seurat's SpatialFeaturePlot.
+#'
+#' @inheritParams spatial_dim_plot
+#'
+#' @return A ggplot2 object.
+#'
+#' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
+#'
+#' @export
+spatial_feature_plot <- function(
+    seu, features = "nFeature_Spatial", alpha = c(0.1, 0.9), pt.size.factor = 1.6,
+    ncol = NULL, max.cutoff = "q98", crop = TRUE, col_pal = "inferno",
+    legend.position = "top", combine = TRUE, ...) {
+
+  assertthat::assert_that(!is.null(features))
+  # Extract features present in the Seurat object
+  features <- features[(features %in% rownames(seu)) |
+                         (features %in% colnames(seu@meta.data))]
+  if (length(features) == 0) {
+    message("No features present to plot.")
+    return(ggplot2::ggplot())
+  }
+
+  if (is.null(col_pal)) { col_pal = "inferno" }
+
+  key_height = 0.6
+  key_width = 0.2
+  if (legend.position == "top") {
+    key_height = 0.2
+    key_width = 0.8
+  }
+
+  t <- Seurat::SpatialFeaturePlot(
+    seu, features = features, crop = crop, max.cutoff = max.cutoff,
+    ncol = ncol, combine = combine, pt.size.factor = pt.size.factor, alpha = alpha, ...)
+  t <- t &
+    ggplot2::theme(legend.position = legend.position,
+                   legend.key.size = ggplot2::unit(0.7,"line"),
+                   legend.key.height = ggplot2::unit(key_height, 'cm'),
+                   legend.key.width = ggplot2::unit(key_width, "cm"),
+                   legend.text = ggplot2::element_text(size = 5)) &
+    viridis::scale_fill_viridis(option = col_pal)
   return(t)
 }
 
@@ -249,8 +691,8 @@ pca_feature_cor_plot <- function(seu, features) {
   # Heatmap showing correlation of metadata with Principal Components
   if ("pca" %in% names(seu@reductions)) {
     df_corr <- abs(stats::cor(seu@reductions[["pca"]]@cell.embeddings,
-                              seu[[features]])) %>%
-      dplyr::as_tibble(rownames = "PC") %>%
+                              seu[[features]])) |>
+      dplyr::as_tibble(rownames = "PC") |>
       tidyr::pivot_longer(cols = -c(PC), names_to = "QC", values_to = "cor")
     df_corr$PC <- factor(df_corr$PC,
                          levels = paste0("PC_", seq(1, NCOL(seu@reductions[["pca"]]))))
@@ -363,8 +805,8 @@ heatmap_plot <- function(seu, markers, topn_genes = 10, filename = NULL, ...) {
   #markers <- markers[!(grepl("^Rpl|^Rps|^mt-", markers$gene)),]
   #markers <- markers[markers$pct.2 < 0.2,]
   markers <- markers[markers$gene %in% rownames(scale_data), ]
-  markers <- markers %>% dplyr::filter(p_val_adj < 0.05) %>%
-    dplyr::group_by(cluster) %>%
+  markers <- markers |> dplyr::filter(p_val_adj < 0.05) |>
+    dplyr::group_by(cluster) |>
     dplyr::slice_max(n = topn_genes, order_by = avg_log2FC)
   markers <- markers[!duplicated(markers$gene), ]
 

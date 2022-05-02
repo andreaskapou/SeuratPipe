@@ -10,7 +10,6 @@
 #'
 #' @author C.A.Kapourani \email{kapouranis.andreas@@gmail.com}
 #'
-#' @rawNamespace importFrom(magrittr, "%>%")
 #' @rawNamespace importFrom(rlang, "%||%")
 #' @importFrom grDevices png pdf dev.off dev.list colorRampPalette
 #' @importFrom stats filter median
@@ -40,8 +39,8 @@ scrub <- NULL
     )
 
   col_pal <- c(
-    "tomato3", # red
-    "#6699CC",
+    "indianred", # red
+    "#6699CB",
     "#FDBF6F", # lt orange
     "#CAB2D6", # lt purple
     "#FB9A99", # lt pink
@@ -49,14 +48,16 @@ scrub <- NULL
     "darkolivegreen4", # darkgreen
     "darkgrey", # darkgrey
     "skyblue2", # lightblue
-    "steelblue4",
-    "maroon",
-    "yellowgreen",
+    "mediumpurple1",
+    "darkseagreen3",
     "khaki2", "ivory3",
+    "steelblue4",
     "#6A3D9A", # purple
     "seagreen", "orchid1", "blue1", "deeppink1", "gold1",
     "darkturquoise", "darkorange4", "#FF7F00",
-    "dodgerblue", "yellow3", "mediumorchid1", "firebrick4", "wheat4"
+    "dodgerblue", "yellow3", "mediumorchid1", "firebrick4",
+    "wheat4", "maroon", "grey30", "red2", "burlywood2", "cyan",
+    "darkolivegreen2", "yellowgreen"
   )
 
   assign("discrete_col_pal", col_pal, envir = topenv())

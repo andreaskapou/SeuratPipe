@@ -91,7 +91,7 @@ dimred_qc_plots <- function(seu, reductions = c("pca"),
 
     # Heatmap showing correlation of QCs with Principal Components
     if ("pca" %in% reductions) {
-      png(paste0(plot_dir, "pc_qc_cor.png"), width = 12,
+      png(paste0(plot_dir, "pca_qc_cor.png"), width = 12,
           height = 5, res = fig.res, units = "in")
       plot(pca_feature_cor_plot(seu = seu, features = qc_to_plot))
       dev.off()
@@ -196,6 +196,8 @@ harmony_analysis <- function(
 #' @param col_pal Continuous colour palette to use, default "RdYlBu".
 #' @param dims_plot Dimensions to plot, must be a two-length numeric vector
 #' specifying x- and y-dimensions.
+#' @param alpha Controls opacity of spots. Provide as a vector specifying the
+#' min and max range of values (between 0 and 1).
 #' @param ... Additional named parameters passed to Seurat's AddModuleScore
 #' and FeaturePlot
 #' @inheritParams cluster_analysis
@@ -209,11 +211,17 @@ module_score_analysis <- function(seu, modules_group, plot_dir = NULL,
                                   reduction = "umap", max.cutoff = "q98",
                                   legend.position = "top", col_pal = NULL,
                                   dims_plot = c(1, 2), seed = 1, ctrl = 100,
-                                  pt.size = 1.4, fig.res = 200, ...) {
+                                  pt.size = 1.4, fig.res = 200,
+                                  alpha = c(0.1, 0.9), pt.size.factor = 1.6,
+                                  spatial_col_pal = "inferno", crop = TRUE, ...) {
   # If no modules are given, return Seurat object
   if (is.null(modules_group)) {
     return(seu)
   }
+
+  # Extract default assay
+  assay <- Seurat::DefaultAssay(object = seu)
+
   # Iterate over the group of modules
   for (mg in names(modules_group)) {
     # Extract list of modules within the group
@@ -231,12 +239,24 @@ module_score_analysis <- function(seu, modules_group, plot_dir = NULL,
         png(paste0(plot_dir, "01_markers_", m, ".png"), width = plot_dim$width,
             height = plot_dim$height, res = fig.res, units = "in")
         plot(feature_plot(seu = seu, reduction = reduction,
-                          features = modules[[m]],
+                          features = features,
                           max.cutoff = max.cutoff, ncol = plot_dim$ncols,
                           legend.position = legend.position, col_pal = col_pal,
                           dims_plot = dims_plot, pt.size = pt.size,
                           combine = TRUE, ...) & Seurat::NoAxes())
         dev.off()
+
+        # If assay is "Spatial" plot expression on tissue as well
+        if (assay == "Spatial") {
+          spat_plot_dim <- .spatial_plot_dims(feat_len = length(features))
+          pdf(paste0(plot_dir, "01_markers_spatial_", m, ".pdf"), width = spat_plot_dim$width,
+              height = spat_plot_dim$height, useDingbats = FALSE)
+          print(spatial_feature_plot(
+            seu, features = features, alpha = alpha, pt.size.factor = pt.size.factor,
+            ncol = spat_plot_dim$ncols, max.cutoff = max.cutoff,
+            crop = TRUE, col_pal = "inferno", legend.position = "top", ...))
+          dev.off()
+        }
       }
     }
     if (!is.null(plot_dir)) {
@@ -251,6 +271,18 @@ module_score_analysis <- function(seu, modules_group, plot_dir = NULL,
                         dims_plot = dims_plot, pt.size = pt.size,
                         combine = TRUE, ...) & Seurat::NoAxes())
       dev.off()
+
+      # If assay is "Spatial" plot expression on tissue as well
+      if (assay == "Spatial") {
+        spat_plot_dim <- .spatial_plot_dims(feat_len = length(modules))
+        pdf(paste0(plot_dir, "02_score_spatial_", mg, ".png"), width = spat_plot_dim$width,
+            height = spat_plot_dim$height, useDingbats = FALSE)
+        print(spatial_feature_plot(
+          seu, features = features, alpha = alpha, pt.size.factor = pt.size.factor,
+          ncol = spat_plot_dim$ncols, max.cutoff = max.cutoff,
+          crop = crop, col_pal = spatial_col_pal, legend.position = "top", ...))
+        dev.off()
+      }
     }
   }
   return(seu)
@@ -320,6 +352,14 @@ module_score_analysis <- function(seu, modules_group, plot_dir = NULL,
 #' @param discrete_col_pal Discrete colour palette to use, default is Hue palette
 #' (hue_pal) from 'scales' package.
 #' @param fig.res Figure resolution in ppi (see 'png' function).
+#' @param cont_alpha Controls opacity of spots. Provide as a vector specifying the
+#' min and max range of values (between 0 and 1).
+#' @param discrete_alpha Controls opacity of spots. Provide a single alpha value.
+#' @param pt.size.factor Scale the size of the spots.
+#' @param spatial_col_pal Continuous colour palette to use from viridis package to
+#' colour spots on tissue, default "inferno".
+#' @param crop Crop the plot in to focus on points plotted. Set to FALSE to
+#' show entire background image.
 #' @param ... Additional named parameters passed to Seurat
 #' analysis and plotting functions, such as FindClusters, FindAllMarkers,
 #' DimPlot and FeaturePlot.
@@ -339,12 +379,16 @@ cluster_analysis <- function(seu, dims = 1:20, res = seq(0.1, 0.1, by = 0.1),
                              label = TRUE, label.size = 8,
                              legend.position = "right", pt.size = 1.4,
                              cont_col_pal = NULL, discrete_col_pal = NULL,
-                             fig.res = 200, ...) {
+                             fig.res = 200, cont_alpha = c(0.1, 0.9),
+                             discrete_alpha = 0.6, pt.size.factor = 1.6,
+                             spatial_col_pal = "inferno", crop = TRUE, ...) {
   # So CMD passes without NOTES
-  cluster = avg_log2FC <- NULL
+  cluster = avg_log2FC = seurat_clusters = condition = sample = freq = n <- NULL
   assertthat::assert_that(methods::is(seu, "Seurat"))
   # Drop unused factor levels - mostly done when a Seurat object is filtered
   seu <- .drop_factors(seu)
+  # Extract default assay
+  assay <- Seurat::DefaultAssay(object = seu)
 
   # Iterate over each clustering resolution
   for (r in res) {
@@ -367,6 +411,18 @@ cluster_analysis <- function(seu, dims = 1:20, res = seq(0.1, 0.1, by = 0.1),
                     dims_plot = c(1,2), pt.size = pt.size, label = label,
                     label.size=label.size, combine=TRUE,...) & Seurat::NoAxes())
       dev.off()
+
+      # If assay is "Spatial" plot expression on tissue as well
+      if (assay == "Spatial") {
+        spat_plot_dim <- .spatial_plot_dims(feat_len = 1)
+        pdf(paste0(plot_dir, "z_cluster_res", r, ".pdf"), width = spat_plot_dim$width,
+            height = spat_plot_dim$height, useDingbats = FALSE)
+        print(spatial_dim_plot(
+          seu, group.by = "seurat_clusters", alpha = discrete_alpha,
+          pt.size.factor = pt.size.factor, ncol = spat_plot_dim$ncols,
+          crop = crop, col_pal = discrete_col_pal, legend.position = "top", ...))
+        dev.off()
+      }
     }
 
     # Create dot plot for each module group, assumes we already have computed
@@ -410,8 +466,8 @@ cluster_analysis <- function(seu, dims = 1:20, res = seq(0.1, 0.1, by = 0.1),
     ## Feature and violin plots
     if (plot_cluster_markers & !is.null(plot_dir)) {
       # Extract top marker genes
-      top_mark <- mark[mark$gene %in% rownames(x = seu), ] %>%
-        dplyr::group_by(cluster) %>%
+      top_mark <- mark[mark$gene %in% rownames(x = seu), ] |>
+        dplyr::group_by(cluster) |>
         dplyr::slice_max(n = topn_genes, order_by = avg_log2FC)
       # For each cluster plot marker genes
       for (cl in levels(top_mark$cluster)) {
@@ -436,6 +492,18 @@ cluster_analysis <- function(seu, dims = 1:20, res = seq(0.1, 0.1, by = 0.1),
                                pt.size = 0.03, ...))
           dev.off()
 
+          # If assay is "Spatial" plot expression on tissue as well
+          if (assay == "Spatial") {
+            spat_plot_dim <- .spatial_plot_dims(feat_len = length(genes))
+            pdf(paste0(plot_dir, "01_feature_spatial_seu_res", r, "_cl", cl, ".pdf"),
+                width = spat_plot_dim$width, height = spat_plot_dim$height, useDingbats = FALSE)
+            plot(spatial_feature_plot(
+              seu, features = genes, alpha = cont_alpha, pt.size.factor = pt.size.factor,
+              ncol = spat_plot_dim$ncols, max.cutoff = max.cutoff,
+              crop = TRUE, col_pal = spatial_col_pal, legend.position = "top", ...))
+            dev.off()
+          }
+
           # Each cluster as a module and compute score
           seu <- compute_module_score(seu = seu, features = genes, ctrl = ctrl,
                                       name = paste0("Cluster", cl), ...)
@@ -454,7 +522,113 @@ cluster_analysis <- function(seu, dims = 1:20, res = seq(0.1, 0.1, by = 0.1),
                           legend.position = legend.position, dims_plot = c(1,2),
                           pt.size = pt.size, ...) & Seurat::NoAxes())
         dev.off()
+
+        # If assay is "Spatial" plot expression on tissue as well
+        if (assay == "Spatial") {
+          spat_plot_dim <- .spatial_plot_dims(feat_len = length(unique(top_mark$cluster)))
+          pdf(paste0(plot_dir, "03_score_spatial_seu_res", r, ".pdf"),
+              width = spat_plot_dim$width, height = spat_plot_dim$height, useDingbats = FALSE)
+          plot(spatial_feature_plot(
+            seu, features = paste0("Cluster", unique(top_mark$cluster)),
+            alpha = cont_alpha, pt.size.factor = pt.size.factor,
+            ncol = spat_plot_dim$ncols, max.cutoff = max.cutoff,
+            crop = TRUE, col_pal = spatial_col_pal, legend.position = "top", ...))
+          dev.off()
+        }
       }
+    }
+
+    # Condition specific histogram plots
+    if (length(unique(seu$condition)) > 1) {
+      # Update discrete colour palette if NULL
+      if (is.null(discrete_col_pal)) {
+        if (nlevels(seu$condition) > 35) {
+          col_pal <- scales::hue_pal()(nlevels(seu$condition))
+        } else {
+          col_pal <- .internal_col_pal()[1:nlevels(seu$condition)]
+        }
+        names(col_pal) <- levels(seu$condition)
+      } else {
+        col_pal <- discrete_col_pal
+      }
+      cl_condition <- seu@meta.data |> dplyr::group_by(seurat_clusters, condition) |>
+        dplyr::summarise(n = n()) |> dplyr::mutate(freq = n / sum(n))
+
+      png(paste0(plot_dir, "hist_condition_contr_per_cluster_res", r, ".png"),
+          width = 7 + 0.3*nlevels(seu@meta.data[["seurat_clusters"]]),
+          height = 5, res = 150, units = "in")
+      plot(ggplot2::ggplot(data = cl_condition,
+                           ggplot2::aes(x = seurat_clusters, y = freq, fill = condition)) +
+        ggplot2::geom_bar(stat = "identity", color = "black") +
+        ggplot2::theme_classic() +
+        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, vjust = 1, hjust = 1),
+              plot.title = ggplot2::element_text(hjust = 0.5, face = "bold", size = 12)) +
+        ggplot2::xlab(NULL) + ggplot2::ylab("Cluster contribution") + ggplot2::ggtitle(NULL) +
+        ggplot2::scale_fill_manual(values = col_pal))
+      dev.off()
+
+      cl_condition <- seu@meta.data |> dplyr::group_by(condition, seurat_clusters) |>
+        dplyr::summarise(n = n()) |> dplyr::mutate(freq = n / sum(n))
+
+      png(paste0(plot_dir, "hist_condition_contr_res", r, ".png"),
+          width = 7 + 0.3*nlevels(seu@meta.data[["seurat_clusters"]]),
+          height = 5, res = 150, units = "in")
+      plot(ggplot2::ggplot(data = cl_condition,
+                           ggplot2::aes(x = seurat_clusters, y = freq, fill = condition)) +
+             ggplot2::geom_bar(stat = "identity", color = "black", position = ggplot2::position_dodge()) +
+             ggplot2::theme_classic() +
+             ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, vjust = 1, hjust = 1),
+                            plot.title = ggplot2::element_text(hjust = 0.5, face = "bold", size = 12)) +
+             ggplot2::xlab(NULL) + ggplot2::ylab("Cluster contribution") + ggplot2::ggtitle(NULL) +
+          ggplot2::scale_fill_manual(values = col_pal))
+      dev.off()
+    }
+
+    # Sample specific histogram plots
+    if (length(unique(seu$sample)) > 1) {
+      # Update discrete colour palette if NULL
+      if (is.null(discrete_col_pal)) {
+        if (nlevels(seu$sample) > 35) {
+          col_pal <- scales::hue_pal()(nlevels(seu$sample))
+        } else {
+          col_pal <- .internal_col_pal()[1:nlevels(seu$sample)]
+        }
+        names(col_pal) <- levels(seu$sample)
+      } else {
+        col_pal <- discrete_col_pal
+      }
+
+      cl_condition <- seu@meta.data |> dplyr::group_by(seurat_clusters, sample) |>
+        dplyr::summarise(n = n()) |> dplyr::mutate(freq = n / sum(n))
+
+      png(paste0(plot_dir, "hist_sample_contr_per_cluster_res", r, ".png"),
+          width = 7 + 0.3*nlevels(seu@meta.data[["seurat_clusters"]]),
+          height = 5, res = 150, units = "in")
+      plot(ggplot2::ggplot(data = cl_condition,
+                           ggplot2::aes(x = seurat_clusters, y = freq, fill = sample)) +
+             ggplot2::geom_bar(stat = "identity", color="black") +
+             ggplot2::theme_classic() +
+             ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, vjust = 1, hjust = 1),
+                            plot.title = ggplot2::element_text(hjust = 0.5, face = "bold", size = 12)) +
+             ggplot2::xlab(NULL) + ggplot2::ylab("Cluster contribution") + ggplot2::ggtitle(NULL) +
+             ggplot2::scale_fill_manual(values = col_pal))
+      dev.off()
+
+      cl_condition <- seu@meta.data |> dplyr::group_by(sample, seurat_clusters) |>
+        dplyr::summarise(n = n()) |> dplyr::mutate(freq = n / sum(n))
+
+      png(paste0(plot_dir, "hist_sample_contr_res", r, ".png"),
+          width = 7 + 0.3*nlevels(seu@meta.data[["seurat_clusters"]]),
+          height = 5, res = 150, units = "in")
+      plot(ggplot2::ggplot(data = cl_condition,
+                           ggplot2::aes(x = seurat_clusters, y = freq, fill = sample)) +
+             ggplot2::geom_bar(stat = "identity", color="black", position = ggplot2::position_dodge()) +
+             ggplot2::theme_classic() +
+             ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, vjust = 1, hjust = 1),
+                            plot.title = ggplot2::element_text(hjust = 0.5, face = "bold", size = 12)) +
+             ggplot2::xlab(NULL) + ggplot2::ylab("Cluster contribution") + ggplot2::ggtitle(NULL) +
+             ggplot2::scale_fill_manual(values = col_pal))
+      dev.off()
     }
   }
   return(seu)

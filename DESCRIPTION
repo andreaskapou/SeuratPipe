@@ -25,7 +25,6 @@ Imports:
     ggplot2,
     gtools,
     harmony,
-    magrittr,
     MASS,
     methods,
     patchwork,

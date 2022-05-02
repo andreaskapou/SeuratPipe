@@ -36,6 +36,7 @@ create_seurat_object <- function(data_dir, sample_meta = NULL, sample_meta_filen
   seu <- list()
   for (i in 1:NROW(sample_meta)) {
     s <- sample_meta$sample[i]
+    print(paste("Sample ", s, "... \n"))
     if (is.null(tenx_dir)) {
       if (is.null(sample_meta$technology[i])) {
         stop("Stopping: 'technology' column is not defined in metadata
@@ -117,6 +118,77 @@ create_seurat_object <- function(data_dir, sample_meta = NULL, sample_meta_filen
                                       col.name = "doublet_score")
       seu[[s]] <- Seurat::AddMetaData(seu[[s]], metadata = doublet_prediction,
                                       col.name = "doublet_prediction")
+    }
+  }
+  # We have a single sample, so removing from list
+  if (length(seu) == 1) { seu <- seu[[1]] }
+  # Return generated Seurat object or list of Seurat objects
+  return(seu)
+}
+
+
+#' @rdname spatial_create_seurat_object
+#'
+#' @title Create Seurat object based on spatial sample metadata.
+#'
+#' @description This function creates Seurat object for each spatial
+#' (e.g. Visium) sample in the metadata file.
+#'
+#' @param ... Additional named parameters passed to Seurat.
+#' @inheritParams run_qc_pipeline
+#'
+#' @return List of Seurat objects equal the number of samples in
+#' the sample metadata file. If a single sample, returns a Seurat object.
+#'
+#' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
+#'
+#' @export
+spatial_create_seurat_object <- function(
+    data_dir, sample_meta = NULL, sample_meta_filename = NULL,
+    meta_colnames = c("donor", "condition", "pass_qc"), tenx_dir = "outs", ...) {
+  pass_qc = sample = Barcode <- NULL
+  # Check if metadata object or filename is given as input
+  sample_meta <- .get_metadata(sample_meta = sample_meta,
+                               sample_meta_filename = sample_meta_filename)
+
+  # Create Seurat object for each sample
+  seu <- list()
+  for (i in 1:NROW(sample_meta)) {
+    s <- sample_meta$sample[i]
+
+    seu[[s]] <- Seurat::Load10X_Spatial(
+      data.dir = paste0(data_dir, sample_meta$path[i], "/", tenx_dir),
+      slice = s, filter.matrix = TRUE, ...)
+    Seurat::Idents(seu[[s]]) <- s
+    seu[[s]]@meta.data$orig.ident <- Seurat::Idents(seu[[s]])
+
+    # Rename cells to distinguish across datasets
+    seu[[s]] <- Seurat::RenameCells(object = seu[[s]], add.cell.id = s)
+
+    # If manual filtering of spots occured, e.g. through Loupe browser,
+    # read file and subset Seurat object accordingly
+    fname <- paste0(data_dir, sample_meta$path[i], "/", tenx_dir, "/", s, "_filtered.csv")
+    if (file.exists(fname)) {
+      df <- read.csv(fname) |>
+        dplyr::filter(pass_qc == "pass") |>
+        dplyr::mutate(Barcode = paste0(s, "_", Barcode))
+      seu[[s]] <- subset(seu[[s]], cells = df$Barcode)
+    }
+
+    # Compute Mitochondrial percentage
+    # TODO: Hack assuming either human OR mouse, and since for one of them we
+    # will have all 0s, OR (|) will give us the same information we need.
+    seu[[s]]$percent.mito <- Seurat::PercentageFeatureSet(
+      seu[[s]], pattern = "^MT-|^mt-")
+
+    # Add required sample metadata information
+    seu[[s]]$sample <- as.factor(s)
+    seu[[s]]$donor <- as.factor(sample_meta$donor[i])
+    seu[[s]]$condition <- as.factor(sample_meta$condition[i])
+
+    # Add user defined sample metadata information
+    for (m in meta_colnames) {
+      seu[[s]][[m]] <- as.factor(sample_meta[[m]][i])
     }
   }
   # We have a single sample, so removing from list
@@ -569,7 +641,7 @@ install_scrublet <- function(envname = "r-reticulate", method = "auto",
     message("Both 'sample_meta' and 'sample_meta_filename' provided.
             Using 'sample_meta'.")
   } else if (is.null(sample_meta) && !is.null(sample_meta_filename)) {
-    sample_meta <- read.csv(file = paste0(sample_meta_filename)) %>%
+    sample_meta <- read.csv(file = paste0(sample_meta_filename)) |>
       dplyr::filter(pass_qc == TRUE)
   }
   if (is.null(sample_meta) && is.null(sample_meta_filename)) {
@@ -583,7 +655,7 @@ install_scrublet <- function(envname = "r-reticulate", method = "auto",
          are not present in metadata file. Stopping.")
   }
   # Order metadata by sample name
-  sample_meta <- sample_meta %>% dplyr::arrange(sample)
+  sample_meta <- sample_meta |> dplyr::arrange(sample)
 
   # Return sample metadata
   return(sample_meta)
@@ -648,4 +720,55 @@ install_scrublet <- function(envname = "r-reticulate", method = "auto",
     ncols = 4
   }
   return(list(width = width, height = height, ncols = ncols))
+}
+
+
+# General function for obtaining consistent spatial plotting dimensions
+.spatial_plot_dims <- function(feat_len) {
+  if (!is.numeric(feat_len)) {
+    message("Invalid argument:  Setting 'feat_len' for plotting to 2")
+    feat_len <- 2
+  } else if (feat_len == 0){
+    feat_len <- 2
+  }
+  if (feat_len == 1) {
+    width = 6
+    height = 7
+    ncols = feat_len
+  } else if (feat_len <= 3 & feat_len > 1) {
+    width = 6 * feat_len
+    height = 7
+    ncols = feat_len
+  } else {
+    width = 24
+    height = 7 * ceiling(feat_len / 4)
+    ncols = 4
+  }
+  return(list(width = width, height = height, ncols = ncols))
+}
+
+
+
+.internal_col_pal <- function() {
+  return(c(
+    "indianred", # red
+    "#6699CB",
+    "#FDBF6F", # lt orange
+    "#CAB2D6", # lt purple
+    "#FB9A99", # lt pink
+    "tan3",
+    "darkolivegreen4", # darkgreen
+    "darkgrey", # darkgrey
+    "skyblue2", # lightblue
+    "mediumpurple1",
+    "darkseagreen3",
+    "khaki2", "ivory3",
+    "steelblue4",
+    "#6A3D9A", # purple
+    "seagreen", "orchid1", "blue1", "deeppink1", "gold1",
+    "darkturquoise", "darkorange4", "#FF7F00",
+    "dodgerblue", "yellow3", "mediumorchid1", "firebrick4",
+    "wheat4", "maroon", "grey30", "red2", "burlywood2", "cyan",
+    "darkolivegreen2", "yellowgreen"
+  ))
 }
