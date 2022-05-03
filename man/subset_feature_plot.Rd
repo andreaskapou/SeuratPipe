@@ -8,8 +8,8 @@ subset_feature_plot(
   seu,
   subset.by,
   feature,
+  max.cutoff = "q98",
   min.cutoff = NA,
-  max.cutoff = NA,
   reduction = "umap",
   slot = "data",
   ncol = NULL,
@@ -31,10 +31,10 @@ feature plots.}
 
 \item{feature}{Feature to plot.}
 
-\item{min.cutoff}{Minimum cutoff value for feature, may specify quantile
+\item{max.cutoff}{Maximum cutoff value for feature, may specify quantile
 in the form of 'q##' where '##' is the quantile (eg, 'q1', 'q10').}
 
-\item{max.cutoff}{Maximum cutoff value for feature, may specify quantile
+\item{min.cutoff}{Minimum cutoff value for feature, may specify quantile
 in the form of 'q##' where '##' is the quantile (eg, 'q1', 'q10').}
 
 \item{reduction}{Dimensionality reduction to use.}

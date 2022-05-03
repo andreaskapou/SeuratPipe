@@ -11,6 +11,7 @@ dimred_qc_plots(
   qc_to_plot = NULL,
   plot_dir,
   max.cutoff = "q98",
+  min.cutoff = NA,
   legend.position = "right",
   cont_col_pal = NULL,
   discrete_col_pal = NULL,
@@ -36,6 +37,10 @@ present in the  meta.data slot.}
 not saved.}
 
 \item{max.cutoff}{Vector of maximum cutoff values for each feature,
+may specify quantile in the form of 'q##' where '##' is the quantile
+(eg, 'q1', 'q10').}
+
+\item{min.cutoff}{Vector of minimum cutoff values for each feature,
 may specify quantile in the form of 'q##' where '##' is the quantile
 (eg, 'q1', 'q10').}
 

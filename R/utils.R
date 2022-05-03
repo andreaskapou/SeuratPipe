@@ -653,29 +653,34 @@ install_scrublet <- function(envname = "r-reticulate", method = "auto",
 
 
 # General function for obtaining consistent spatial plotting dimensions
-.spatial_plot_dims <- function(feat_len) {
+.spatial_plot_dims <- function(feat_len, sample_len = 1) {
   if (!is.numeric(feat_len)) {
     message("Invalid argument:  Setting 'feat_len' for plotting to 2")
     feat_len <- 2
   } else if (feat_len == 0){
     feat_len <- 2
   }
-  if (feat_len == 1) {
-    width = 6
-    height = 7
-    ncols = feat_len
-  } else if (feat_len <= 3 & feat_len > 1) {
-    width = 6 * feat_len
-    height = 7
-    ncols = feat_len
+  if (sample_len == 1) {
+    if (feat_len == 1) {
+      width <- 6
+      height <- 7
+      ncols <- 1
+    } else if (feat_len <= 3 & feat_len > 1) {
+      width <- 6 * feat_len
+      height <- 7
+      ncols <- feat_len
+    } else {
+      width <- 24
+      height <- 7 * ceiling(feat_len / 4)
+      ncols <- 4
+    }
   } else {
-    width = 24
-    height = 7 * ceiling(feat_len / 4)
-    ncols = 4
+    width <- 6 * sample_len
+    height <- 7 * feat_len
+    ncols <- 1
   }
   return(list(width = width, height = height, ncols = ncols))
 }
-
 
 
 .internal_col_pal <- function() {

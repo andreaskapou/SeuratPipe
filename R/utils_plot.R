@@ -65,6 +65,9 @@ dim_plot <- function(seu, reduction = "umap", group.by = "active.ident",
   if (is.null(col_pal)) {
     col_pal <- scales::hue_pal()(nlevels(group))
     names(col_pal) <- levels(group)
+  } else {
+    col_pal <- col_pal[1:nlevels(group)]
+    names(col_pal) <- levels(group)
   }
   t <- Seurat::DimPlot(seu, reduction = reduction, dims = dims_plot,
         group.by = group.by, split.by = split.by, ncol = ncol, pt.size = 0,
@@ -124,10 +127,10 @@ dim_plot <- function(seu, reduction = "umap", group.by = "active.ident",
 #' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
 #'
 #' @export
-feature_plot <- function(seu, reduction = "umap", features = "nFeature_RNA",
-                         max.cutoff = "q98", ncol = NULL, legend.position = "right",
-                         col_pal = NULL, dims_plot = c(1, 2), pt.size = 1.4,
-                         combine = TRUE, ...) {
+feature_plot <- function(
+    seu, reduction = "umap", features = "nFeature_RNA", max.cutoff = "q98",
+    min.cutoff = NA, ncol = NULL, legend.position = "right", col_pal = NULL,
+    dims_plot = c(1, 2), pt.size = 1.4, combine = TRUE, ...) {
   assertthat::assert_that(!is.null(reduction))
   assertthat::assert_that(!is.null(features))
 
@@ -162,9 +165,9 @@ feature_plot <- function(seu, reduction = "umap", features = "nFeature_RNA",
     key_width = 0.7
   }
 
-  t <- Seurat::FeaturePlot(seu, features = features, reduction = reduction,
-                           max.cutoff = max.cutoff, ncol = ncol,
-                           combine = combine, pt.size = NULL, ...)
+  t <- Seurat::FeaturePlot(
+    seu, features = features, reduction = reduction, max.cutoff = max.cutoff,
+    min.cutoff = min.cutoff, ncol = ncol, combine = combine, pt.size = NULL, ...)
   t <- t &
     ggplot2::theme(legend.position = legend.position,
           legend.key.size = ggplot2::unit(0.7,"line"),
@@ -234,11 +237,10 @@ subset_dim_plot <- function(
   }
 
   if (is.null(col_pal)) {
-    if (length(dim_dt_list) > 35) {
-      col_pal <- scales::hue_pal()(length(dim_dt_list))
-    } else {
-      col_pal = .internal_col_pal()[1:length(dim_dt_list)]
-    }
+    col_pal <- scales::hue_pal()(length(dim_dt_list))
+    names(col_pal) <- names(dim_dt_list)
+  } else {
+    col_pal <- col_pal[1:names(dim_dt_list)]
     names(col_pal) <- names(dim_dt_list)
   }
 
@@ -247,8 +249,11 @@ subset_dim_plot <- function(
     gg_list[[s]] <- local({
       s <- s
       dim_subset <- as.data.frame(dim_dt_list[[s]])
-      gg <- ggplot2::ggplot(dim_dt, ggplot2::aes(x = dim_dt[, 1], y = dim_dt[, 2], fill = dim_dt[, 3])) +
-        ggplot2::geom_point(size = back.pt.size, alpha = back.alpha, color = back.color) +
+      gg <- ggplot2::ggplot(dim_dt, ggplot2::aes(x = dim_dt[, 1],
+                                                 y = dim_dt[, 2],
+                                                 fill = dim_dt[, 3])) +
+        ggplot2::geom_point(size = back.pt.size, alpha = back.alpha,
+                            color = back.color) +
         ggplot2::geom_point(data = dim_subset,
                             mapping = aes(x = dim_subset[, 1],
                                           y = dim_subset[, 2],
@@ -307,7 +312,7 @@ subset_dim_plot <- function(
 #'
 #' @export
 subset_feature_plot <- function(
-    seu, subset.by, feature, min.cutoff = NA, max.cutoff = NA,
+    seu, subset.by, feature, max.cutoff = "q98", min.cutoff = NA,
     reduction = "umap", slot = "data", ncol = NULL, col_pal = NULL,
     pt.size = 2, stroke = 0.05, legend.position = "right",
     back.pt.size = 0.5, back.alpha = 0.1, back.color = "grey", combine = TRUE) {
@@ -437,7 +442,7 @@ subset_feature_plot <- function(
 #' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
 #'
 #' @export
-feature_plot_tailored <- function(seu, feature, min.cutoff = NA, max.cutoff = NA,
+feature_plot_tailored <- function(seu, feature, max.cutoff = "q98", min.cutoff = NA,
     reduction = "umap", slot = "data", col_pal = NULL, pt.size = 2,
     stroke = 0.05, legend.position = "right") {
 
@@ -520,6 +525,7 @@ feature_plot_tailored <- function(seu, feature, min.cutoff = NA, max.cutoff = NA
 #'
 #' @param seu Seurat object (required).
 #' @param group.by Name of meta.data column to group the data by.
+#' @param title Plot title
 #' @param alpha Controls opacity of spots. Provide a single alpha value for
 #' each plot.
 #' @param pt.size.factor Scale the size of the spots.
@@ -540,9 +546,9 @@ feature_plot_tailored <- function(seu, feature, min.cutoff = NA, max.cutoff = NA
 #'
 #' @export
 spatial_dim_plot <- function(
-    seu, group.by = "active.ident", alpha = 0.6, pt.size.factor = 1.6,
-    crop = TRUE, col_pal = NULL, legend.position = "top",
-    combine = TRUE, ...) {
+    seu, group.by = "active.ident", title = NULL, alpha = 0.6,
+    pt.size.factor = 1.4, crop = TRUE, col_pal = NULL,
+    legend.position = "top", combine = TRUE, ...) {
 
   assertthat::assert_that(!is.null(group.by))
 
@@ -556,6 +562,9 @@ spatial_dim_plot <- function(
   if (is.null(col_pal)) {
     col_pal <- scales::hue_pal()(nlevels(group))
     names(col_pal) <- levels(group)
+  } else {
+    col_pal <- col_pal[1:nlevels(group)]
+    names(col_pal) <- levels(group)
   }
 
   t <- Seurat::SpatialDimPlot(
@@ -566,7 +575,8 @@ spatial_dim_plot <- function(
                    legend.key.size = ggplot2::unit(1.3, "line"),
                    legend.text = ggplot2::element_text(size = 11)) &
     ggplot2::scale_color_manual(name = NULL, values = col_pal) &
-    ggplot2::scale_fill_manual(name = NULL, values = col_pal)
+    ggplot2::scale_fill_manual(name = NULL, values = col_pal) &
+    ggplot2::ggtitle(label = title)
     return(t)
 }
 
@@ -583,6 +593,9 @@ spatial_dim_plot <- function(
 #' @param max.cutoff Vector of maximum cutoff values for each feature, may
 #' specify quantile in the form of 'q##' where '##' is the quantile
 #' (eg, 'q1', 'q10').
+#' @param min.cutoff Vector of minimum cutoff values for each feature, may
+#' specify quantile in the form of 'q##' where '##' is the quantile
+#' (eg, 'q1', 'q10').
 #' @param col_pal Continuous colour palette to use from viridis package,
 #' default "inferno".
 #' @param ... Additional parameters passed to Seurat's SpatialFeaturePlot.
@@ -595,9 +608,9 @@ spatial_dim_plot <- function(
 #'
 #' @export
 spatial_feature_plot <- function(
-    seu, features = "nFeature_Spatial", alpha = c(0.1, 0.9), pt.size.factor = 1.6,
-    ncol = NULL, max.cutoff = "q98", crop = TRUE, col_pal = "inferno",
-    legend.position = "top", combine = TRUE, ...) {
+    seu, features = "nFeature_Spatial", title = NULL, alpha = c(0.1, 0.9),
+    pt.size.factor = 1.4, ncol = NULL, max.cutoff = "q98", min.cutoff = NA,
+    crop = TRUE, col_pal = "inferno", legend.position = "top", combine = TRUE, ...) {
 
   assertthat::assert_that(!is.null(features))
   # Extract features present in the Seurat object
@@ -618,7 +631,7 @@ spatial_feature_plot <- function(
   }
 
   t <- Seurat::SpatialFeaturePlot(
-    seu, features = features, crop = crop, max.cutoff = max.cutoff,
+    seu, features = features, crop = crop, max.cutoff = max.cutoff, min.cutoff = min.cutoff,
     ncol = ncol, combine = combine, pt.size.factor = pt.size.factor, alpha = alpha, ...)
   t <- t &
     ggplot2::theme(legend.position = legend.position,
@@ -626,7 +639,8 @@ spatial_feature_plot <- function(
                    legend.key.height = ggplot2::unit(key_height, 'cm'),
                    legend.key.width = ggplot2::unit(key_width, "cm"),
                    legend.text = ggplot2::element_text(size = 5)) &
-    viridis::scale_fill_viridis(option = col_pal)
+    viridis::scale_fill_viridis(option = col_pal) &
+    ggplot2::ggtitle(label = title)
   return(t)
 }
 
@@ -770,6 +784,8 @@ dot_plot <-  function(seu, features, group.by = NULL, labels = NULL,
 #' @param topn_genes Top N marker genes to plot for each cluster.
 #' @param filename Filename for saving the heatmap plot. If null, the heatmap
 #' is just plotted in device.
+#' @param col_pal Discrete colour palette to use, default is Hue palette
+#' (hue_pal) from 'scales' package.
 #' @param ... Additional parameters passed to 'pheatmap' function
 #'
 #' @return A ggplot2 object.
@@ -777,7 +793,8 @@ dot_plot <-  function(seu, features, group.by = NULL, labels = NULL,
 #' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
 #'
 #' @export
-heatmap_plot <- function(seu, markers, topn_genes = 10, filename = NULL, ...) {
+heatmap_plot <- function(seu, markers, topn_genes = 10,
+                         filename = NULL, col_pal = NULL, ...) {
   # TODO: Make the function more generic so the user defines what
   # column annotation is show in the heatmap.
 
@@ -787,12 +804,21 @@ heatmap_plot <- function(seu, markers, topn_genes = 10, filename = NULL, ...) {
   if (NROW(markers) == 0) { return(-1) }
 
   # Colours for each group (by default cluster, sample, condition)
-  colours_cluster <- scales::hue_pal()(nlevels(seu$seurat_clusters))
-  names(colours_cluster) <- levels(seu$seurat_clusters)
-  colours_sample <- scales::hue_pal()(nlevels(seu$sample))
-  names(colours_sample) <- levels(seu$sample)
-  colours_condition <- scales::hue_pal()(nlevels(seu$condition))
-  names(colours_condition) <- levels(seu$condition)
+  if (is.null(col_pal)) {
+    colours_cluster <- scales::hue_pal()(nlevels(seu$seurat_clusters))
+    names(colours_cluster) <- levels(seu$seurat_clusters)
+    colours_sample <- scales::hue_pal()(nlevels(seu$sample))
+    names(colours_sample) <- levels(seu$sample)
+    colours_condition <- scales::hue_pal()(nlevels(seu$condition))
+    names(colours_condition) <- levels(seu$condition)
+  } else {
+    colours_cluster <- col_pal[1:nlevels(seu$seurat_clusters)]
+    names(colours_cluster) <- levels(seu$seurat_clusters)
+    colours_sample <- col_pal[1:nlevels(seu$sample)]
+    names(colours_sample) <- levels(seu$sample)
+    colours_condition <- col_pal[1:nlevels(seu$condition)]
+    names(colours_condition) <- levels(seu$condition)
+  }
 
   annotation_colours <- list(Cluster = colours_cluster,
                              Sample = colours_sample,

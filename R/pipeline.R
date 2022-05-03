@@ -256,6 +256,9 @@ run_qc_pipeline <- function(
 #' @param max.cutoff Maximum cutoff values for plotting each continuous
 #' feature, e.g. gene expression levels. May specify quantile in the form of
 #' 'q##' where '##' is the quantile (eg, 'q1', 'q10').
+#' @param min.cutoff Maximum cutoff values for plotting each continuous
+#' feature, e.g. gene expression levels. May specify quantile in the form of
+#' 'q##' where '##' is the quantile (eg, 'q1', 'q10').
 #' @param n_hvgs Number of highly variable genes (HVGs) to compute, which will
 #' be used as input to PCA.
 #' @param max.iter.harmony Maximum number of iterations for Harmony integration.
@@ -264,6 +267,9 @@ run_qc_pipeline <- function(
 #' @param label.size Sets size of labels.
 #' @param pt.size Adjust point size for plotting.
 #' @param fig.res Figure resolution in ppi (see 'png' function).
+#' @param cont_col_pal Continuous colour palette to use, default "RdYlBu".
+#' @param discrete_col_pal Discrete colour palette to use, default is Hue palette
+#' (hue_pal) from 'scales' package.
 #' @param cont_alpha Controls opacity of spots. Provide as a vector specifying the
 #' min and max range of values (between 0 and 1).
 #' @param discrete_alpha Controls opacity of spots. Provide a single alpha value.
@@ -272,6 +278,8 @@ run_qc_pipeline <- function(
 #' colour spots on tissue, default "inferno".
 #' @param crop Crop the plot in to focus on points plotted. Set to FALSE to
 #' show entire background image.
+#' @param plot_spatial_markers Logical, whether to create spatial feature plots
+#' with expression of individual genes.
 #' @param ... Additional named parameters passed to Seurat's or Harmony
 #' functions.
 #'
@@ -288,11 +296,12 @@ run_harmony_pipeline <- function(
     metadata_to_plot = c("sample", "condition"), qc_to_plot = NULL,
     logfc.threshold = 0.5, min.pct = 0.25, only.pos = TRUE, topn_genes = 10,
     pcs_to_remove = NULL, obj_filename = "seu_harmony", force_reanalysis = TRUE,
-    plot_cluster_markers = TRUE, max.cutoff = "q98", n_hvgs = 3000,
+    plot_cluster_markers = TRUE, max.cutoff = "q98", min.cutoff = NA, n_hvgs = 3000,
     max.iter.harmony = 50, seed = 1, label = TRUE, label.size = 8,
-    pt.size = 1.4, fig.res = 200, cont_alpha = c(0.1, 0.9),
-    discrete_alpha = 0.6, pt.size.factor = 1.6,
-    spatial_col_pal = "inferno", crop = TRUE, ...) {
+    pt.size = 1.4, fig.res = 200, cont_col_pal = NULL, discrete_col_pal = NULL,
+    cont_alpha = c(0.1, 0.9), discrete_alpha = 0.9, pt.size.factor = 1.6,
+    spatial_col_pal = "inferno", crop = TRUE,
+    plot_spatial_markers = FALSE, ...) {
 
   # Store all parameters for reproducibility
   opts <- c(as.list(environment()), list(...))
@@ -362,7 +371,10 @@ run_harmony_pipeline <- function(
       dimred_qc_plots(seu = seu, reductions = c("umap", "pca", "harmony"),
                       metadata_to_plot = metadata_to_plot,
                       qc_to_plot = qc_to_plot, plot_dir = qc_dir,
-                      max.cutoff = max.cutoff, legend.position = "right",
+                      max.cutoff = max.cutoff, min.cutoff = min.cutoff,
+                      legend.position = "right",
+                      cont_col_pal = cont_col_pal,
+                      discrete_col_pal = discrete_col_pal,
                       dims_plot = c(1,2), pt.size = pt.size,
                       fig.res = fig.res, ...)
 
@@ -371,12 +383,14 @@ run_harmony_pipeline <- function(
       if (!dir.exists(module_dir)) {dir.create(module_dir, recursive = TRUE)}
       seu <- module_score_analysis(seu = seu, modules_group = modules_group,
                                    plot_dir = module_dir, reduction = "umap",
-                                   max.cutoff = max.cutoff,
-                                   legend.position = "right",
+                                   max.cutoff = max.cutoff, min.cutoff = min.cutoff,
+                                   legend.position = "right", col_pal = cont_col_pal,
                                    dims_plot = c(1,2), seed = seed, ctrl = 100,
                                    fig.res = fig.res, alpha = cont_alpha,
                                    pt.size.factor = pt.size.factor,
-                                   spatial_col_pal = spatial_col_pal, crop = crop, ...)
+                                   spatial_col_pal = spatial_col_pal, crop = crop,
+                                   plot_spatial_markers = plot_spatial_markers,
+                                   spatial_legend_position = "top", ...)
       # Different clustering resolutions and DGE
       cl_dir <- paste0(dim_dir, "/clusters/")
       if (!dir.exists(cl_dir)) {dir.create(cl_dir, recursive = TRUE)}
@@ -388,14 +402,19 @@ run_harmony_pipeline <- function(
                               modules_group = modules_group,
                               cluster_reduction = "harmony",
                               plot_reduction = "umap", max.cutoff = max.cutoff,
+                              min.cutoff = min.cutoff,
                               force_reanalysis = force_reanalysis,
                               seed = seed, ctrl = 100,
                               label = label, label.size = label.size,
                               legend.position = "right", pt.size = pt.size,
+                              cont_col_pal = cont_col_pal,
+                              discrete_col_pal = discrete_col_pal,
                               fig.res = fig.res, cont_alpha = cont_alpha,
                               discrete_alpha = discrete_alpha,
                               pt.size.factor = pt.size.factor,
-                              spatial_col_pal = spatial_col_pal, crop = crop, ...)
+                              spatial_col_pal = spatial_col_pal, crop = crop,
+                              plot_spatial_markers = plot_spatial_markers,
+                              spatial_legend_position = "top", ...)
     }
   }
   return(seu)
@@ -434,9 +453,11 @@ run_cluster_pipeline <- function(
     modules_group = NULL, metadata_to_plot = c("sample", "condition"),
     qc_to_plot = NULL, logfc.threshold = 0.5, min.pct = 0.25, only.pos = TRUE,
     topn_genes = 10, pcs_to_remove = NULL, plot_cluster_markers = TRUE,
-    max.cutoff = "q98", n_hvgs = 3000, seed = 1, label = TRUE, label.size = 8,
-    pt.size = 1.4, fig.res = 200, cont_alpha = c(0.1, 0.9), discrete_alpha = 0.6,
-    pt.size.factor = 1.6, spatial_col_pal = "inferno", crop = TRUE, ...) {
+    max.cutoff = "q98", min.cutoff = NA, n_hvgs = 3000, seed = 1, label = TRUE, label.size = 8,
+    pt.size = 1.4, fig.res = 200, cont_col_pal = NULL, discrete_col_pal = NULL,
+    cont_alpha = c(0.1, 0.9), discrete_alpha = 0.9,
+    pt.size.factor = 1.6, spatial_col_pal = "inferno", crop = TRUE,
+    plot_spatial_markers = FALSE, ...) {
   # Store all parameters for reproducibility
   opts <- c(as.list(environment()), list(...))
   # Do not store the Seurat object in opts
@@ -506,7 +527,9 @@ run_cluster_pipeline <- function(
       dimred_qc_plots(seu = seu, reductions = c("umap", "pca"),
                       metadata_to_plot = metadata_to_plot,
                       qc_to_plot = qc_to_plot, plot_dir = qc_dir,
-                      max.cutoff = max.cutoff, legend.position = "right",
+                      max.cutoff = max.cutoff, min.cutoff = min.cutoff,
+                      cont_col_pal = cont_col_pal, discrete_col_pal = discrete_col_pal,
+                      legend.position = "right",
                       dims_plot = c(1,2), pt.size = pt.size,
                       fig.res = fig.res, ...)
 
@@ -515,12 +538,15 @@ run_cluster_pipeline <- function(
       if (!dir.exists(module_dir)) {dir.create(module_dir, recursive = TRUE)}
       seu <- module_score_analysis(seu = seu, modules_group = modules_group,
                                    plot_dir = module_dir, reduction = "umap",
-                                   max.cutoff = max.cutoff,
+                                   max.cutoff = max.cutoff, min.cutoff = min.cutoff,
                                    legend.position = "right",
+                                   col_pal = cont_col_pal,
                                    dims_plot = c(1,2), seed = seed, ctrl = 100,
                                    fig.res = fig.res, alpha = cont_alpha,
                                    pt.size.factor = pt.size.factor,
-                                   spatial_col_pal = spatial_col_pal, crop = crop, ...)
+                                   spatial_col_pal = spatial_col_pal, crop = crop,
+                                   plot_spatial_markers = plot_spatial_markers,
+                                   spatial_legend_position = "top", ...)
       # Different clustering resolutions and DGE
       cl_dir <- paste0(dim_dir, "/clusters/")
       if (!dir.exists(cl_dir)) {dir.create(cl_dir, recursive = TRUE)}
@@ -532,14 +558,19 @@ run_cluster_pipeline <- function(
                               modules_group = modules_group,
                               cluster_reduction = "pca",
                               plot_reduction = "umap", max.cutoff = max.cutoff,
+                              min.cutoff = min.cutoff,
                               force_reanalysis = TRUE,
                               seed = seed, ctrl = 100,
                               label = label, label.size = label.size,
                               legend.position = "right", pt.size = pt.size,
+                              cont_col_pal = cont_col_pal,
+                              discrete_col_pal = discrete_col_pal,
                               fig.res = fig.res, cont_alpha = cont_alpha,
                               discrete_alpha = discrete_alpha,
                               pt.size.factor = pt.size.factor,
-                              spatial_col_pal = spatial_col_pal, crop = crop, ...)
+                              spatial_col_pal = spatial_col_pal, crop = crop,
+                              plot_spatial_markers = plot_spatial_markers,
+                              spatial_legend_position = "top", ...)
     }
   }
   return(seu)

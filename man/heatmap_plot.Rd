@@ -4,7 +4,14 @@
 \alias{heatmap_plot}
 \title{Tailored heatmap plot}
 \usage{
-heatmap_plot(seu, markers, topn_genes = 10, filename = NULL, ...)
+heatmap_plot(
+  seu,
+  markers,
+  topn_genes = 10,
+  filename = NULL,
+  col_pal = NULL,
+  ...
+)
 }
 \arguments{
 \item{seu}{Seurat object (required).}
@@ -16,6 +23,9 @@ Expects a format as the output of Seurat's FindAllMarkers.}
 
 \item{filename}{Filename for saving the heatmap plot. If null, the heatmap
 is just plotted in device.}
+
+\item{col_pal}{Discrete colour palette to use, default is Hue palette
+(hue_pal) from 'scales' package.}
 
 \item{...}{Additional parameters passed to 'pheatmap' function}
 }

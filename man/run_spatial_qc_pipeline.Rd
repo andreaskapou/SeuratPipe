@@ -14,8 +14,9 @@ run_spatial_qc_pipeline(
   out_dir = NULL,
   qc_to_plot = c("nFeature_Spatial", "nCount_Spatial", "percent.mito"),
   alpha = c(0.1, 0.9),
-  pt.size.factor = 1.6,
+  pt.size.factor = 1.4,
   max.cutoff = "q98",
+  min.cutoff = NA,
   spatial_col_pal = "inferno",
   crop = TRUE,
   tenx_dir = "outs",
@@ -50,6 +51,10 @@ min and max range of values (between 0 and 1).}
 \item{pt.size.factor}{Scale the size of the spots.}
 
 \item{max.cutoff}{Vector of maximum cutoff values for each feature, may
+specify quantile in the form of 'q##' where '##' is the quantile
+(eg, 'q1', 'q10').}
+
+\item{min.cutoff}{Vector of minimum cutoff values for each feature, may
 specify quantile in the form of 'q##' where '##' is the quantile
 (eg, 'q1', 'q10').}
 

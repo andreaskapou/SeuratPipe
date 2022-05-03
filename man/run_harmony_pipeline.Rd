@@ -23,6 +23,7 @@ run_harmony_pipeline(
   force_reanalysis = TRUE,
   plot_cluster_markers = TRUE,
   max.cutoff = "q98",
+  min.cutoff = NA,
   n_hvgs = 3000,
   max.iter.harmony = 50,
   seed = 1,
@@ -30,11 +31,14 @@ run_harmony_pipeline(
   label.size = 8,
   pt.size = 1.4,
   fig.res = 200,
+  cont_col_pal = NULL,
+  discrete_col_pal = NULL,
   cont_alpha = c(0.1, 0.9),
-  discrete_alpha = 0.6,
+  discrete_alpha = 0.9,
   pt.size.factor = 1.6,
   spatial_col_pal = "inferno",
   crop = TRUE,
+  plot_spatial_markers = FALSE,
   ...
 )
 }
@@ -96,6 +100,10 @@ Harmony integration. Added for computing time efficiency purposes.}
 feature, e.g. gene expression levels. May specify quantile in the form of
 'q##' where '##' is the quantile (eg, 'q1', 'q10').}
 
+\item{min.cutoff}{Maximum cutoff values for plotting each continuous
+feature, e.g. gene expression levels. May specify quantile in the form of
+'q##' where '##' is the quantile (eg, 'q1', 'q10').}
+
 \item{n_hvgs}{Number of highly variable genes (HVGs) to compute, which will
 be used as input to PCA.}
 
@@ -111,6 +119,11 @@ be used as input to PCA.}
 
 \item{fig.res}{Figure resolution in ppi (see 'png' function).}
 
+\item{cont_col_pal}{Continuous colour palette to use, default "RdYlBu".}
+
+\item{discrete_col_pal}{Discrete colour palette to use, default is Hue palette
+(hue_pal) from 'scales' package.}
+
 \item{cont_alpha}{Controls opacity of spots. Provide as a vector specifying the
 min and max range of values (between 0 and 1).}
 
@@ -123,6 +136,9 @@ colour spots on tissue, default "inferno".}
 
 \item{crop}{Crop the plot in to focus on points plotted. Set to FALSE to
 show entire background image.}
+
+\item{plot_spatial_markers}{Logical, whether to create spatial feature plots
+with expression of individual genes.}
 
 \item{...}{Additional named parameters passed to Seurat's or Harmony
 functions.}

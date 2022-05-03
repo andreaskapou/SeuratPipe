@@ -9,6 +9,7 @@ feature_plot(
   reduction = "umap",
   features = "nFeature_RNA",
   max.cutoff = "q98",
+  min.cutoff = NA,
   ncol = NULL,
   legend.position = "right",
   col_pal = NULL,
@@ -26,6 +27,10 @@ feature_plot(
 \item{features}{Vector of features to plot.}
 
 \item{max.cutoff}{Vector of maximum cutoff values for each feature,
+may specify quantile in the form of 'q##' where '##' is the quantile
+(eg, 'q1', 'q10').}
+
+\item{min.cutoff}{Vector of minimum cutoff values for each feature,
 may specify quantile in the form of 'q##' where '##' is the quantile
 (eg, 'q1', 'q10').}
 

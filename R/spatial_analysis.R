@@ -15,6 +15,9 @@
 #' @param max.cutoff Vector of maximum cutoff values for each feature, may
 #' specify quantile in the form of 'q##' where '##' is the quantile
 #' (eg, 'q1', 'q10').
+#' @param min.cutoff Vector of minimum cutoff values for each feature, may
+#' specify quantile in the form of 'q##' where '##' is the quantile
+#' (eg, 'q1', 'q10').
 #' @param spatial_col_pal Continuous colour palette to use from viridis package to
 #' colour spots on tissue, default "inferno".
 #' @param crop Crop the plot in to focus on points plotted. Set to FALSE to
@@ -32,7 +35,7 @@ run_spatial_qc_pipeline <- function(
     data_dir, sample_meta, sample_meta_filename = NULL, nfeat_thresh = 500,
     mito_thresh = 5, meta_colnames = c("donor", "condition", "pass_qc"),
     out_dir = NULL, qc_to_plot = c("nFeature_Spatial", "nCount_Spatial", "percent.mito"),
-    alpha = c(0.1, 0.9), pt.size.factor = 1.6, max.cutoff = "q98",
+    alpha = c(0.1, 0.9), pt.size.factor = 1.4, max.cutoff = "q98", min.cutoff = NA,
     spatial_col_pal = "inferno", crop = TRUE,
     tenx_dir = "outs", obj_filename = "seu_qc", ...) {
 
@@ -54,7 +57,7 @@ run_spatial_qc_pipeline <- function(
   # Create Seurat object
   seu <- spatial_create_seurat_object(
     data_dir = data_dir, sample_meta = opts$sample_meta, sample_meta_filename = NULL,
-    meta_colnames = meta_colnames, plot_dir = plot_dir, tenx_dir = tenx_dir, ...)
+    meta_colnames = meta_colnames, tenx_dir = tenx_dir, ...)
 
   # In case we have one sample, we make the Seurat object a list
   if (!is.list(seu)) {
@@ -84,8 +87,8 @@ run_spatial_qc_pipeline <- function(
       print(spatial_feature_plot(
         seu[[s]], features = qc_to_plot, alpha = alpha,
         pt.size.factor = pt.size.factor, ncol = spat_plot_dim$ncols,
-        max.cutoff = max.cutoff, crop = crop, col_pal = spatial_col_pal,
-        legend.position = "top", ...))
+        max.cutoff = max.cutoff, min.cutoff = min.cutoff, crop = crop,
+        col_pal = spatial_col_pal, legend.position = "top", title = s, ...))
     }
     dev.off()
 
@@ -156,7 +159,9 @@ run_spatial_qc_pipeline <- function(
         print(spatial_feature_plot(seu[[s]], features = qc_to_plot,
                                    alpha = alpha, pt.size.factor = pt.size.factor,
                                    ncol = spat_plot_dim$ncols, max.cutoff = max.cutoff,
-                                   crop = TRUE, col_pal = "inferno", legend.position = "top", ...))
+                                   min.cutoff = min.cutoff,
+                                   crop = crop, col_pal = spatial_col_pal,
+                                   legend.position = "top", title = s, ...))
       }
       dev.off()
     }

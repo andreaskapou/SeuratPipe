@@ -18,6 +18,7 @@ cluster_analysis(
   cluster_reduction = "pca",
   plot_reduction = "umap",
   max.cutoff = "q98",
+  min.cutoff = NA,
   seed = 1,
   ctrl = 100,
   force_reanalysis = TRUE,
@@ -29,10 +30,12 @@ cluster_analysis(
   discrete_col_pal = NULL,
   fig.res = 200,
   cont_alpha = c(0.1, 0.9),
-  discrete_alpha = 0.6,
-  pt.size.factor = 1.6,
+  discrete_alpha = 0.9,
+  pt.size.factor = 1.4,
   spatial_col_pal = "inferno",
   crop = TRUE,
+  plot_spatial_markers = FALSE,
+  spatial_legend_position = "top",
   ...
 )
 }
@@ -58,7 +61,7 @@ feature plots), default is 10.}
 \item{plot_dir}{Directory to save generated plots. If NULL, plots are
 not saved.}
 
-\item{plot_cluster_markers}{Logical, wheather to create feature plots with
+\item{plot_cluster_markers}{Logical, whether to create feature plots with
 'topn_genes' cluster markers. Added mostly to reduce number of files (and size)
 in analysis folders. Default is TRUE.}
 
@@ -77,6 +80,10 @@ integration.}
 functions. Default is 'umap'.}
 
 \item{max.cutoff}{Vector of maximum cutoff values for each feature,
+may specify quantile in the form of 'q##' where '##' is the quantile
+(eg, 'q1', 'q10').}
+
+\item{min.cutoff}{Vector of minimum cutoff values for each feature,
 may specify quantile in the form of 'q##' where '##' is the quantile
 (eg, 'q1', 'q10').}
 
@@ -118,6 +125,12 @@ colour spots on tissue, default "inferno".}
 
 \item{crop}{Crop the plot in to focus on points plotted. Set to FALSE to
 show entire background image.}
+
+\item{plot_spatial_markers}{Logical, whether to create spatial feature plots
+with expression of individual genes.}
+
+\item{spatial_legend_position}{Position of legend for spatial plots,
+default "top" (set to "none" for clean plot).}
 
 \item{...}{Additional named parameters passed to Seurat
 analysis and plotting functions, such as FindClusters, FindAllMarkers,

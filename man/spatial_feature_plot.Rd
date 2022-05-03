@@ -7,10 +7,12 @@
 spatial_feature_plot(
   seu,
   features = "nFeature_Spatial",
+  title = NULL,
   alpha = c(0.1, 0.9),
-  pt.size.factor = 1.6,
+  pt.size.factor = 1.4,
   ncol = NULL,
   max.cutoff = "q98",
+  min.cutoff = NA,
   crop = TRUE,
   col_pal = "inferno",
   legend.position = "top",
@@ -23,6 +25,8 @@ spatial_feature_plot(
 
 \item{features}{Vector of features to plot.}
 
+\item{title}{Plot title}
+
 \item{alpha}{Controls opacity of spots. Provide as a vector specifying the
 min and max range of values (between 0 and 1).}
 
@@ -31,6 +35,10 @@ min and max range of values (between 0 and 1).}
 \item{ncol}{Number of columns for display when having multiple features.}
 
 \item{max.cutoff}{Vector of maximum cutoff values for each feature, may
+specify quantile in the form of 'q##' where '##' is the quantile
+(eg, 'q1', 'q10').}
+
+\item{min.cutoff}{Vector of minimum cutoff values for each feature, may
 specify quantile in the form of 'q##' where '##' is the quantile
 (eg, 'q1', 'q10').}
 

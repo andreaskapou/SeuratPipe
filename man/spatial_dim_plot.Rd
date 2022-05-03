@@ -7,8 +7,9 @@
 spatial_dim_plot(
   seu,
   group.by = "active.ident",
+  title = NULL,
   alpha = 0.6,
-  pt.size.factor = 1.6,
+  pt.size.factor = 1.4,
   crop = TRUE,
   col_pal = NULL,
   legend.position = "top",
@@ -20,6 +21,8 @@ spatial_dim_plot(
 \item{seu}{Seurat object (required).}
 
 \item{group.by}{Name of meta.data column to group the data by.}
+
+\item{title}{Plot title}
 
 \item{alpha}{Controls opacity of spots. Provide a single alpha value for
 each plot.}

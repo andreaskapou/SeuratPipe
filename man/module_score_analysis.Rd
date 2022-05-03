@@ -10,6 +10,7 @@ module_score_analysis(
   plot_dir = NULL,
   reduction = "umap",
   max.cutoff = "q98",
+  min.cutoff = NA,
   legend.position = "top",
   col_pal = NULL,
   dims_plot = c(1, 2),
@@ -21,6 +22,8 @@ module_score_analysis(
   pt.size.factor = 1.6,
   spatial_col_pal = "inferno",
   crop = TRUE,
+  plot_spatial_markers = FALSE,
+  spatial_legend_position = "top",
   ...
 )
 }
@@ -40,6 +43,10 @@ not saved.}
 \item{reduction}{Which dimensionality reduction to use (required).}
 
 \item{max.cutoff}{Vector of maximum cutoff values for each feature,
+may specify quantile in the form of 'q##' where '##' is the quantile
+(eg, 'q1', 'q10').}
+
+\item{min.cutoff}{Vector of minimum cutoff values for each feature,
 may specify quantile in the form of 'q##' where '##' is the quantile
 (eg, 'q1', 'q10').}
 
@@ -70,6 +77,12 @@ colour spots on tissue, default "inferno".}
 
 \item{crop}{Crop the plot in to focus on points plotted. Set to FALSE to
 show entire background image.}
+
+\item{plot_spatial_markers}{Logical, whether to create spatial feature plots
+with expression of individual genes.}
+
+\item{spatial_legend_position}{Position of legend for spatial plots,
+default "top" (set to "none" for clean plot).}
 
 \item{...}{Additional named parameters passed to Seurat's AddModuleScore
 and FeaturePlot}

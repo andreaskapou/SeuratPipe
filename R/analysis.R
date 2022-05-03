@@ -26,7 +26,7 @@
 #' @export
 dimred_qc_plots <- function(seu, reductions = c("pca"),
                             metadata_to_plot = NULL, qc_to_plot = NULL,
-                            plot_dir, max.cutoff = "q98",
+                            plot_dir, max.cutoff = "q98", min.cutoff = NA,
                             legend.position = "right",
                             cont_col_pal = NULL, discrete_col_pal = NULL,
                             dims_plot = c(1,2), pt.size = 1.4,
@@ -81,7 +81,8 @@ dimred_qc_plots <- function(seu, reductions = c("pca"),
       png(paste0(plot_dir, "02_qc_", red, ".png"), width = plot_dim$width,
           height = plot_dim$height, res = fig.res, units = "in")
       plot(feature_plot(seu = seu, reduction = red, features = qc_to_plot,
-                        max.cutoff = max.cutoff, ncol = plot_dim$ncols,
+                        max.cutoff = max.cutoff, min.cutoff = min.cutoff,
+                        ncol = plot_dim$ncols,
                         legend.position = legend.position,
                         col_pal = cont_col_pal, dims_plot = dims_plot,
                         pt.size = pt.size, ...) &
@@ -207,13 +208,12 @@ harmony_analysis <- function(
 #' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
 #'
 #' @export
-module_score_analysis <- function(seu, modules_group, plot_dir = NULL,
-                                  reduction = "umap", max.cutoff = "q98",
-                                  legend.position = "top", col_pal = NULL,
-                                  dims_plot = c(1, 2), seed = 1, ctrl = 100,
-                                  pt.size = 1.4, fig.res = 200,
-                                  alpha = c(0.1, 0.9), pt.size.factor = 1.6,
-                                  spatial_col_pal = "inferno", crop = TRUE, ...) {
+module_score_analysis <- function(
+    seu, modules_group, plot_dir = NULL, reduction = "umap", max.cutoff = "q98",
+    min.cutoff = NA, legend.position = "top", col_pal = NULL, dims_plot = c(1, 2),
+    seed = 1, ctrl = 100, pt.size = 1.4, fig.res = 200, alpha = c(0.1, 0.9),
+    pt.size.factor = 1.6, spatial_col_pal = "inferno", crop = TRUE,
+    plot_spatial_markers = FALSE, spatial_legend_position = "top", ...) {
   # If no modules are given, return Seurat object
   if (is.null(modules_group)) {
     return(seu)
@@ -240,7 +240,8 @@ module_score_analysis <- function(seu, modules_group, plot_dir = NULL,
             height = plot_dim$height, res = fig.res, units = "in")
         plot(feature_plot(seu = seu, reduction = reduction,
                           features = features,
-                          max.cutoff = max.cutoff, ncol = plot_dim$ncols,
+                          max.cutoff = max.cutoff, min.cutoff = min.cutoff,
+                          ncol = plot_dim$ncols,
                           legend.position = legend.position, col_pal = col_pal,
                           dims_plot = dims_plot, pt.size = pt.size,
                           combine = TRUE, ...) & Seurat::NoAxes())
@@ -248,14 +249,17 @@ module_score_analysis <- function(seu, modules_group, plot_dir = NULL,
 
         # If assay is "Spatial" plot expression on tissue as well
         if (assay == "Spatial") {
-          spat_plot_dim <- .spatial_plot_dims(feat_len = length(features))
-          pdf(paste0(plot_dir, "01_markers_spatial_", m, ".pdf"), width = spat_plot_dim$width,
-              height = spat_plot_dim$height, useDingbats = FALSE)
-          print(spatial_feature_plot(
-            seu, features = features, alpha = alpha, pt.size.factor = pt.size.factor,
-            ncol = spat_plot_dim$ncols, max.cutoff = max.cutoff,
-            crop = TRUE, col_pal = "inferno", legend.position = "top", ...))
-          dev.off()
+          if (plot_spatial_markers) {
+            spat_plot_dim <- .spatial_plot_dims(feat_len = length(features),
+                                                sample_len = length(seu@images))
+            pdf(paste0(plot_dir, "01_markers_spatial_", m, ".pdf"), width = spat_plot_dim$width,
+                height = spat_plot_dim$height, useDingbats = FALSE)
+            print(spatial_feature_plot(
+              seu, features = features, alpha = alpha, pt.size.factor = pt.size.factor,
+              ncol = spat_plot_dim$ncols, max.cutoff = max.cutoff, min.cutoff = min.cutoff,
+              crop = TRUE, col_pal = spatial_col_pal, legend.position = spatial_legend_position, ...))
+            dev.off()
+          }
         }
       }
     }
@@ -266,7 +270,7 @@ module_score_analysis <- function(seu, modules_group, plot_dir = NULL,
           height = plot_dim$height, res = fig.res, units = "in")
       plot(feature_plot(seu = seu, reduction = reduction,
                         features = names(modules),
-                        max.cutoff = max.cutoff, ncol = plot_dim$ncols,
+                        max.cutoff = max.cutoff, min.cutoff = min.cutoff, ncol = plot_dim$ncols,
                         legend.position = legend.position, col_pal = col_pal,
                         dims_plot = dims_plot, pt.size = pt.size,
                         combine = TRUE, ...) & Seurat::NoAxes())
@@ -274,13 +278,14 @@ module_score_analysis <- function(seu, modules_group, plot_dir = NULL,
 
       # If assay is "Spatial" plot expression on tissue as well
       if (assay == "Spatial") {
-        spat_plot_dim <- .spatial_plot_dims(feat_len = length(modules))
-        pdf(paste0(plot_dir, "02_score_spatial_", mg, ".png"), width = spat_plot_dim$width,
+        spat_plot_dim <- .spatial_plot_dims(feat_len = length(modules),
+                                            sample_len = length(seu@images))
+        pdf(paste0(plot_dir, "02_score_spatial_", mg, ".pdf"), width = spat_plot_dim$width,
             height = spat_plot_dim$height, useDingbats = FALSE)
         print(spatial_feature_plot(
-          seu, features = features, alpha = alpha, pt.size.factor = pt.size.factor,
-          ncol = spat_plot_dim$ncols, max.cutoff = max.cutoff,
-          crop = crop, col_pal = spatial_col_pal, legend.position = "top", ...))
+          seu, features = names(modules), alpha = alpha, pt.size.factor = pt.size.factor,
+          ncol = spat_plot_dim$ncols, max.cutoff = max.cutoff, min.cutoff = min.cutoff,
+          crop = crop, col_pal = spatial_col_pal, legend.position = spatial_legend_position, ...))
         dev.off()
       }
     }
@@ -319,7 +324,7 @@ module_score_analysis <- function(seu, modules_group, plot_dir = NULL,
 #' feature plots), default is 10.
 #' @param plot_dir Directory to save generated plots. If NULL, plots are
 #' not saved.
-#' @param plot_cluster_markers Logical, wheather to create feature plots with
+#' @param plot_cluster_markers Logical, whether to create feature plots with
 #' 'topn_genes' cluster markers. Added mostly to reduce number of files (and size)
 #' in analysis folders. Default is TRUE.
 #' @param modules_group Group of modules (named list of lists) storing features
@@ -334,6 +339,9 @@ module_score_analysis <- function(seu, modules_group, plot_dir = NULL,
 #' @param plot_reduction Dimensionality reduction to use for plotting
 #' functions. Default is 'umap'.
 #' @param max.cutoff Vector of maximum cutoff values for each feature,
+#' may specify quantile in the form of 'q##' where '##' is the quantile
+#' (eg, 'q1', 'q10').
+#' @param min.cutoff Vector of minimum cutoff values for each feature,
 #' may specify quantile in the form of 'q##' where '##' is the quantile
 #' (eg, 'q1', 'q10').
 #' @param seed Set a random seed, for reproducibility.
@@ -360,6 +368,10 @@ module_score_analysis <- function(seu, modules_group, plot_dir = NULL,
 #' colour spots on tissue, default "inferno".
 #' @param crop Crop the plot in to focus on points plotted. Set to FALSE to
 #' show entire background image.
+#' @param plot_spatial_markers Logical, whether to create spatial feature plots
+#' with expression of individual genes.
+#' @param spatial_legend_position Position of legend for spatial plots,
+#' default "top" (set to "none" for clean plot).
 #' @param ... Additional named parameters passed to Seurat
 #' analysis and plotting functions, such as FindClusters, FindAllMarkers,
 #' DimPlot and FeaturePlot.
@@ -369,19 +381,16 @@ module_score_analysis <- function(seu, modules_group, plot_dir = NULL,
 #' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
 #'
 #' @export
-cluster_analysis <- function(seu, dims = 1:20, res = seq(0.1, 0.1, by = 0.1),
-                             logfc.threshold = 0.5, min.pct = 0.25,
-                             only.pos = TRUE, topn_genes = 10, plot_dir = NULL,
-                             plot_cluster_markers = TRUE, modules_group = NULL,
-                             cluster_reduction = "pca", plot_reduction = "umap",
-                             max.cutoff = "q98", seed = 1,
-                             ctrl = 100, force_reanalysis = TRUE,
-                             label = TRUE, label.size = 8,
-                             legend.position = "right", pt.size = 1.4,
-                             cont_col_pal = NULL, discrete_col_pal = NULL,
-                             fig.res = 200, cont_alpha = c(0.1, 0.9),
-                             discrete_alpha = 0.6, pt.size.factor = 1.6,
-                             spatial_col_pal = "inferno", crop = TRUE, ...) {
+cluster_analysis <- function(
+    seu, dims = 1:20, res = seq(0.1, 0.1, by = 0.1), logfc.threshold = 0.5,
+    min.pct = 0.25, only.pos = TRUE, topn_genes = 10, plot_dir = NULL,
+    plot_cluster_markers = TRUE, modules_group = NULL, cluster_reduction = "pca",
+    plot_reduction = "umap", max.cutoff = "q98", min.cutoff = NA, seed = 1, ctrl = 100,
+    force_reanalysis = TRUE, label = TRUE, label.size = 8, legend.position = "right",
+    pt.size = 1.4, cont_col_pal = NULL, discrete_col_pal = NULL, fig.res = 200,
+    cont_alpha = c(0.1, 0.9), discrete_alpha = 0.9, pt.size.factor = 1.4,
+    spatial_col_pal = "inferno", crop = TRUE, plot_spatial_markers = FALSE,
+    spatial_legend_position = "top", ...) {
   # So CMD passes without NOTES
   cluster = avg_log2FC = seurat_clusters = condition = sample = freq = n <- NULL
   assertthat::assert_that(methods::is(seu, "Seurat"))
@@ -414,13 +423,14 @@ cluster_analysis <- function(seu, dims = 1:20, res = seq(0.1, 0.1, by = 0.1),
 
       # If assay is "Spatial" plot expression on tissue as well
       if (assay == "Spatial") {
-        spat_plot_dim <- .spatial_plot_dims(feat_len = 1)
+        spat_plot_dim <- .spatial_plot_dims(feat_len = 1, sample_len = length(seu@images))
         pdf(paste0(plot_dir, "z_cluster_res", r, ".pdf"), width = spat_plot_dim$width,
             height = spat_plot_dim$height, useDingbats = FALSE)
         print(spatial_dim_plot(
           seu, group.by = "seurat_clusters", alpha = discrete_alpha,
           pt.size.factor = pt.size.factor, ncol = spat_plot_dim$ncols,
-          crop = crop, col_pal = discrete_col_pal, legend.position = "top", ...))
+          crop = crop, col_pal = discrete_col_pal,
+          legend.position = spatial_legend_position, ...))
         dev.off()
       }
     }
@@ -461,7 +471,8 @@ cluster_analysis <- function(seu, dims = 1:20, res = seq(0.1, 0.1, by = 0.1),
 
     # Heatmap of marker genes
     heatmap_plot(seu = seu, markers = mark, topn_genes = topn_genes,
-                 filename = paste0(plot_dir, "z_heatmap_res", r, ".png"), ...)
+                 filename = paste0(plot_dir, "z_heatmap_res", r, ".png"),
+                 col_pal = discrete_col_pal, ...)
 
     ## Feature and violin plots
     if (plot_cluster_markers & !is.null(plot_dir)) {
@@ -480,6 +491,7 @@ cluster_analysis <- function(seu, dims = 1:20, res = seq(0.1, 0.1, by = 0.1),
               units = "in")
           plot(feature_plot(seu = seu, reduction = plot_reduction,
                             features = genes, max.cutoff = max.cutoff,
+                            min.cutoff = min.cutoff,
                             ncol = plot_dim$ncols, col_pal = cont_col_pal,
                             legend.position = legend.position, dims_plot = c(1,2),
                             pt.size = pt.size, ...) & Seurat::NoAxes())
@@ -494,14 +506,17 @@ cluster_analysis <- function(seu, dims = 1:20, res = seq(0.1, 0.1, by = 0.1),
 
           # If assay is "Spatial" plot expression on tissue as well
           if (assay == "Spatial") {
-            spat_plot_dim <- .spatial_plot_dims(feat_len = length(genes))
-            pdf(paste0(plot_dir, "01_feature_spatial_seu_res", r, "_cl", cl, ".pdf"),
-                width = spat_plot_dim$width, height = spat_plot_dim$height, useDingbats = FALSE)
-            plot(spatial_feature_plot(
-              seu, features = genes, alpha = cont_alpha, pt.size.factor = pt.size.factor,
-              ncol = spat_plot_dim$ncols, max.cutoff = max.cutoff,
-              crop = TRUE, col_pal = spatial_col_pal, legend.position = "top", ...))
-            dev.off()
+            if (plot_spatial_markers) {
+              spat_plot_dim <- .spatial_plot_dims(feat_len = length(genes),
+                                                  sample_len = length(seu@images))
+              pdf(paste0(plot_dir, "01_feature_spatial_seu_res", r, "_cl", cl, ".pdf"),
+                  width = spat_plot_dim$width, height = spat_plot_dim$height, useDingbats = FALSE)
+              plot(spatial_feature_plot(
+                seu, features = genes, alpha = cont_alpha, pt.size.factor = pt.size.factor,
+                ncol = spat_plot_dim$ncols, max.cutoff = max.cutoff, min.cutoff = min.cutoff,
+                crop = crop, col_pal = spatial_col_pal, legend.position = spatial_legend_position, ...))
+              dev.off()
+            }
           }
 
           # Each cluster as a module and compute score
@@ -517,22 +532,23 @@ cluster_analysis <- function(seu, dims = 1:20, res = seq(0.1, 0.1, by = 0.1),
             units = "in")
         plot(feature_plot(seu = seu, reduction = plot_reduction,
                           features = paste0("Cluster", unique(top_mark$cluster)),
-                          max.cutoff = max.cutoff, ncol = plot_dim$ncols,
-                          col_pal = cont_col_pal,
+                          max.cutoff = max.cutoff, min.cutoff = min.cutoff,
+                          ncol = plot_dim$ncols, col_pal = cont_col_pal,
                           legend.position = legend.position, dims_plot = c(1,2),
                           pt.size = pt.size, ...) & Seurat::NoAxes())
         dev.off()
 
         # If assay is "Spatial" plot expression on tissue as well
         if (assay == "Spatial") {
-          spat_plot_dim <- .spatial_plot_dims(feat_len = length(unique(top_mark$cluster)))
+          spat_plot_dim <- .spatial_plot_dims(feat_len = length(unique(top_mark$cluster)),
+                                              sample_len = length(seu@images))
           pdf(paste0(plot_dir, "03_score_spatial_seu_res", r, ".pdf"),
               width = spat_plot_dim$width, height = spat_plot_dim$height, useDingbats = FALSE)
           plot(spatial_feature_plot(
             seu, features = paste0("Cluster", unique(top_mark$cluster)),
             alpha = cont_alpha, pt.size.factor = pt.size.factor,
-            ncol = spat_plot_dim$ncols, max.cutoff = max.cutoff,
-            crop = TRUE, col_pal = spatial_col_pal, legend.position = "top", ...))
+            ncol = spat_plot_dim$ncols, max.cutoff = max.cutoff, min.cutoff = min.cutoff,
+            crop = crop, col_pal = spatial_col_pal, legend.position = spatial_legend_position, ...))
           dev.off()
         }
       }
