@@ -242,6 +242,10 @@ run_qc_pipeline <- function(
 #' @param only.pos Only return positive markers (TRUE by default).
 #' @param topn_genes Top cluster marker genes to use for plotting (in heatmap and
 #' feature plots), default is 10.
+#' @param diff_cluster_pct Retain marker genes per cluster if their
+#' `pct.1 - pct.2 > diff_cluster_pct`, i.e. they show cluster
+#' specific expression. Set to -Inf, to ignore this additional filtering.
+#' @param pval_adj Adjusted p-value threshold to consider marker genes per cluster.
 #' @param pcs_to_remove Which PCs should be removed prior to running Harmony.
 #' Possibly due to being correlated with technical/batch effects. If NULL,
 #' all PCs are used.
@@ -276,7 +280,7 @@ run_qc_pipeline <- function(
 #' @param pt.size.factor Scale the size of the spots.
 #' @param spatial_col_pal Continuous colour palette to use from viridis package to
 #' colour spots on tissue, default "inferno".
-#' @param crop Crop the plot in to focus on points plotted. Set to FALSE to
+#' @param crop Crop the plot in to focus on spots that passed QC plotted. Set to FALSE to
 #' show entire background image.
 #' @param plot_spatial_markers Logical, whether to create spatial feature plots
 #' with expression of individual genes.
@@ -295,12 +299,13 @@ run_harmony_pipeline <- function(
     res = seq(0.1, 0.3, by = 0.1), modules_group = NULL,
     metadata_to_plot = c("sample", "condition"), qc_to_plot = NULL,
     logfc.threshold = 0.5, min.pct = 0.25, only.pos = TRUE, topn_genes = 10,
+    diff_cluster_pct = 0.1, pval_adj = 0.05,
     pcs_to_remove = NULL, obj_filename = "seu_harmony", force_reanalysis = TRUE,
     plot_cluster_markers = TRUE, max.cutoff = "q98", min.cutoff = NA, n_hvgs = 3000,
     max.iter.harmony = 50, seed = 1, label = TRUE, label.size = 8,
     pt.size = 1.4, fig.res = 200, cont_col_pal = NULL, discrete_col_pal = NULL,
-    cont_alpha = c(0.1, 0.9), discrete_alpha = 0.9, pt.size.factor = 1.6,
-    spatial_col_pal = "inferno", crop = TRUE,
+    cont_alpha = c(0.1, 0.9), discrete_alpha = 0.9, pt.size.factor = 1.1,
+    spatial_col_pal = "inferno", crop = FALSE,
     plot_spatial_markers = FALSE, ...) {
 
   # Store all parameters for reproducibility
@@ -397,7 +402,10 @@ run_harmony_pipeline <- function(
       seu <- cluster_analysis(seu = seu, dims = 1:ndim, res = res,
                               logfc.threshold = logfc.threshold,
                               min.pct = min.pct, only.pos = only.pos,
-                              topn_genes = topn_genes, plot_dir = cl_dir,
+                              topn_genes = topn_genes,
+                              diff_cluster_pct = diff_cluster_pct,
+                              pval_adj = pval_adj,
+                              plot_dir = cl_dir,
                               plot_cluster_markers = plot_cluster_markers,
                               modules_group = modules_group,
                               cluster_reduction = "harmony",
@@ -452,11 +460,12 @@ run_cluster_pipeline <- function(
     seu_obj, out_dir, npcs = c(50), ndims = c(30), res = seq(0.1, 0.3, by = 0.1),
     modules_group = NULL, metadata_to_plot = c("sample", "condition"),
     qc_to_plot = NULL, logfc.threshold = 0.5, min.pct = 0.25, only.pos = TRUE,
-    topn_genes = 10, pcs_to_remove = NULL, plot_cluster_markers = TRUE,
-    max.cutoff = "q98", min.cutoff = NA, n_hvgs = 3000, seed = 1, label = TRUE, label.size = 8,
-    pt.size = 1.4, fig.res = 200, cont_col_pal = NULL, discrete_col_pal = NULL,
-    cont_alpha = c(0.1, 0.9), discrete_alpha = 0.9,
-    pt.size.factor = 1.6, spatial_col_pal = "inferno", crop = TRUE,
+    topn_genes = 10, diff_cluster_pct = 0.1, pval_adj = 0.05,
+    pcs_to_remove = NULL, plot_cluster_markers = TRUE,
+    max.cutoff = "q98", min.cutoff = NA, n_hvgs = 3000, seed = 1, label = TRUE,
+    label.size = 8, pt.size = 1.4, fig.res = 200, cont_col_pal = NULL,
+    discrete_col_pal = NULL, cont_alpha = c(0.1, 0.9), discrete_alpha = 0.9,
+    pt.size.factor = 1.1, spatial_col_pal = "inferno", crop = FALSE,
     plot_spatial_markers = FALSE, ...) {
   # Store all parameters for reproducibility
   opts <- c(as.list(environment()), list(...))
@@ -553,7 +562,10 @@ run_cluster_pipeline <- function(
       seu <- cluster_analysis(seu = seu, dims = dims.use[1:ndim], res = res,
                               logfc.threshold = logfc.threshold,
                               min.pct = min.pct, only.pos = only.pos,
-                              topn_genes = topn_genes, plot_dir = cl_dir,
+                              topn_genes = topn_genes,
+                              diff_cluster_pct = diff_cluster_pct,
+                              pval_adj = pval_adj,
+                              plot_dir = cl_dir,
                               plot_cluster_markers = plot_cluster_markers,
                               modules_group = modules_group,
                               cluster_reduction = "pca",

@@ -14,11 +14,11 @@ run_spatial_qc_pipeline(
   out_dir = NULL,
   qc_to_plot = c("nFeature_Spatial", "nCount_Spatial", "percent.mito"),
   alpha = c(0.1, 0.9),
-  pt.size.factor = 1.4,
+  pt.size.factor = 1.1,
   max.cutoff = "q98",
   min.cutoff = NA,
   spatial_col_pal = "inferno",
-  crop = TRUE,
+  crop = FALSE,
   tenx_dir = "outs",
   obj_filename = "seu_qc",
   ...

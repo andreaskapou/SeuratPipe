@@ -547,7 +547,7 @@ feature_plot_tailored <- function(seu, feature, max.cutoff = "q98", min.cutoff =
 #' @export
 spatial_dim_plot <- function(
     seu, group.by = "active.ident", title = NULL, alpha = 0.6,
-    pt.size.factor = 1.4, crop = TRUE, col_pal = NULL,
+    pt.size.factor = 1.1, crop = FALSE, col_pal = NULL,
     legend.position = "top", combine = TRUE, ...) {
 
   assertthat::assert_that(!is.null(group.by))
@@ -609,8 +609,8 @@ spatial_dim_plot <- function(
 #' @export
 spatial_feature_plot <- function(
     seu, features = "nFeature_Spatial", title = NULL, alpha = c(0.1, 0.9),
-    pt.size.factor = 1.4, ncol = NULL, max.cutoff = "q98", min.cutoff = NA,
-    crop = TRUE, col_pal = "inferno", legend.position = "top", combine = TRUE, ...) {
+    pt.size.factor = 1.1, ncol = NULL, max.cutoff = "q98", min.cutoff = NA,
+    crop = FALSE, col_pal = "inferno", legend.position = "top", combine = TRUE, ...) {
 
   assertthat::assert_that(!is.null(features))
   # Extract features present in the Seurat object
@@ -784,6 +784,10 @@ dot_plot <-  function(seu, features, group.by = NULL, labels = NULL,
 #' @param topn_genes Top N marker genes to plot for each cluster.
 #' @param filename Filename for saving the heatmap plot. If null, the heatmap
 #' is just plotted in device.
+#' @param diff_cluster_pct Retain marker genes per cluster if their
+#' `pct.1 - pct.2 > diff_cluster_pct`, i.e. they show cluster
+#' specific expression. Set to -Inf, to ignore this additional filtering.
+#' @param pval_adj Adjusted p-value threshold to consider marker genes per cluster.
 #' @param col_pal Discrete colour palette to use, default is Hue palette
 #' (hue_pal) from 'scales' package.
 #' @param ... Additional parameters passed to 'pheatmap' function
@@ -793,13 +797,13 @@ dot_plot <-  function(seu, features, group.by = NULL, labels = NULL,
 #' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
 #'
 #' @export
-heatmap_plot <- function(seu, markers, topn_genes = 10,
-                         filename = NULL, col_pal = NULL, ...) {
+heatmap_plot <- function(seu, markers, topn_genes = 10, diff_cluster_pct = 0.1,
+                         pval_adj = 0.05, filename = NULL, col_pal = NULL, ...) {
   # TODO: Make the function more generic so the user defines what
   # column annotation is show in the heatmap.
 
   # So CMD passes without NOTES
-  p_val_adj = cluster = avg_log2FC <- NULL
+  p_val_adj = pct.1 = pct.2 = gene = cluster = avg_log2FC <- NULL
 
   if (NROW(markers) == 0) { return(-1) }
 
@@ -828,13 +832,24 @@ heatmap_plot <- function(seu, markers, topn_genes = 10,
   scale_data <- Seurat::GetAssayData(object = seu, slot = "scale.data")
   # Make cluster a factor
   markers$cluster <- factor(markers$cluster)
+  # Retain markers that are present in scale.data slot
+  markers <- markers[markers$gene %in% rownames(scale_data), ]
+
+  # Filtering and arranging marker genes
+  markers <- markers |> dplyr::filter(p_val_adj < pval_adj) |>
+    dplyr::group_by(cluster) |>
+    dplyr::filter(pct.1 - pct.2 > diff_cluster_pct) |>
+    dplyr::slice_max(n = topn_genes, order_by = avg_log2FC) |>
+    # Remove duplicates
+    dplyr::group_by(gene) |>
+    dplyr::arrange(-avg_log2FC, .by_group = TRUE) |>
+    dplyr::slice_head(n = 1) |> dplyr::ungroup() |>
+    # Arrange by cluster and log-fold change
+    dplyr::group_by(cluster) |>
+    dplyr::arrange(-avg_log2FC, .by_group = TRUE)
+
   #markers <- markers[!(grepl("^Rpl|^Rps|^mt-", markers$gene)),]
   #markers <- markers[markers$pct.2 < 0.2,]
-  markers <- markers[markers$gene %in% rownames(scale_data), ]
-  markers <- markers |> dplyr::filter(p_val_adj < 0.05) |>
-    dplyr::group_by(cluster) |>
-    dplyr::slice_max(n = topn_genes, order_by = avg_log2FC)
-  markers <- markers[!duplicated(markers$gene), ]
 
   # Shuffle cells (columns) so we don't get sample
   # specific block signal in heatmap

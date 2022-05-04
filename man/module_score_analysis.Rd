@@ -19,9 +19,9 @@ module_score_analysis(
   pt.size = 1.4,
   fig.res = 200,
   alpha = c(0.1, 0.9),
-  pt.size.factor = 1.6,
+  pt.size.factor = 1.1,
   spatial_col_pal = "inferno",
-  crop = TRUE,
+  crop = FALSE,
   plot_spatial_markers = FALSE,
   spatial_legend_position = "top",
   ...
@@ -75,7 +75,7 @@ min and max range of values (between 0 and 1).}
 \item{spatial_col_pal}{Continuous colour palette to use from viridis package to
 colour spots on tissue, default "inferno".}
 
-\item{crop}{Crop the plot in to focus on points plotted. Set to FALSE to
+\item{crop}{Crop the plot in to focus on spots that passed QC. Set to FALSE to
 show entire background image.}
 
 \item{plot_spatial_markers}{Logical, whether to create spatial feature plots

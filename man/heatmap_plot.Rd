@@ -8,6 +8,8 @@ heatmap_plot(
   seu,
   markers,
   topn_genes = 10,
+  diff_cluster_pct = 0.1,
+  pval_adj = 0.05,
   filename = NULL,
   col_pal = NULL,
   ...
@@ -20,6 +22,12 @@ heatmap_plot(
 Expects a format as the output of Seurat's FindAllMarkers.}
 
 \item{topn_genes}{Top N marker genes to plot for each cluster.}
+
+\item{diff_cluster_pct}{Retain marker genes per cluster if their
+\code{pct.1 - pct.2 > diff_cluster_pct}, i.e. they show cluster
+specific expression. Set to -Inf, to ignore this additional filtering.}
+
+\item{pval_adj}{Adjusted p-value threshold to consider marker genes per cluster.}
 
 \item{filename}{Filename for saving the heatmap plot. If null, the heatmap
 is just plotted in device.}

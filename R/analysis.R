@@ -212,7 +212,7 @@ module_score_analysis <- function(
     seu, modules_group, plot_dir = NULL, reduction = "umap", max.cutoff = "q98",
     min.cutoff = NA, legend.position = "top", col_pal = NULL, dims_plot = c(1, 2),
     seed = 1, ctrl = 100, pt.size = 1.4, fig.res = 200, alpha = c(0.1, 0.9),
-    pt.size.factor = 1.6, spatial_col_pal = "inferno", crop = TRUE,
+    pt.size.factor = 1.1, spatial_col_pal = "inferno", crop = FALSE,
     plot_spatial_markers = FALSE, spatial_legend_position = "top", ...) {
   # If no modules are given, return Seurat object
   if (is.null(modules_group)) {
@@ -322,6 +322,10 @@ module_score_analysis <- function(
 #' @param only.pos Only return positive markers (TRUE by default).
 #' @param topn_genes Top cluster marker genes to use for plot (in heatmap and
 #' feature plots), default is 10.
+#' @param diff_cluster_pct Retain marker genes per cluster if their
+#' `pct.1 - pct.2 > diff_cluster_pct`, i.e. they show cluster
+#' specific expression. Set to -Inf, to ignore this additional filtering.
+#' @param pval_adj Adjusted p-value threshold to consider marker genes per cluster.
 #' @param plot_dir Directory to save generated plots. If NULL, plots are
 #' not saved.
 #' @param plot_cluster_markers Logical, whether to create feature plots with
@@ -366,7 +370,7 @@ module_score_analysis <- function(
 #' @param pt.size.factor Scale the size of the spots.
 #' @param spatial_col_pal Continuous colour palette to use from viridis package to
 #' colour spots on tissue, default "inferno".
-#' @param crop Crop the plot in to focus on points plotted. Set to FALSE to
+#' @param crop Crop the plot in to focus on spots that passed QC. Set to FALSE to
 #' show entire background image.
 #' @param plot_spatial_markers Logical, whether to create spatial feature plots
 #' with expression of individual genes.
@@ -383,16 +387,19 @@ module_score_analysis <- function(
 #' @export
 cluster_analysis <- function(
     seu, dims = 1:20, res = seq(0.1, 0.1, by = 0.1), logfc.threshold = 0.5,
-    min.pct = 0.25, only.pos = TRUE, topn_genes = 10, plot_dir = NULL,
-    plot_cluster_markers = TRUE, modules_group = NULL, cluster_reduction = "pca",
-    plot_reduction = "umap", max.cutoff = "q98", min.cutoff = NA, seed = 1, ctrl = 100,
+    min.pct = 0.25, only.pos = TRUE, topn_genes = 10, diff_cluster_pct = 0.1,
+    pval_adj = 0.05, plot_dir = NULL, plot_cluster_markers = TRUE, modules_group = NULL,
+    cluster_reduction = "pca", plot_reduction = "umap", max.cutoff = "q98",
+    min.cutoff = NA, seed = 1, ctrl = 100,
     force_reanalysis = TRUE, label = TRUE, label.size = 8, legend.position = "right",
     pt.size = 1.4, cont_col_pal = NULL, discrete_col_pal = NULL, fig.res = 200,
-    cont_alpha = c(0.1, 0.9), discrete_alpha = 0.9, pt.size.factor = 1.4,
-    spatial_col_pal = "inferno", crop = TRUE, plot_spatial_markers = FALSE,
+    cont_alpha = c(0.1, 0.9), discrete_alpha = 0.9, pt.size.factor = 1.1,
+    spatial_col_pal = "inferno", crop = FALSE, plot_spatial_markers = FALSE,
     spatial_legend_position = "top", ...) {
   # So CMD passes without NOTES
-  cluster = avg_log2FC = seurat_clusters = condition = sample = freq = n <- NULL
+  cluster = avg_log2FC = p_val_adj = pct.1 = pct.2 <- NULL
+  seurat_clusters = condition = sample = freq = n <- NULL
+
   assertthat::assert_that(methods::is(seu, "Seurat"))
   # Drop unused factor levels - mostly done when a Seurat object is filtered
   seu <- .drop_factors(seu)
@@ -478,8 +485,12 @@ cluster_analysis <- function(
     if (plot_cluster_markers & !is.null(plot_dir)) {
       # Extract top marker genes
       top_mark <- mark[mark$gene %in% rownames(x = seu), ] |>
+        dplyr::filter(p_val_adj < pval_adj) |>
         dplyr::group_by(cluster) |>
+        dplyr::filter(pct.1 - pct.2 > diff_cluster_pct) |>
         dplyr::slice_max(n = topn_genes, order_by = avg_log2FC)
+
+
       # For each cluster plot marker genes
       for (cl in levels(top_mark$cluster)) {
         if (nrow(top_mark[top_mark$cluster == cl, ]) > 0) {

@@ -18,6 +18,8 @@ run_harmony_pipeline(
   min.pct = 0.25,
   only.pos = TRUE,
   topn_genes = 10,
+  diff_cluster_pct = 0.1,
+  pval_adj = 0.05,
   pcs_to_remove = NULL,
   obj_filename = "seu_harmony",
   force_reanalysis = TRUE,
@@ -35,9 +37,9 @@ run_harmony_pipeline(
   discrete_col_pal = NULL,
   cont_alpha = c(0.1, 0.9),
   discrete_alpha = 0.9,
-  pt.size.factor = 1.6,
+  pt.size.factor = 1.1,
   spatial_col_pal = "inferno",
-  crop = TRUE,
+  crop = FALSE,
   plot_spatial_markers = FALSE,
   ...
 )
@@ -80,6 +82,12 @@ min.pct cells in either of the two populations.}
 
 \item{topn_genes}{Top cluster marker genes to use for plotting (in heatmap and
 feature plots), default is 10.}
+
+\item{diff_cluster_pct}{Retain marker genes per cluster if their
+\code{pct.1 - pct.2 > diff_cluster_pct}, i.e. they show cluster
+specific expression. Set to -Inf, to ignore this additional filtering.}
+
+\item{pval_adj}{Adjusted p-value threshold to consider marker genes per cluster.}
 
 \item{pcs_to_remove}{Which PCs should be removed prior to running Harmony.
 Possibly due to being correlated with technical/batch effects. If NULL,
@@ -134,7 +142,7 @@ min and max range of values (between 0 and 1).}
 \item{spatial_col_pal}{Continuous colour palette to use from viridis package to
 colour spots on tissue, default "inferno".}
 
-\item{crop}{Crop the plot in to focus on points plotted. Set to FALSE to
+\item{crop}{Crop the plot in to focus on spots that passed QC plotted. Set to FALSE to
 show entire background image.}
 
 \item{plot_spatial_markers}{Logical, whether to create spatial feature plots

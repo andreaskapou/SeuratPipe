@@ -35,8 +35,8 @@ run_spatial_qc_pipeline <- function(
     data_dir, sample_meta, sample_meta_filename = NULL, nfeat_thresh = 500,
     mito_thresh = 5, meta_colnames = c("donor", "condition", "pass_qc"),
     out_dir = NULL, qc_to_plot = c("nFeature_Spatial", "nCount_Spatial", "percent.mito"),
-    alpha = c(0.1, 0.9), pt.size.factor = 1.4, max.cutoff = "q98", min.cutoff = NA,
-    spatial_col_pal = "inferno", crop = TRUE,
+    alpha = c(0.1, 0.9), pt.size.factor = 1.1, max.cutoff = "q98", min.cutoff = NA,
+    spatial_col_pal = "inferno", crop = FALSE,
     tenx_dir = "outs", obj_filename = "seu_qc", ...) {
 
   # Store all parameters for reproducibility
