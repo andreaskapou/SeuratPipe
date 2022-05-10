@@ -242,7 +242,7 @@ subset_dim_plot <- function(
     col_pal <- scales::hue_pal()(length(dim_dt_list))
     names(col_pal) <- names(dim_dt_list)
   } else {
-    col_pal <- col_pal[1:names(dim_dt_list)]
+    col_pal <- col_pal[1:length(dim_dt_list)]
     names(col_pal) <- names(dim_dt_list)
   }
 
