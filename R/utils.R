@@ -583,8 +583,13 @@ install_scrublet <- function(envname = "r-reticulate", method = "auto",
     stop("Required columns 'sample', 'donor', 'path', 'condition', 'pass_qc'
          are not present in metadata file. Stopping.")
   }
+  if (NROW(sample_meta) != length(unique(sample_meta$sample))) {
+    stop("Stopping 'sample' ids are not unique.")
+  }
+
   # Order metadata by sample name
-  sample_meta <- sample_meta |> dplyr::arrange(sample)
+  idx <- gtools::mixedorder(sample_meta$sample)
+  sample_meta <- sample_meta[idx, ]
 
   # Return sample metadata
   return(sample_meta)
@@ -608,7 +613,7 @@ install_scrublet <- function(envname = "r-reticulate", method = "auto",
 .as_factor_metadata <- function(seu) {
   for (meta_ids in colnames(seu@meta.data)) {
     meta_vals <- seu@meta.data[[meta_ids]]
-    if (is.character(meta_vals)) {
+    if (is.character(meta_vals) || is.logical(meta_vals)) {
       meta_levels <- gtools::mixedsort(unique(meta_vals))
       seu@meta.data[[meta_ids]] <- factor(meta_vals, levels = meta_levels)
     }

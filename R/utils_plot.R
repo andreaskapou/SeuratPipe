@@ -225,8 +225,10 @@ subset_dim_plot <- function(
   dim_dt[["subset"]] <- seu[[subset.by]][[1]]
 
   # Split to list
-  dim_dt_list <- dim_dt |> dplyr::group_by(subset) |> dplyr::group_split()
-  names(dim_dt_list) <- unique(seu[[subset.by]][[1]])
+  # Split to list
+  dim_dt_list <- dim_dt |> dplyr::group_by(subset)
+  dim_dt_list <- dim_dt_list |> dplyr::group_split() |>
+    stats::setNames(unlist(dplyr::group_keys(dim_dt_list)))
 
   if (is.null(ncol)) {
     if (length(dim_dt_list) <= 3) {
@@ -362,8 +364,9 @@ subset_feature_plot <- function(
   dim_dt[, 3] <- data.feature
 
   # Split to list
-  dim_dt_list <- dim_dt |> dplyr::group_by(subset) |> dplyr::group_split()
-  names(dim_dt_list) <- unique(seu[[subset.by]][[1]])
+  dim_dt_list <- dim_dt |> dplyr::group_by(subset)
+  dim_dt_list <- dim_dt_list |> dplyr::group_split() |>
+    stats::setNames(unlist(dplyr::group_keys(dim_dt_list)))
 
   if (is.null(ncol)) {
     if (length(dim_dt_list) <= 3) {
