@@ -114,7 +114,7 @@ run_qc_pipeline <- function(
         useDingbats = FALSE)
     for (s in names(seu)) {
       print(Seurat::VlnPlot(seu[[s]], features = qc_to_plot,
-                            ncol = plot_dim$ncols, pt.size = 0.05, ...))
+                            ncol = plot_dim$ncols, pt.size = 0.05))
     }
     dev.off()
 
@@ -126,7 +126,7 @@ run_qc_pipeline <- function(
     pdf(paste0(plot_dir, "scatter_preqc.pdf"), width = plot_dim$width,
         height = plot_dim$height, useDingbats = FALSE)
     for (s in names(seu)) {
-      gg_list <- scatter_meta_plot(seu = seu[[s]], features = qc_to_plot)
+      gg_list <- scatter_meta_plot(seu = seu[[s]], features = qc_to_plot, pt.size = 1.4)
       plot(patchwork::wrap_plots(gg_list, ncol = plot_dim$ncols) +
              patchwork::plot_annotation(title = s, theme = ggplot2::theme(
                plot.title = ggplot2::element_text(hjust = 0.5, face = "bold",
@@ -172,7 +172,7 @@ run_qc_pipeline <- function(
           useDingbats = FALSE)
       for (s in names(seu)) {
         print(Seurat::VlnPlot(seu[[s]], features = qc_to_plot,
-                              ncol = plot_dim$ncols, pt.size = 0.05, ...))
+                              ncol = plot_dim$ncols, pt.size = 0.05))
       }
       dev.off()
     }
@@ -315,7 +315,8 @@ run_harmony_pipeline <- function(
   # So CMD passes without NOTES
   seu <- NULL
 
-  if (obj_filename == "") { obj_filename <- "seu_harmony.rds" }
+  if (is.null(obj_filename)) { obj_filename <-"seu_harmony"}
+  if (obj_filename == "") { obj_filename <- "seu_harmony" }
 
   pcs_remove_name <- ""
   # Iterate over the number of principal components
@@ -390,7 +391,7 @@ run_harmony_pipeline <- function(
                                    plot_dir = module_dir, reduction = "umap",
                                    max.cutoff = max.cutoff, min.cutoff = min.cutoff,
                                    legend.position = "right", col_pal = cont_col_pal,
-                                   dims_plot = c(1,2), seed = seed, ctrl = 100,
+                                   dims_plot = c(1,2), seed = seed,
                                    fig.res = fig.res, alpha = cont_alpha,
                                    pt.size.factor = pt.size.factor,
                                    spatial_col_pal = spatial_col_pal, crop = crop,
@@ -411,8 +412,7 @@ run_harmony_pipeline <- function(
                               cluster_reduction = "harmony",
                               plot_reduction = "umap", max.cutoff = max.cutoff,
                               min.cutoff = min.cutoff,
-                              force_reanalysis = force_reanalysis,
-                              seed = seed, ctrl = 100,
+                              force_reanalysis = force_reanalysis, seed = seed,
                               label = label, label.size = label.size,
                               legend.position = "right", pt.size = pt.size,
                               cont_col_pal = cont_col_pal,
@@ -550,7 +550,7 @@ run_cluster_pipeline <- function(
                                    max.cutoff = max.cutoff, min.cutoff = min.cutoff,
                                    legend.position = "right",
                                    col_pal = cont_col_pal,
-                                   dims_plot = c(1,2), seed = seed, ctrl = 100,
+                                   dims_plot = c(1,2), seed = seed,
                                    fig.res = fig.res, alpha = cont_alpha,
                                    pt.size.factor = pt.size.factor,
                                    spatial_col_pal = spatial_col_pal, crop = crop,
@@ -571,8 +571,7 @@ run_cluster_pipeline <- function(
                               cluster_reduction = "pca",
                               plot_reduction = "umap", max.cutoff = max.cutoff,
                               min.cutoff = min.cutoff,
-                              force_reanalysis = TRUE,
-                              seed = seed, ctrl = 100,
+                              force_reanalysis = TRUE, seed = seed,
                               label = label, label.size = label.size,
                               legend.position = "right", pt.size = pt.size,
                               cont_col_pal = cont_col_pal,

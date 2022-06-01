@@ -14,13 +14,16 @@ subset_feature_plot(
   slot = "data",
   ncol = NULL,
   col_pal = NULL,
-  pt.size = 2,
-  stroke = 0.05,
   legend.position = "right",
+  pt.size = 2,
+  pt.stroke = 0.05,
+  pt.shape = 21,
+  pt.alpha = 1,
   back.pt.size = 0.5,
-  back.alpha = 0.1,
-  back.color = "grey",
-  combine = TRUE
+  back.pt.alpha = 0.1,
+  back.pt.color = "grey",
+  combine = TRUE,
+  ...
 )
 }
 \arguments{
@@ -45,21 +48,27 @@ in the form of 'q##' where '##' is the quantile (eg, 'q1', 'q10').}
 
 \item{col_pal}{Continuous colour palette to use, default "RdYlBu".}
 
-\item{pt.size}{Adjust point size for plotting.}
-
-\item{stroke}{Stroke value for each point.}
-
 \item{legend.position}{Position of legend, default "right" (set to "none"
 for clean plot).}
 
+\item{pt.size}{Adjust point size for plotting.}
+
+\item{pt.stroke}{Stroke value for each point.}
+
+\item{pt.shape}{Adjust point shape for plotting.}
+
+\item{pt.alpha}{Adjust alpha value for each point.}
+
 \item{back.pt.size}{Adjust background point size for plotting.}
 
-\item{back.alpha}{Adjust opacity for background points.}
+\item{back.pt.alpha}{Adjust opacity for background points.}
 
-\item{back.color}{Colour for background points.}
+\item{back.pt.color}{Colour for background points.}
 
 \item{combine}{Combine plots into a single patchworked ggplot object.
 If FALSE, return a list of ggplot objects}
+
+\item{...}{Additional parameters passed to ggplot2::geom_point.}
 }
 \value{
 A ggplot2 object.

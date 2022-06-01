@@ -130,6 +130,12 @@ dimred_qc_plots <- function(seu, reductions = c("pca"),
 harmony_analysis <- function(
     seu, batch_id = "sample", npcs, dims.use = NULL, plot_dir = NULL,
     n_hvgs = 3000, max.iter.harmony = 50, seed = 1, fig.res = 200, ...) {
+
+  # All parameters passed to ...
+  dot_params <- rlang::list2(...)
+  params <- dot_params[which(names(dot_params) %in% methods::formalArgs(run_harmony))]
+  params <- params[which(!(names(params) %in% c("group.by.vars", "reduction", "dims.use", "max.iter.harmony") ) )]
+
   # If list, then we have un-merged independent samples
   if (is.list(seu)) {
     # Normalise, obtain HVGs and run PCA
@@ -155,9 +161,9 @@ harmony_analysis <- function(
 
   # Run Harmony
   set.seed(seed) # Set seed due to Harmony being stochastic
-  seu <- run_harmony(object = seu, group.by.vars = batch_id,
-                     reduction = "pca", dims.use = dims.use,
-                     max.iter.harmony = max.iter.harmony, ...)
+  seu <- eval(rlang::expr(run_harmony(
+    object = seu, group.by.vars = batch_id, reduction = "pca", dims.use = dims.use,
+                     max.iter.harmony = max.iter.harmony, !!!params)))
 
   # Plots
   png(paste0(plot_dir, "pca_heatmap.png"), width = 15, height = 15,
@@ -211,7 +217,7 @@ harmony_analysis <- function(
 module_score_analysis <- function(
     seu, modules_group, plot_dir = NULL, reduction = "umap", max.cutoff = "q98",
     min.cutoff = NA, legend.position = "top", col_pal = NULL, dims_plot = c(1, 2),
-    seed = 1, ctrl = 100, pt.size = 1.4, fig.res = 200, alpha = c(0.1, 0.9),
+    seed = 1, pt.size = 1.4, fig.res = 200, alpha = c(0.1, 0.9),
     pt.size.factor = 1.1, spatial_col_pal = "inferno", crop = FALSE,
     plot_spatial_markers = FALSE, spatial_legend_position = "top", ...) {
   # If no modules are given, return Seurat object
@@ -232,7 +238,7 @@ module_score_analysis <- function(
       features <- modules[[m]][modules[[m]] %in% rownames(seu)]
       if (length(features) == 0) { next }
       seu <- compute_module_score(seu = seu, features = features, name = m,
-                                  ctrl = ctrl, seed = seed, ...)
+                                  seed = seed, ...)
 
       if (!is.null(plot_dir)) {
         plot_dim <- .plot_dims(feat_len = length(features))
@@ -349,8 +355,6 @@ module_score_analysis <- function(
 #' may specify quantile in the form of 'q##' where '##' is the quantile
 #' (eg, 'q1', 'q10').
 #' @param seed Set a random seed, for reproducibility.
-#' @param ctrl Number of control features selected from the same bin per
-#' analyzed feature.
 #' @param force_reanalysis Logical, if cluster marker genes file
 #' exists and force_reanalysis = FALSE, run identification of cluster markers.
 #' Otherwise, read cluster markers from file. Added for computing time
@@ -364,6 +368,8 @@ module_score_analysis <- function(
 #' @param discrete_col_pal Discrete colour palette to use, default is Hue palette
 #' (hue_pal) from 'scales' package.
 #' @param fig.res Figure resolution in ppi (see 'png' function).
+#' @param heatmap_downsample_cols If numberic, it will downsamples the columns of
+#' the heatmap plot, so a big specific cluster doesn't dominate the heatmap.
 #' @param cont_alpha Controls opacity of spots. Provide as a vector specifying the
 #' min and max range of values (between 0 and 1).
 #' @param discrete_alpha Controls opacity of spots. Provide a single alpha value.
@@ -390,9 +396,9 @@ cluster_analysis <- function(
     min.pct = 0.25, only.pos = TRUE, topn_genes = 10, diff_cluster_pct = 0.1,
     pval_adj = 0.05, plot_dir = NULL, plot_cluster_markers = TRUE, modules_group = NULL,
     cluster_reduction = "pca", plot_reduction = "umap", max.cutoff = "q98",
-    min.cutoff = NA, seed = 1, ctrl = 100,
-    force_reanalysis = TRUE, label = TRUE, label.size = 8, legend.position = "right",
-    pt.size = 1.4, cont_col_pal = NULL, discrete_col_pal = NULL, fig.res = 200,
+    min.cutoff = NA, seed = 1, force_reanalysis = TRUE, label = TRUE, label.size = 8,
+    legend.position = "right", pt.size = 1.4, cont_col_pal = NULL, discrete_col_pal = NULL,
+    fig.res = 200, heatmap_downsample_cols = NULL,
     cont_alpha = c(0.1, 0.9), discrete_alpha = 0.9, pt.size.factor = 1.1,
     spatial_col_pal = "inferno", crop = FALSE, plot_spatial_markers = FALSE,
     spatial_legend_position = "top", ...) {
@@ -477,9 +483,12 @@ cluster_analysis <- function(
     }
 
     # Heatmap of marker genes
-    heatmap_plot(seu = seu, markers = mark, topn_genes = topn_genes,
-                 filename = paste0(plot_dir, "z_heatmap_res", r, ".png"),
-                 col_pal = discrete_col_pal, ...)
+    heatmap_plot(
+      seu = seu, markers = mark, topn_genes = topn_genes,
+      filename = paste0(plot_dir, "z_heatmap_res", r, ".png"),
+      col_pal = discrete_col_pal, heatmap_downsample_cols = heatmap_downsample_cols,
+      annotation_legend = TRUE, annotation_names_col = TRUE, show_rownames = TRUE,
+      legend = TRUE, ...)
 
     ## Feature and violin plots
     if (plot_cluster_markers & !is.null(plot_dir)) {
@@ -512,7 +521,7 @@ cluster_analysis <- function(
               width = plot_dim$width, height = plot_dim$height, res = 100,
               units = "in")
           plot(Seurat::VlnPlot(seu, features = genes, ncol = plot_dim$ncols,
-                               pt.size = 0.03, ...))
+                               pt.size = 0.03))
           dev.off()
 
           # If assay is "Spatial" plot expression on tissue as well
@@ -531,8 +540,7 @@ cluster_analysis <- function(
           }
 
           # Each cluster as a module and compute score
-          seu <- compute_module_score(seu = seu, features = genes, ctrl = ctrl,
-                                      name = paste0("Cluster", cl), ...)
+          seu <- compute_module_score(seu = seu, features = genes, name = paste0("Cluster", cl), ...)
         }
       }
       # Module scores in one plot

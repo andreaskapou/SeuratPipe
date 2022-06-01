@@ -22,7 +22,6 @@ cluster_analysis(
   max.cutoff = "q98",
   min.cutoff = NA,
   seed = 1,
-  ctrl = 100,
   force_reanalysis = TRUE,
   label = TRUE,
   label.size = 8,
@@ -31,6 +30,7 @@ cluster_analysis(
   cont_col_pal = NULL,
   discrete_col_pal = NULL,
   fig.res = 200,
+  heatmap_downsample_cols = NULL,
   cont_alpha = c(0.1, 0.9),
   discrete_alpha = 0.9,
   pt.size.factor = 1.1,
@@ -97,9 +97,6 @@ may specify quantile in the form of 'q##' where '##' is the quantile
 
 \item{seed}{Set a random seed, for reproducibility.}
 
-\item{ctrl}{Number of control features selected from the same bin per
-analyzed feature.}
-
 \item{force_reanalysis}{Logical, if cluster marker genes file
 exists and force_reanalysis = FALSE, run identification of cluster markers.
 Otherwise, read cluster markers from file. Added for computing time
@@ -120,6 +117,9 @@ for clean plot).}
 (hue_pal) from 'scales' package.}
 
 \item{fig.res}{Figure resolution in ppi (see 'png' function).}
+
+\item{heatmap_downsample_cols}{If numberic, it will downsamples the columns of
+the heatmap plot, so a big specific cluster doesn't dominate the heatmap.}
 
 \item{cont_alpha}{Controls opacity of spots. Provide as a vector specifying the
 min and max range of values (between 0 and 1).}

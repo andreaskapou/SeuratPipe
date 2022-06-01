@@ -17,6 +17,9 @@ dim_plot(
   label = FALSE,
   label.size = 7,
   combine = TRUE,
+  pt.shape = 21,
+  pt.stroke = 0.1,
+  pt.alpha = 1,
   ...
 )
 }
@@ -49,6 +52,12 @@ specifying x- and y-dimensions.}
 
 \item{combine}{Combine plots into a single patchworked ggplot object.
 If FALSE, return a list of ggplot objects}
+
+\item{pt.shape}{Adjust point shape for plotting.}
+
+\item{pt.stroke}{Stroke value for each point.}
+
+\item{pt.alpha}{Adjust alpha value for each point.}
 
 \item{...}{Additional parameters passed to Seurat's DimPlot.}
 }

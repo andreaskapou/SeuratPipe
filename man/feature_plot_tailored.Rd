@@ -12,9 +12,12 @@ feature_plot_tailored(
   reduction = "umap",
   slot = "data",
   col_pal = NULL,
+  legend.position = "right",
   pt.size = 2,
-  stroke = 0.05,
-  legend.position = "right"
+  pt.shape = 21,
+  pt.stroke = 0.05,
+  pt.alpha = 1,
+  ...
 )
 }
 \arguments{
@@ -34,12 +37,18 @@ in the form of 'q##' where '##' is the quantile (eg, 'q1', 'q10').}
 
 \item{col_pal}{Continuous colour palette to use, default "RdYlBu".}
 
-\item{pt.size}{Adjust point size for plotting.}
-
-\item{stroke}{Stroke value for each point.}
-
 \item{legend.position}{Position of legend, default "right" (set to "none"
 for clean plot).}
+
+\item{pt.size}{Adjust point size for plotting.}
+
+\item{pt.shape}{Adjust point shape for plotting.}
+
+\item{pt.stroke}{Stroke value for each point.}
+
+\item{pt.alpha}{Adjust alpha value for each point.}
+
+\item{...}{Additional parameters passed to ggplot2::geom_point.}
 }
 \value{
 A ggplot2 object.

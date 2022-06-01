@@ -12,6 +12,10 @@
 #' @param ncol Number of columns for display when combining plots.
 #' @param dims_plot Dimensions to plot, must be a two-length numeric vector
 #' specifying x- and y-dimensions.
+#' @param pt.size Adjust point size for plotting.
+#' @param pt.shape Adjust point shape for plotting.
+#' @param pt.stroke Stroke value for each point.
+#' @param pt.alpha Adjust alpha value for each point.
 #' @param combine Combine plots into a single patchworked ggplot object.
 #'    If FALSE, return a list of ggplot objects
 #' @param ... Additional parameters passed to Seurat's DimPlot.
@@ -25,7 +29,17 @@
 dim_plot <- function(seu, reduction = "umap", group.by = "active.ident",
                      split.by = NULL, ncol = NULL, legend.position = "right",
                      col_pal = NULL, dims_plot = c(1, 2), pt.size = 1.4,
-                     label = FALSE, label.size = 7, combine = TRUE, ...) {
+                     label = FALSE, label.size = 7, combine = TRUE, pt.shape = 21,
+                     pt.stroke = 0.1, pt.alpha = 1, ...) {
+
+  # Environment parameters
+  env_params <- names(as.list(environment()))
+  # All parameters passed to ...
+  dot_params <- rlang::list2(...)
+
+  params <- dot_params[which(names(dot_params) %in% methods::formalArgs(Seurat::DimPlot))]
+  params <- params[which(!(names(params) %in% c(env_params, "dims") ) )]
+
   # So CMD passes
   D1 = D2 = ident = x = y <- NULL
   assertthat::assert_that(!is.null(reduction))
@@ -69,9 +83,10 @@ dim_plot <- function(seu, reduction = "umap", group.by = "active.ident",
     col_pal <- col_pal[1:nlevels(group)]
     names(col_pal) <- levels(group)
   }
-  t <- Seurat::DimPlot(seu, reduction = reduction, dims = dims_plot,
-        group.by = group.by, split.by = split.by, ncol = ncol, pt.size = 0,
-        combine = combine, label.size = label.size, label = FALSE, ...)
+  t <- eval(rlang::expr(Seurat::DimPlot(
+    object = seu, reduction = reduction, dims = dims_plot,
+    group.by = group.by, split.by = split.by, ncol = ncol, pt.size = 0,
+    combine = combine, label.size = label.size, label = FALSE, !!!params)))
   t <- t &
     ggplot2::theme(legend.position = legend.position,
           legend.key.size = ggplot2::unit(1.3,"line"),
@@ -81,13 +96,14 @@ dim_plot <- function(seu, reduction = "umap", group.by = "active.ident",
           axis.text.x = ggplot2::element_blank(),
           axis.text.y = ggplot2::element_blank(),
           axis.title.x = ggplot2::element_text(size = 16),
-          axis.title.y = ggplot2::element_text(size=16),
+          axis.title.y = ggplot2::element_text(size = 16),
           axis.ticks.length = ggplot2::unit(0.2,"cm")) &
     ggplot2::geom_point(ggplot2::aes(t$data[, 1], t$data[, 2], fill = group),
-               shape = 21, size = pt.size, stroke = 0.1) &
+               shape = pt.shape, size = pt.size, stroke = pt.stroke, alpha = pt.alpha) &
     ggplot2::guides(size = "none", colour = "none",
             fill = ggplot2::guide_legend(override.aes = list(size = 2))) &
     ggplot2::scale_fill_manual(name = NULL, values = col_pal) &
+    ggplot2::scale_colour_manual(name = NULL, values = col_pal) &
     ggplot2::scale_x_continuous(name = NULL, minor_breaks = NULL,
                                 limits = xlim) &
     ggplot2::scale_y_continuous(name = NULL, minor_breaks = NULL,
@@ -134,6 +150,13 @@ feature_plot <- function(
   assertthat::assert_that(!is.null(reduction))
   assertthat::assert_that(!is.null(features))
 
+  # Environment parameters
+  env_params <- names(as.list(environment()))
+  # All parameters passed to ...
+  dot_params <- rlang::list2(...)
+  params <- dot_params[which(names(dot_params) %in% methods::formalArgs(Seurat::FeaturePlot))]
+  params <- params[which(!(names(params) %in% env_params ) )]
+
   # Extract features present in the Seurat object
   features <- features[(features %in% rownames(seu)) |
                          (features %in% colnames(seu@meta.data))]
@@ -165,9 +188,9 @@ feature_plot <- function(
     key_width = 0.7
   }
 
-  t <- Seurat::FeaturePlot(
-    seu, features = features, reduction = reduction, max.cutoff = max.cutoff,
-    min.cutoff = min.cutoff, ncol = ncol, combine = combine, pt.size = NULL, ...)
+  t <- eval(rlang::expr(Seurat::FeaturePlot(
+    object = seu, features = features, reduction = reduction, max.cutoff = max.cutoff,
+    min.cutoff = min.cutoff, ncol = ncol, combine = combine, pt.size = NULL, !!!params)))
   t <- t &
     ggplot2::theme(legend.position = legend.position,
           legend.key.size = ggplot2::unit(0.7,"line"),
@@ -211,8 +234,12 @@ feature_plot <- function(
 #' @export
 subset_dim_plot <- function(
     seu, subset.by, reduction = "umap", ncol = NULL, col_pal = NULL,
-    pt.size = 2, stroke = 0.05, back.pt.size = 0.5, back.alpha = 0.1,
-    back.color = "grey", combine = TRUE) {
+    pt.size = 2, pt.stroke = 0.05, pt.shape = 21, pt.alpha = 1, back.pt.size = 0.5,
+    back.pt.alpha = 0.1, back.pt.color = "grey", combine = TRUE, ...) {
+
+  dot_params <- rlang::list2(...)
+  params <- dot_params[which(names(dot_params) %in% methods::formalArgs(ggplot2::geom_point))]
+  params <- params[which(!(names(params) %in% c("shape", "size", "stroke", "alpha") ) )]
 
   # Extract dimensionally reduced data from full object
   dim_dt <- as.data.frame(seu@reductions[[reduction]]@cell.embeddings)
@@ -224,7 +251,6 @@ subset_dim_plot <- function(
   # Add cell ID as column
   dim_dt[["subset"]] <- seu[[subset.by]][[1]]
 
-  # Split to list
   # Split to list
   dim_dt_list <- dim_dt |> dplyr::group_by(subset)
   dim_dt_list <- dim_dt_list |> dplyr::group_split() |>
@@ -254,14 +280,16 @@ subset_dim_plot <- function(
       gg <- ggplot2::ggplot(dim_dt, ggplot2::aes(x = dim_dt[, 1],
                                                  y = dim_dt[, 2],
                                                  fill = dim_dt[, 3])) +
-        ggplot2::geom_point(size = back.pt.size, alpha = back.alpha,
-                            color = back.color) +
-        ggplot2::geom_point(data = dim_subset,
+        eval(rlang::expr(ggplot2::geom_point(size = back.pt.size, alpha = back.pt.alpha,
+                            color = back.pt.color))) +
+        eval(rlang::expr(ggplot2::geom_point(data = dim_subset,
                             mapping = aes(x = dim_subset[, 1],
                                           y = dim_subset[, 2],
                                           fill = dim_subset[, 3]),
-                            shape = 21, size = pt.size, stroke = stroke) +
+                            shape = pt.shape, size = pt.size, stroke = pt.stroke,
+                            alpha = pt.alpha, !!!params))) +
         ggplot2::scale_fill_manual(name = NULL, values = col_pal) +
+        ggplot2::scale_colour_manual(name = NULL, values = col_pal) +
         ggplot2::scale_x_continuous(name = NULL, minor_breaks = NULL,
                                     limits = xlim) +
         ggplot2::scale_y_continuous(name = NULL, minor_breaks = NULL,
@@ -299,14 +327,17 @@ subset_dim_plot <- function(
 #' @param ncol Number of columns for display when having multiple features.
 #' @param col_pal Continuous colour palette to use, default "RdYlBu".
 #' @param pt.size Adjust point size for plotting.
-#' @param stroke Stroke value for each point.
+#' @param pt.shape Adjust point shape for plotting.
+#' @param pt.stroke Stroke value for each point.
+#' @param pt.alpha Adjust alpha value for each point.
 #' @param legend.position Position of legend, default "right" (set to "none"
 #' for clean plot).
 #' @param back.pt.size Adjust background point size for plotting.
-#' @param back.alpha Adjust opacity for background points.
-#' @param back.color Colour for background points.
+#' @param back.pt.alpha Adjust opacity for background points.
+#' @param back.pt.color Colour for background points.
 #' @param combine Combine plots into a single patchworked ggplot object.
 #'    If FALSE, return a list of ggplot objects
+#' @param ... Additional parameters passed to ggplot2::geom_point.
 #'
 #' @return A ggplot2 object.
 #'
@@ -316,8 +347,12 @@ subset_dim_plot <- function(
 subset_feature_plot <- function(
     seu, subset.by, feature, max.cutoff = "q98", min.cutoff = NA,
     reduction = "umap", slot = "data", ncol = NULL, col_pal = NULL,
-    pt.size = 2, stroke = 0.05, legend.position = "right",
-    back.pt.size = 0.5, back.alpha = 0.1, back.color = "grey", combine = TRUE) {
+    legend.position = "right", pt.size = 2, pt.stroke = 0.05, pt.shape = 21, pt.alpha = 1,
+    back.pt.size = 0.5, back.pt.alpha = 0.1, back.pt.color = "grey", combine = TRUE, ...) {
+
+  dot_params <- rlang::list2(...)
+  params <- dot_params[which(names(dot_params) %in% methods::formalArgs(ggplot2::geom_point))]
+  params <- params[which(!(names(params) %in% c("shape", "size", "stroke", "alpha") ) )]
 
   # Extract dimensionally reduced data from full object
   dim_dt <- as.data.frame(seu@reductions[[reduction]]@cell.embeddings)
@@ -391,13 +426,16 @@ subset_feature_plot <- function(
       s <- s
       dim_subset <- as.data.frame(dim_dt_list[[s]])
       gg <- ggplot2::ggplot(dim_dt, ggplot2::aes(x = dim_dt[, 1], y = dim_dt[, 2])) +
-        ggplot2::geom_point(size = back.pt.size, alpha = back.alpha, color = back.color) +
-        ggplot2::geom_point(data = dim_subset,
+        ggplot2::geom_point(size = back.pt.size, alpha = back.pt.alpha,
+                            color = back.pt.color) +
+        eval(rlang::expr(ggplot2::geom_point(data = dim_subset,
                             mapping = aes(x = dim_subset[, 1],
                                           y = dim_subset[, 2],
                                           fill = dim_subset[, 3]),
-                            shape = 21, size = pt.size, stroke = stroke) +
+                            shape = pt.shape, size = pt.size, stroke = pt.stroke,
+                            alpha = pt.alpha, !!!params))) +
         ggplot2::scale_fill_distiller(palette = col_pal, limits = c(min.use, max.use)) +
+        ggplot2::scale_colour_distiller(palette = col_pal, limits = c(min.use, max.use)) +
         ggplot2::scale_x_continuous(name = NULL, minor_breaks = NULL,
                                     limits = xlim) +
         ggplot2::scale_y_continuous(name = NULL, minor_breaks = NULL,
@@ -420,6 +458,101 @@ subset_feature_plot <- function(
 }
 
 
+#' @title Tailored dim plot
+#'
+#' @description This function generates the same plot as `dim_plot`,
+#' although it focuses on a single group and generates slightly better
+#' looking plot.
+#'
+#' @param seu Seurat object
+#' @param group.by Name of metadata column to group (color) cells by (required).
+#' @param reduction Dimensionality reduction to use.
+#' @param legend.position Position of legend, default "right" (set to "none"
+#' for clean plot).
+#' @param col_pal Continuous colour palette to use, default "RdYlBu".
+#' @param label Whether to label the groups in 'reduction' space.
+#' @param label.size Sets size of labels.
+#' @param pt.size Adjust point size for plotting.
+#' @param pt.shape Adjust point shape for plotting.
+#' @param pt.stroke Stroke value for each point.
+#' @param pt.alpha Adjust alpha value for each point.
+#' @param ... Additional parameters passed to ggplot2::geom_point.
+#'
+#' @return A ggplot2 object.
+#'
+#' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
+#'
+#' @export
+dim_plot_tailored <- function(
+    seu, group.by, reduction = "umap", legend.position = "right",
+    col_pal = NULL, label = FALSE, label.size = 7, pt.size = 1.4, pt.shape = 21,
+    pt.stroke = 0.1, pt.alpha = 1, ...) {
+
+  dot_params <- rlang::list2(...)
+  params <- dot_params[which(names(dot_params) %in% methods::formalArgs(ggplot2::geom_point))]
+  params <- params[which(!(names(params) %in% c("shape", "size", "stroke", "alpha") ) )]
+  # So CMD passes
+  D1 = D2 = groupby = ident = x = y <- NULL
+  assertthat::assert_that(!is.null(reduction))
+  assertthat::assert_that(!is.null(group.by))
+
+  # Extract dimensionally reduced data
+  dim_dt <- as.data.frame(seu@reductions[[reduction]]@cell.embeddings)
+  # Extract x and y plotting limits
+  xlim <- c(min(dim_dt[,1]) - 0.5, max(dim_dt[,1]) + 0.5)
+  ylim <- c(min(dim_dt[,2]) - 0.5, max(dim_dt[,2]) + 0.5)
+  # Add feature to plot as 3rd column
+  dim_dt[, 3] <- Seurat::FetchData(object = seu, vars = group.by)
+  colnames(dim_dt) <- c("D1", "D2", "groupby")
+
+  if (!(is.character(seu@meta.data[[group.by]]) ||
+        is.factor(seu@meta.data[[group.by]]) ||
+        is.logical(seu@meta.data[[group.by]]) ) ) {
+    stop("Error: 'group.by' should not be continuous in metadata slot")
+  }
+  group <- as.factor(seu@meta.data[[group.by]])
+  if (is.null(col_pal)) {
+    col_pal <- scales::hue_pal()(nlevels(group))
+    names(col_pal) <- levels(group)
+  } else {
+    col_pal <- col_pal[1:nlevels(group)]
+    names(col_pal) <- levels(group)
+  }
+
+  gg <- ggplot2::ggplot(dim_dt, ggplot2::aes(x = D1, y = D2), group = groupby) +
+    eval(rlang::expr(ggplot2::geom_point(shape = pt.shape, size = pt.size, stroke = pt.stroke,
+                        alpha = pt.alpha, ggplot2::aes(fill = groupby), !!!params))) +
+    ggplot2::scale_fill_manual(name = NULL, values = col_pal) +
+    ggplot2::scale_colour_manual(name = NULL, values = col_pal) +
+    ggplot2::scale_x_continuous(name = NULL, minor_breaks = NULL,
+                                limits = xlim) +
+    ggplot2::scale_y_continuous(name = NULL, minor_breaks = NULL,
+                                limits = ylim) +
+    ggplot2::theme_classic() +
+    ggplot2::theme(legend.position = legend.position,
+                   legend.key.size = ggplot2::unit(1.3,"line"),
+                   legend.text = ggplot2::element_text(size = 11),
+                   axis.line = ggplot2::element_line(colour = "black",
+                                                     size = 1.25, linetype = "solid"),
+                   axis.text.x = ggplot2::element_blank(),
+                   axis.text.y = ggplot2::element_blank(),
+                   axis.title.x = ggplot2::element_text(size = 16),
+                   axis.title.y = ggplot2::element_text(size = 16),
+                   axis.ticks.length = ggplot2::unit(0.2,"cm"))
+
+  if (label) {
+    # Compute cluster centres
+    dim_dt$ident <- group
+    centres <- dim_dt |> dplyr::group_by(ident) |>
+      dplyr::summarize(x = median(D1), y = median(D2))
+    gg <- gg + ggplot2::geom_text(centres,
+                                  mapping = ggplot2::aes(x = x, y = y, label = ident),
+                                  colour = "black", size = label.size)
+  }
+  return(gg)
+}
+
+
 #' @title Tailored feature plot
 #'
 #' @description This function generates the same plot as `feature_plot`,
@@ -436,9 +569,12 @@ subset_feature_plot <- function(
 #' @param slot Slot to extract data from.
 #' @param col_pal Continuous colour palette to use, default "RdYlBu".
 #' @param pt.size Adjust point size for plotting.
-#' @param stroke Stroke value for each point.
+#' @param pt.shape Adjust point shape for plotting.
+#' @param pt.stroke Stroke value for each point.
+#' @param pt.alpha Adjust alpha value for each point.
 #' @param legend.position Position of legend, default "right" (set to "none"
 #' for clean plot).
+#' @param ... Additional parameters passed to ggplot2::geom_point.
 #'
 #' @return A ggplot2 object.
 #'
@@ -446,8 +582,12 @@ subset_feature_plot <- function(
 #'
 #' @export
 feature_plot_tailored <- function(seu, feature, max.cutoff = "q98", min.cutoff = NA,
-    reduction = "umap", slot = "data", col_pal = NULL, pt.size = 2,
-    stroke = 0.05, legend.position = "right") {
+    reduction = "umap", slot = "data", col_pal = NULL, legend.position = "right",
+    pt.size = 2, pt.shape = 21, pt.stroke = 0.05, pt.alpha = 1, ...) {
+
+  dot_params <- rlang::list2(...)
+  params <- dot_params[which(names(dot_params) %in% methods::formalArgs(ggplot2::geom_point))]
+  params <- params[which(!(names(params) %in% c("shape", "size", "stroke", "alpha") ) )]
 
   # Extract dimensionally reduced data from full object
   dim_dt <- as.data.frame(seu@reductions[[reduction]]@cell.embeddings)
@@ -502,8 +642,10 @@ feature_plot_tailored <- function(seu, feature, max.cutoff = "q98", min.cutoff =
 
   gg <- ggplot2::ggplot(dim_dt, ggplot2::aes(x = dim_dt[, 1], y = dim_dt[, 2],
                                              fill = dim_dt[, 3])) +
-    ggplot2::geom_point(shape = 21, size = pt.size, stroke = stroke) +
+    eval(rlang::expr(ggplot2::geom_point(shape = pt.shape, size = pt.size, stroke = pt.stroke,
+                        alpha = pt.alpha, !!!params))) +
     ggplot2::scale_fill_distiller(palette = col_pal, limits = c(min.use, max.use)) +
+    ggplot2::scale_colour_distiller(palette = col_pal, limits = c(min.use, max.use)) +
     ggplot2::scale_x_continuous(name = NULL, minor_breaks = NULL,
                                 limits = xlim) +
     ggplot2::scale_y_continuous(name = NULL, minor_breaks = NULL,
@@ -553,6 +695,12 @@ spatial_dim_plot <- function(
     pt.size.factor = 1.1, crop = FALSE, col_pal = NULL,
     legend.position = "top", combine = TRUE, ...) {
 
+  # Environment parameters
+  env_params <- names(as.list(environment()))
+  dot_params <- rlang::list2(...)
+  params <- dot_params[which(names(dot_params) %in% methods::formalArgs(Seurat::SpatialDimPlot))]
+  params <- params[which(!(names(params) %in% env_params ) )]
+
   assertthat::assert_that(!is.null(group.by))
 
   if (!(is.character(seu@meta.data[[group.by]]) ||
@@ -570,9 +718,9 @@ spatial_dim_plot <- function(
     names(col_pal) <- levels(group)
   }
 
-  t <- Seurat::SpatialDimPlot(
+  t <- eval(rlang::expr(Seurat::SpatialDimPlot(
     seu, group.by = group.by, crop = crop, combine = combine,
-    pt.size.factor = pt.size.factor, alpha = alpha, ...)
+    pt.size.factor = pt.size.factor, alpha = alpha, !!!params)))
   t <- t &
     ggplot2::theme(legend.position = legend.position,
                    legend.key.size = ggplot2::unit(1.3, "line"),
@@ -615,6 +763,12 @@ spatial_feature_plot <- function(
     pt.size.factor = 1.1, ncol = NULL, max.cutoff = "q98", min.cutoff = NA,
     crop = FALSE, col_pal = "inferno", legend.position = "top", combine = TRUE, ...) {
 
+  # Environment parameters
+  env_params <- names(as.list(environment()))
+  dot_params <- rlang::list2(...)
+  params <- dot_params[which(names(dot_params) %in% methods::formalArgs(Seurat::SpatialFeaturePlot))]
+  params <- params[which(!(names(params) %in% env_params ) )]
+
   assertthat::assert_that(!is.null(features))
   # Extract features present in the Seurat object
   features <- features[(features %in% rownames(seu)) |
@@ -633,9 +787,9 @@ spatial_feature_plot <- function(
     key_width = 0.8
   }
 
-  t <- Seurat::SpatialFeaturePlot(
+  t <- eval(rlang::expr(Seurat::SpatialFeaturePlot(
     seu, features = features, crop = crop, max.cutoff = max.cutoff, min.cutoff = min.cutoff,
-    ncol = ncol, combine = combine, pt.size.factor = pt.size.factor, alpha = alpha, ...)
+    ncol = ncol, combine = combine, pt.size.factor = pt.size.factor, alpha = alpha, !!!params)))
   t <- t &
     ggplot2::theme(legend.position = legend.position,
                    legend.key.size = ggplot2::unit(0.7,"line"),
@@ -655,6 +809,7 @@ spatial_feature_plot <- function(
 #'
 #' @param seu Seurat object (required).
 #' @param features Vector of features in metadata to plot.
+#' @param pt.size Point size.
 #'
 #' @return A ggplot2 list with all combinations of elements in features
 #'
@@ -662,7 +817,8 @@ spatial_feature_plot <- function(
 #'
 #' @export
 scatter_meta_plot <- function(
-    seu, features = c("nFeature_RNA", "nCount_RNA", "percent.mito")) {
+    seu, features = c("nFeature_RNA", "nCount_RNA", "percent.mito"),
+    pt.size = 1.2) {
   x = y <- NULL
   # Get all combinations of QCs to plot
   combs <- combn(features, 2)
@@ -679,7 +835,7 @@ scatter_meta_plot <- function(
       to_plot$dens <- dens
       gg_list[[comb]] <- ggplot2::ggplot(to_plot) +
         ggplot2::geom_point(ggplot2::aes(x = x, y = y, color = dens),
-                            pointsize = 1.2) +
+                            size = pt.size) +
         viridis::scale_color_viridis() + ggplot2::theme_classic() +
         ggplot2::theme(legend.position = "none") +
         ggplot2::xlab(feats[1]) + ggplot2::ylab(feats[2])
@@ -749,6 +905,15 @@ pca_feature_cor_plot <- function(seu, features) {
 dot_plot <-  function(seu, features, group.by = NULL, labels = NULL,
                       xlab = "Signature", ylab = "Cluster",
                       legend.position = "right", col_pal = NULL, ...) {
+  dot_params <- rlang::list2(...)
+  params_seu <- dot_params[which(names(dot_params) %in% methods::formalArgs(Seurat::DotPlot))]
+  params_gg <- dot_params[which(names(dot_params) %in% methods::formalArgs(ggplot2::scale_colour_distiller))]
+  if (!("limits" %in% names(params_gg))) {
+    limits <- c(-2.5, 2.5)
+  }
+  params_seu <- params_seu[which(!(names(params_seu) %in% c("features", "group.by") ) )]
+  params_gg <- params_gg[which(!(names(params_gg) %in% c("name", "type", "palette", "limits") ) )]
+
   # Keep only features that are present in the metadata
   idx <- features %in% colnames(seu@meta.data)
   if (sum(idx) == 0) { return(ggplot2::ggplot()) }
@@ -763,10 +928,10 @@ dot_plot <-  function(seu, features, group.by = NULL, labels = NULL,
   }
   if (is.null(col_pal)) { col_pal = "RdYlBu" }
 
-  p <- Seurat::DotPlot(seu, features = features, group.by = group.by,  ...) +
+  p <- eval(rlang::expr(Seurat::DotPlot(seu, features = features, group.by = group.by, !!!params_seu))) +
     ggplot2::coord_flip() +
-    ggplot2::scale_colour_distiller(name = NULL, type = "div",
-                                    palette = col_pal, limits = c(-2.5,2.5)) +
+    eval(rlang::expr(ggplot2::scale_colour_distiller(name = NULL, type = "div",
+                                    palette = col_pal, limits = limits, !!!params_gg))) +
     ggplot2::scale_y_discrete(name = ylab) +
     ggplot2::scale_x_discrete(name = xlab, labels = labels) +
     ggplot2::theme(legend.position = legend.position)
@@ -793,6 +958,8 @@ dot_plot <-  function(seu, features, group.by = NULL, labels = NULL,
 #' @param pval_adj Adjusted p-value threshold to consider marker genes per cluster.
 #' @param col_pal Discrete colour palette to use, default is Hue palette
 #' (hue_pal) from 'scales' package.
+#' @param heatmap_downsample_cols If numberic, it will downsamples the columns of
+#' the heatmap plot, so a big specific cluster doesn't dominate the heatmap.
 #' @param ... Additional parameters passed to 'pheatmap' function
 #'
 #' @return A ggplot2 object.
@@ -801,12 +968,24 @@ dot_plot <-  function(seu, features, group.by = NULL, labels = NULL,
 #'
 #' @export
 heatmap_plot <- function(seu, markers, topn_genes = 10, diff_cluster_pct = 0.1,
-                         pval_adj = 0.05, filename = NULL, col_pal = NULL, ...) {
+                         pval_adj = 0.05, filename = NULL, col_pal = NULL,
+                         heatmap_downsample_cols = NULL, ...) {
   # TODO: Make the function more generic so the user defines what
   # column annotation is show in the heatmap.
 
+  dot_params <- rlang::list2(...)
+  params <- dot_params[which(names(dot_params) %in% methods::formalArgs(pheatmap::pheatmap))]
+  params <- params[which(!(names(params) %in% c(
+    "color", "breaks", "gaps_row", "gaps_col", "tree_height_row", "tree_height_col", "cluster_cols",
+    "cluster_rows", "annotation_col", "annotation_row", "annotation_colors", "annotation_names_row",
+    "show_colnames") ) )]
+
   # So CMD passes without NOTES
   p_val_adj = pct.1 = pct.2 = gene = cluster = avg_log2FC <- NULL
+
+  if (is.numeric(heatmap_downsample_cols)) {
+    seu <- subset(seu, downsample = heatmap_downsample_cols)
+  }
 
   if (NROW(markers) == 0) { return(-1) }
 
@@ -879,24 +1058,22 @@ heatmap_plot <- function(seu, markers, topn_genes = 10, diff_cluster_pct = 0.1,
   if (!is.null(filename)) {
     png(filename, width = 18, height = nrow(markers)*3/13,
         res = 200, units = "in")
-    print(pheatmap::pheatmap(seu_filt,
+    print(eval(rlang::expr(pheatmap::pheatmap(seu_filt,
                              color = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 11,name = "RdBu")))(1000),
                              breaks = seq(-2.5, 2.5, 0.005), gaps_row = gaps_row, gaps_col = gaps_col,
                              tree_height_row = NA, tree_height_col = NA, cluster_cols = FALSE, cluster_rows = FALSE,
                              annotation_col = annotation_col, annotation_row = annotation_row,
-                             annotation_colors = annotation_colours,
-                             annotation_legend = TRUE, annotation_names_row = FALSE, annotation_names_col = TRUE,
-                             show_rownames = TRUE, show_colnames = FALSE, legend = TRUE, ...))
+                             annotation_colors = annotation_colours, annotation_names_row = FALSE,
+                             show_colnames = FALSE, !!!params))))
     dev.off()
   } else {
-    print(pheatmap::pheatmap(seu_filt,
+    print(eval(rlang::expr(pheatmap::pheatmap(seu_filt,
                              color = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 11,name = "RdBu")))(1000),
                              breaks = seq(-2.5, 2.5, 0.005), gaps_row = gaps_row, gaps_col = gaps_col,
                              tree_height_row = NA, tree_height_col = NA, cluster_cols = FALSE, cluster_rows = FALSE,
                              annotation_col = annotation_col, annotation_row = annotation_row,
-                             annotation_colors = annotation_colours,
-                             annotation_legend = TRUE, annotation_names_row = FALSE, annotation_names_col = TRUE,
-                             show_rownames = TRUE, show_colnames = FALSE, legend = TRUE, ...))
+                             annotation_colors = annotation_colours, annotation_names_row = FALSE,
+                             show_colnames = FALSE, !!!params))))
   }
   if (length(dev.list()) != 0) { dev.off() }
   return(0)

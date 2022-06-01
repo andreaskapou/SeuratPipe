@@ -12,6 +12,7 @@ heatmap_plot(
   pval_adj = 0.05,
   filename = NULL,
   col_pal = NULL,
+  heatmap_downsample_cols = NULL,
   ...
 )
 }
@@ -34,6 +35,9 @@ is just plotted in device.}
 
 \item{col_pal}{Discrete colour palette to use, default is Hue palette
 (hue_pal) from 'scales' package.}
+
+\item{heatmap_downsample_cols}{If numberic, it will downsamples the columns of
+the heatmap plot, so a big specific cluster doesn't dominate the heatmap.}
 
 \item{...}{Additional parameters passed to 'pheatmap' function}
 }

@@ -4,7 +4,7 @@
 \alias{compute_module_score}
 \title{Tailored module score calculation}
 \usage{
-compute_module_score(seu, features, name, ctrl = 100, seed = 1, ...)
+compute_module_score(seu, features, name, seed = 1, ...)
 }
 \arguments{
 \item{seu}{Seurat object (required).}
@@ -12,9 +12,6 @@ compute_module_score(seu, features, name, ctrl = 100, seed = 1, ...)
 \item{features}{Vector of features (e.g. genes) to compute module score.}
 
 \item{name}{Name of module score to be stored in metadata slot.}
-
-\item{ctrl}{Number of control features selected from the same bin per
-analyzed feature.}
 
 \item{seed}{Set a random seed, for reproducibility.}
 

@@ -38,6 +38,7 @@ scrub <- NULL
       )
     )
 
+  # https://stackoverflow.com/questions/9563711/r-color-palettes-for-many-data-classes
   col_pal <- c(
     "indianred", # red
     "#6699CB",

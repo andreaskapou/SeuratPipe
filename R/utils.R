@@ -22,6 +22,9 @@ create_seurat_object <- function(data_dir, sample_meta = NULL, sample_meta_filen
                                  tenx_counts_dir = "filtered_feature_bc_matrix",
                                  expected_doublet_rate = 0.06,
                                  min.cells = 10, min.features = 200, ...) {
+  # All parameters passed to ...
+  dot_params <- rlang::list2(...)
+
   pass_qc = sample <- NULL
   # Check if metadata object or filename is given as input
   sample_meta <- .get_metadata(sample_meta = sample_meta,
@@ -53,45 +56,50 @@ create_seurat_object <- function(data_dir, sample_meta = NULL, sample_meta_filen
 
     ##
     # Load data and create intermediate Seurat object
-    tmp <-  Seurat::Read10X(
-      data.dir = paste0(data_dir, sample_meta$path[i], "/", tenx_dir, "/",
-                        tenx_counts_dir), ...)
-    tmp <- Seurat::CreateSeuratObject(counts = tmp, project = s,
-                                      min.cells = 0, min.features = 0, ...)
+    params <- dot_params[which(names(dot_params) %in% methods::formalArgs(Seurat::Read10X))]
+    params <- params[which(!(names(params) %in% c("data.dir") ) )]
+    tmp <-  eval(rlang::expr(Seurat::Read10X(
+      data.dir = paste0(data_dir, sample_meta$path[i], "/", tenx_dir, "/", tenx_counts_dir), !!!params)))
+    tmp <- Seurat::CreateSeuratObject(counts = tmp, project = s, min.cells = 0, min.features = 0)
     if (use_soupx) {
       # Run SoupX for ambient RNA correction
-      soup <- SoupX::load10X(dataDir = paste0(data_dir, sample_meta$path[i],
-                                              "/", tenx_dir),
-                             keepDroplets = TRUE, ...)
+      params <- dot_params[which(names(dot_params) %in% methods::formalArgs(SoupX::load10X))]
+      params <- params[which(!(names(params) %in% c("dataDir", "keepDroplets") ) )]
+      soup <- eval(rlang::expr(SoupX::load10X(
+        dataDir = paste0(data_dir, sample_meta$path[i], "/", tenx_dir),
+        keepDroplets = TRUE, !!!params)))
       # Estimate contamination
+      params <- dot_params[which(names(dot_params) %in% methods::formalArgs(SoupX::autoEstCont))]
+      params <- params[which(!(names(params) %in% c("sc", "forceAccept", "doPlot") ) )]
       if (!is.null(plot_dir)) {
         png(paste0(plot_dir, "soupX_", s, ".png"), width = 7, height = 5,
             res = 150, units = "in")
-        soup <- SoupX::autoEstCont(sc = soup, forceAccept = TRUE, ...)
+        soup <- eval(rlang::expr(SoupX::autoEstCont(sc = soup, forceAccept = TRUE, doPlot = TRUE, !!!params)))
         dev.off()
       } else {
-        soup <- SoupX::autoEstCont(sc = soup, forceAccept = TRUE,
-                                   doPlot = FALSE, ...)
+        soup <- eval(rlang::expr(SoupX::autoEstCont(sc = soup, forceAccept = TRUE, doPlot = FALSE, !!!params)))
       }
       # Adjust counts
-      gex <- SoupX::adjustCounts(sc = soup, ...)
+      params <- dot_params[which(names(dot_params) %in% methods::formalArgs(SoupX::autoEstCont))]
+      params <- params[which(!(names(params) %in% c("sc") ) )]
+      gex <- eval(rlang::expr(SoupX::adjustCounts(sc = soup, !!!params)))
     } else {
       # No ambient RNA correction, reduction counts matrix
-      gex <- Seurat::GetAssayData(object = tmp, slot = "counts")
+      gex <- eval(rlang::expr(Seurat::GetAssayData(object = tmp, slot = "counts")))
     }
 
     ##
     # Create final Seurat object and add metadata information
-    seu[[s]] <- Seurat::CreateSeuratObject(
-      counts = gex, project = s, min.cells = min.cells,
-      min.features = min.features, ...)
+    params <- dot_params[which(names(dot_params) %in% methods::formalArgs(Seurat::CreateSeuratObject))]
+    params <- params[which(!(names(params) %in% c("counts", "project", "min.cells", "min.features") ) )]
+    seu[[s]] <- eval(rlang::expr(Seurat::CreateSeuratObject(
+      counts = gex, project = s, min.cells = min.cells, min.features = min.features, !!!params)))
     # Rename cells to distinguish across datasets
     seu[[s]] <- Seurat::RenameCells(object = seu[[s]], add.cell.id = s)
     # Compute Mitochondrial percentage
     # TODO: Hack assuming either human OR mouse, and since for one of them we
     # will have all 0s, OR (|) will give us the same information we need.
-    seu[[s]]$percent.mito <- Seurat::PercentageFeatureSet(seu[[s]],
-                                                          pattern = "^MT-|^mt-")
+    seu[[s]]$percent.mito <- Seurat::PercentageFeatureSet(seu[[s]], pattern = "^MT-|^mt-")
 
     # Add required sample metadata information
     seu[[s]]$sample <- as.factor(s)
@@ -105,19 +113,24 @@ create_seurat_object <- function(data_dir, sample_meta = NULL, sample_meta_filen
 
     if (use_scrublet) {
       # Run scrublet to quantify doublets
-      scr <- scrub$Scrublet(reticulate::r_to_py(
-        Seurat::GetAssayData(object = seu[[s]], slot = "counts"))$T$tocsc(),
-        expected_doublet_rate = expected_doublet_rate)
-      doublet_results <- reticulate::py_to_r(scr$scrub_doublets(...))
+      params <- dot_params[which(names(dot_params) %in% c("sim_doublet_ratio", "n_neighbors",
+                                                          "stdev_doublet_rate", "random_state"))]
+      scr <- eval(rlang::expr(scrub$Scrublet(
+        counts_matrix = reticulate::r_to_py(Seurat::GetAssayData(object = seu[[s]], slot = "counts"))$T$tocsc(),
+        expected_doublet_rate = expected_doublet_rate, !!!params)))
+
+      params <- dot_params[which(names(dot_params) %in% c(
+        "synthetic_doublet_umi_subsampling", "use_approx_neighbors", "distance_metric",
+        "get_doublet_neighbor_parents", "min_counts", "min_cells", "min_gene_variability_pctl",
+        "log_transform", "mean_center", "normalize_variance", "n_prin_comps"))]
+      doublet_results <- eval(rlang::expr(reticulate::py_to_r(scr$scrub_doublets(!!!params))))
       doublet_score <- doublet_results[[1]]
       names(doublet_score) <- colnames(seu[[s]])
       doublet_prediction <- doublet_results[[2]]
       names(doublet_prediction) <- colnames(seu[[s]])
       # Add scrublet output
-      seu[[s]] <- Seurat::AddMetaData(seu[[s]], metadata = doublet_score,
-                                      col.name = "doublet_score")
-      seu[[s]] <- Seurat::AddMetaData(seu[[s]], metadata = doublet_prediction,
-                                      col.name = "doublet_prediction")
+      seu[[s]] <- Seurat::AddMetaData(seu[[s]], metadata = doublet_score, col.name = "doublet_score")
+      seu[[s]] <- Seurat::AddMetaData(seu[[s]], metadata = doublet_prediction, col.name = "doublet_prediction")
     }
   }
   # We have a single sample, so removing from list
@@ -137,7 +150,6 @@ create_seurat_object <- function(data_dir, sample_meta = NULL, sample_meta_filen
 #' mitochondrial percentage.
 #'
 #' @param seu Seurat object or list of Seurat objects(required).
-#' @param ... Additional parameters.
 #'
 #' @inheritParams run_qc_pipeline
 #'
@@ -151,13 +163,13 @@ NULL
 #' @rdname qc_filter_seurat_object
 #'
 #' @export
-qc_filter_seurat_object <- function(seu, nfeat_thresh, mito_thresh, ...){
+qc_filter_seurat_object <- function(seu, nfeat_thresh, mito_thresh){
   UseMethod("qc_filter_seurat_object")
 }
 
 # Default function for the generic function 'qc_filter_seurat_object'
 qc_filter_seurat_object.default <- function(seu, nfeat_thresh,
-                                            mito_thresh, ...){
+                                            mito_thresh){
   stop("Object 'seu' should be either list or Seurat object!")
 }
 
@@ -165,11 +177,11 @@ qc_filter_seurat_object.default <- function(seu, nfeat_thresh,
 #' @rdname qc_filter_seurat_object
 #'
 #' @export
-qc_filter_seurat_object.list <- function(seu, nfeat_thresh, mito_thresh, ...) {
+qc_filter_seurat_object.list <- function(seu, nfeat_thresh, mito_thresh) {
   # Perform actual QC filtering
   for (s in names(seu)) {
     seu[[s]] <- qc_filter_seurat_object.Seurat(
-      seu = seu[[s]], nfeat_thresh=nfeat_thresh, mito_thresh=mito_thresh, ...)
+      seu = seu[[s]], nfeat_thresh=nfeat_thresh, mito_thresh=mito_thresh)
   }
   return(seu)
 }
@@ -177,7 +189,7 @@ qc_filter_seurat_object.list <- function(seu, nfeat_thresh, mito_thresh, ...) {
 #' @rdname qc_filter_seurat_object
 #'
 #' @export
-qc_filter_seurat_object.Seurat <- function(seu, nfeat_thresh, mito_thresh, ...) {
+qc_filter_seurat_object.Seurat <- function(seu, nfeat_thresh, mito_thresh) {
   assay <- Seurat::DefaultAssay(object = seu)
   # Perform actual QC filtering
   cells <- seu@meta.data[paste0("nFeature_", assay)] > nfeat_thresh &
@@ -240,15 +252,23 @@ lognormalize_and_pca.list <- function(seu, npcs = NULL, n_hvgs = 3000, ...) {
 #'
 #' @export
 lognormalize_and_pca.Seurat <- function(seu, npcs = NULL, n_hvgs = 3000, ...) {
-  seu <- Seurat::NormalizeData(seu, normalization.method = "LogNormalize",
-                               scale.factor = 10000)
-  seu <- Seurat::FindVariableFeatures(seu, selection.method = "vst",
-                                      nfeatures = n_hvgs, ...)
+  # All parameters passed to ...
+  dot_params <- rlang::list2(...)
+
+  params <- dot_params[which(names(dot_params) %in% methods::formalArgs(Seurat:::NormalizeData.Seurat))]
+  seu <- eval(rlang::expr(Seurat::NormalizeData(seu, !!!params)))
+
+  params <- dot_params[which(names(dot_params) %in% methods::formalArgs(Seurat:::FindVariableFeatures.Seurat))]
+  params <- params[which(!(names(params) %in% c("nfeatures") ) )]
+  seu <- eval(rlang::expr(Seurat::FindVariableFeatures(object = seu, nfeatures = n_hvgs, !!!params)))
   # PCA reduction
   if (!is.null(npcs)) {
-    seu <- Seurat::ScaleData(seu, ...)
-    seu <- Seurat::RunPCA(seu, features = Seurat::VariableFeatures(seu),
-                          npcs = npcs, ...)
+    params <- dot_params[which(names(dot_params) %in% methods::formalArgs(Seurat:::ScaleData.Seurat))]
+    seu <- eval(rlang::expr(Seurat::ScaleData(object = seu, !!!params)))
+
+    params <- dot_params[which(names(dot_params) %in% methods::formalArgs(Seurat:::RunPCA.Seurat))]
+    params <- params[which(!(names(params) %in% c("npcs") ) )]
+    seu <- eval(rlang::expr(Seurat::RunPCA(object = seu, npcs = npcs, !!!params)))
   }
   return(seu)
 }
@@ -277,11 +297,16 @@ lognormalize_and_pca.Seurat <- function(seu, npcs = NULL, n_hvgs = 3000, ...) {
 #'
 #' @export
 run_umap <- function(seu, dims, reduction, seed = 1, ...) {
+  # All parameters passed to ...
+  dot_params <- rlang::list2(...)
+
   # Number of dimensions to perform UMAP
   dims <- dims[dims <= NCOL(seu@reductions[[reduction]])]
   # Run UMAP
-  seu <- Seurat::RunUMAP(seu, dims = dims, seed.use = seed,
-                         reduction = reduction, ...)
+  params <- dot_params[which(names(dot_params) %in% methods::formalArgs(Seurat:::RunUMAP.Seurat))]
+  params <- params[which(!(names(params) %in% c("dims", "reduction", "seed.use") ) )]
+  seu <- eval(rlang::expr(Seurat::RunUMAP(seu, dims = dims, seed.use = seed,
+                                          reduction = reduction, !!!params)))
   return(seu)
 }
 
@@ -308,10 +333,14 @@ run_umap <- function(seu, dims, reduction, seed = 1, ...) {
 #' @export
 find_neighbors <- function(seu, dims, reduction, ...) {
   assertthat::assert_that(methods::is(reduction, "character"))
+  # All parameters passed to ...
+  dot_params <- rlang::list2(...)
   # Number of dimensions to find neighbors
   dims <- dims[dims <= NCOL(seu@reductions[[reduction]])]
   # Identify neighbors
-  seu <- Seurat::FindNeighbors(seu, dims = dims, reduction = reduction, ...)
+  params <- dot_params[which(names(dot_params) %in% methods::formalArgs(Seurat:::FindNeighbors.Seurat))]
+  params <- params[which(!(names(params) %in% c("dims", "reduction")) )]
+  seu <- eval(rlang::expr(Seurat::FindNeighbors(seu, dims = dims, reduction = reduction, !!!params)))
   return(seu)
 }
 
@@ -337,9 +366,13 @@ find_neighbors <- function(seu, dims, reduction, ...) {
 #'
 #' @export
 find_clusters <- function(seu, resolution, random.seed = 1, ...) {
+  # All parameters passed to ...
+  dot_params <- rlang::list2(...)
   # Identify neighbors
-  seu <- Seurat::FindClusters(seu, resolution = resolution,
-                              random.seed = random.seed, ...)
+  params <- dot_params[which(names(dot_params) %in% methods::formalArgs(Seurat:::FindClusters.Seurat))]
+  params <- params[which(!(names(params) %in% c("resolution", "random.seed")) )]
+  seu <- eval(rlang::expr(Seurat::FindClusters(seu, resolution = resolution,
+                                               random.seed = random.seed, !!!params)))
   return(seu)
 }
 
@@ -363,8 +396,12 @@ find_clusters <- function(seu, resolution, random.seed = 1, ...) {
 #'
 #' @export
 find_all_markers <- function(seu, random.seed = 1, ...) {
+  # All parameters passed to ...
+  dot_params <- rlang::list2(...)
   # Identify neighbors
-  markers <- Seurat::FindAllMarkers(seu, random.seed = 1, ...)
+  params <- dot_params[which(names(dot_params) %in% methods::formalArgs(Seurat::FindAllMarkers))]
+  params <- params[which(!(names(params) %in% c("random.seed")) )]
+  markers <- eval(rlang::expr(Seurat::FindAllMarkers(seu, random.seed = 1, !!!params)))
   return(markers)
 }
 
@@ -384,17 +421,26 @@ find_all_markers <- function(seu, random.seed = 1, ...) {
 #' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
 #'
 #' @export
-compute_module_score <- function(seu, features, name, ctrl = 100,
-                                 seed = 1, ...) {
+compute_module_score <- function(seu, features, name, seed = 1, ...) {
+  # All parameters passed to ...
+  dot_params <- rlang::list2(...)
+  params <- dot_params[which(names(dot_params) %in% methods::formalArgs(Seurat::AddModuleScore))]
+  params <- params[which(!(names(params) %in% c("features", "name", "seed") ) )]
+
   # Required for the really low quality samples so they pass without errors
-  ctrl <- ifelse(NCOL(seu) <= ctrl, NCOL(seu) - 5, ctrl)
+  if (any(names(dot_params) %in% "ctrl")) {
+    if (NROW(seu) <= dot_params[[which(names(dot_params) %in% "ctrl")]]) {
+      dot_params[[which(names(dot_params) %in% "ctrl")]] <- 20
+    }
+  }
+
   features <- list(markers = features[features %in% rownames(seu)])[1]
   if (length(features$markers) == 0) {
     message("No features to compute module score.")
     return(seu)
   }
-  seu <- Seurat::AddModuleScore(object = seu, features = features,
-                                ctrl = ctrl, name = name, seed = seed, ...)
+  seu <- eval(rlang::expr(Seurat::AddModuleScore(object = seu, features = features,
+                                                 name = name, seed = seed, !!!params)))
   seu[[name]] <- seu[[paste0(name, "1")]]
   seu[[paste0(name, "1")]] <- NULL
   return(seu)
@@ -601,7 +647,12 @@ install_scrublet <- function(envname = "r-reticulate", method = "auto",
 # @param n Create a square n by n grid to compute density.
 # @return The density within each square.
 .get_density <- function(x, y, ...) {
-  dens <- MASS::kde2d(x, y, ...)
+  # All parameters passed to ...
+  dot_params <- rlang::list2(...)
+
+  params <- dot_params[which(names(dot_params) %in% methods::formalArgs(MASS::kde2d))]
+  dens <- eval(rlang::expr(MASS::kde2d(x, y, !!!params)))
+
   ix <- base::findInterval(x, dens$x)
   iy <- base::findInterval(y, dens$y)
   ii <- cbind(ix, iy)
@@ -689,6 +740,7 @@ install_scrublet <- function(envname = "r-reticulate", method = "auto",
 
 
 .internal_col_pal <- function() {
+  # https://stackoverflow.com/questions/9563711/r-color-palettes-for-many-data-classes
   return(c(
     "indianred", # red
     "#6699CB",

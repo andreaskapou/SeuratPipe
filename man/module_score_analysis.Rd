@@ -15,7 +15,6 @@ module_score_analysis(
   col_pal = NULL,
   dims_plot = c(1, 2),
   seed = 1,
-  ctrl = 100,
   pt.size = 1.4,
   fig.res = 200,
   alpha = c(0.1, 0.9),
@@ -59,9 +58,6 @@ for clean plot).}
 specifying x- and y-dimensions.}
 
 \item{seed}{Set a random seed, for reproducibility.}
-
-\item{ctrl}{Number of control features selected from the same bin per
-analyzed feature.}
 
 \item{pt.size}{Adjust point size for plotting.}
 
