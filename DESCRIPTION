@@ -50,3 +50,4 @@ biocViews: GeneExpression,
 	KEGG, 
 	Sequencing, 
 	SingleCell
+URL: https://andreaskapou.github.io/SeuratPipe/

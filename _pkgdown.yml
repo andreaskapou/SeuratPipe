@@ -1,0 +1,12 @@
+url: https://andreaskapou.github.io/SeuratPipe/
+template:
+  bootstrap: 5
+
+navbar:
+  structure:
+    right: [website]
+  components:
+    website:
+      text: Andreas C. Kapourani
+      href: https://andreaskapou.github.io
+      aria-label: Personal website
