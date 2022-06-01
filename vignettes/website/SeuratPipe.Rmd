@@ -1,5 +1,5 @@
 ---
-title: SeuratPipe - Streamlining Seurat analysis
+title: SeuratPipe for scRNA-seq analysis
 author:
 - name: Andreas C. Kapourani
   affiliation: 
@@ -16,7 +16,7 @@ output:
     fig_height: 4.5
 package: SeuratPipe
 vignette: |
-  %\VignetteIndexEntry{SeuratPipe: Streamlining Seurat analysis}
+  %\VignetteIndexEntry{SeuratPipe}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -47,7 +47,7 @@ vignette: |
 
 
 # Introduction
-The aim of the `SeuratPipe` package is to streamline and provide a reproducible computational analysis pipeline for single cell genomics. It aims to remove technical details from the user, enabling wet lab researchers to have an 'initial look' at the data themselves. 
+The aim of the `SeuratPipe` package is to streamline and provide a __reproducible__ computational analysis pipeline for single cell genomics. It aims to remove technical details from the user, enabling wet lab researchers to have an 'initial look' at the data themselves. 
 
 The package is publicly available on Github [https://github.com/andreaskapou/SeuratPipe](https://github.com/andreaskapou/SeuratPipe).
 
@@ -379,8 +379,8 @@ gc(verbose = FALSE)
 
 ```
 ##            used  (Mb) gc trigger  (Mb) limit (Mb) max used  (Mb)
-## Ncells  3590290 191.8    6928878 370.1         NA  6928878 370.1
-## Vcells 25372536 193.6   50623263 386.3      32768 50622718 386.3
+## Ncells  3590119 191.8    6953724 371.4         NA  6953724 371.4
+## Vcells 25306527 193.1   50621187 386.3      32768 50620863 386.3
 ```
 
 ```r
