@@ -1,6 +1,7 @@
 url: https://andreaskapou.github.io/SeuratPipe/
 template:
   bootstrap: 5
+  bootswatch: flatly
 
 navbar:
   structure:
