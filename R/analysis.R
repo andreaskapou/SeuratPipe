@@ -587,7 +587,7 @@ cluster_analysis <- function(
         col_pal <- discrete_col_pal
       }
       cl_condition <- seu@meta.data |> dplyr::group_by(seurat_clusters, condition) |>
-        dplyr::summarise(n = n()) |> dplyr::mutate(freq = n / sum(n))
+        dplyr::summarise(n = dplyr::n()) |> dplyr::mutate(freq = n / sum(n))
 
       png(paste0(plot_dir, "hist_condition_contr_per_cluster_res", r, ".png"),
           width = 7 + 0.3*nlevels(seu@meta.data[["seurat_clusters"]]),
@@ -603,7 +603,7 @@ cluster_analysis <- function(
       dev.off()
 
       cl_condition <- seu@meta.data |> dplyr::group_by(condition, seurat_clusters) |>
-        dplyr::summarise(n = n()) |> dplyr::mutate(freq = n / sum(n))
+        dplyr::summarise(n = dplyr::n()) |> dplyr::mutate(freq = n / sum(n))
 
       png(paste0(plot_dir, "hist_condition_contr_res", r, ".png"),
           width = 7 + 0.3*nlevels(seu@meta.data[["seurat_clusters"]]),
@@ -634,7 +634,7 @@ cluster_analysis <- function(
       }
 
       cl_condition <- seu@meta.data |> dplyr::group_by(seurat_clusters, sample) |>
-        dplyr::summarise(n = n()) |> dplyr::mutate(freq = n / sum(n))
+        dplyr::summarise(n = dplyr::n()) |> dplyr::mutate(freq = n / sum(n))
 
       png(paste0(plot_dir, "hist_sample_contr_per_cluster_res", r, ".png"),
           width = 7 + 0.3*nlevels(seu@meta.data[["seurat_clusters"]]),
@@ -650,7 +650,7 @@ cluster_analysis <- function(
       dev.off()
 
       cl_condition <- seu@meta.data |> dplyr::group_by(sample, seurat_clusters) |>
-        dplyr::summarise(n = n()) |> dplyr::mutate(freq = n / sum(n))
+        dplyr::summarise(n = dplyr::n()) |> dplyr::mutate(freq = n / sum(n))
 
       png(paste0(plot_dir, "hist_sample_contr_res", r, ".png"),
           width = 7 + 0.3*nlevels(seu@meta.data[["seurat_clusters"]]),
