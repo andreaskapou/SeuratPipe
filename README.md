@@ -5,7 +5,7 @@ he aim of the `SeuratPipe` package is to streamline and provide a __reproducible
 The package is publicly available on Github [https://github.com/andreaskapou/SeuratPipe](https://github.com/andreaskapou/SeuratPipe).
 
 
-The __vignette__ demonstrating the use of `SeuratPipe` for scRNA-seq analysis can be found on the `Articles` navigation bar [https://andreaskapou.github.io/SeuratPipe/articles/website/SeuratPipe.html](https://andreaskapou.github.io/SeuratPipe/articles/website/SeuratPipe.html) and the __data__ can be downloaded from this Github repository [https://github.com/andreaskapou/SeuratPipe_tutorial](https://github.com/andreaskapou/SeuratPipe_tutorial).
+The __vignette__ demonstrating the use of `SeuratPipe` for scRNA-seq analysis can be found on  [https://andreaskapou.github.io/SeuratPipe/articles/SeuratPipe.html](https://andreaskapou.github.io/SeuratPipe/articles/SeuratPipe.html) and the __data__ can be downloaded from this Github repository [https://github.com/andreaskapou/SeuratPipe_tutorial](https://github.com/andreaskapou/SeuratPipe_tutorial).
 
 
 __Templates__ with R code for running QC, clustering and data integration pipelines can be found on the [https://github.com/andreaskapou/SeuratPipe_tutorial](https://github.com/andreaskapou/SeuratPipe_tutorial) Github repository.
