@@ -290,7 +290,7 @@ for (s in names(seu)) {
 dim_plot(seu, reduction = "umap", group.by = "seurat_clusters", pt.size = 2)
 ```
 
-![plot of chunk sp-cl-fig1](../figures/sp-cl-fig1-1.png)
+![plot of chunk sp-cl-fig1](figure/sp-cl-fig1-1.png)
 
 
 ```r
@@ -299,7 +299,7 @@ dim_plot(seu, reduction = "umap", group.by = "seurat_clusters",
          col_pal = SeuratPipe:::discrete_col_pal, pt.size = 2)
 ```
 
-![plot of chunk sp-cl-fig2](../figures/sp-cl-fig2-1.png)
+![plot of chunk sp-cl-fig2](figure/sp-cl-fig2-1.png)
 
 
 ```r
@@ -308,7 +308,7 @@ feature_plot(seu, features = c("LYZ", "NKG7"),
              ncol = 2, legend.position = "top")
 ```
 
-![plot of chunk sp-cl-fig3](../figures/sp-cl-fig3-1.png)
+![plot of chunk sp-cl-fig3](figure/sp-cl-fig3-1.png)
 
 
 ```r
@@ -316,7 +316,7 @@ feature_plot(seu, features = c("LYZ", "NKG7"),
 feature_plot(seu, features = names(lineage), ncol = 3) & NoAxes()
 ```
 
-![plot of chunk sp-cl-fig4](../figures/sp-cl-fig4-1.png)
+![plot of chunk sp-cl-fig4](figure/sp-cl-fig4-1.png)
 
 
 ```r
@@ -324,7 +324,7 @@ feature_plot(seu, features = names(lineage), ncol = 3) & NoAxes()
 dot_plot(seu, features = names(lineage))
 ```
 
-![plot of chunk sp-cl-fig5](../figures/sp-cl-fig5-1.png)
+![plot of chunk sp-cl-fig5](figure/sp-cl-fig5-1.png)
 
 We can also check if specific technical factors are correlated with specific principal components.
 
@@ -332,7 +332,7 @@ We can also check if specific technical factors are correlated with specific pri
 pca_feature_cor_plot(seu, features = c("nFeature_RNA", "percent.mito"))
 ```
 
-![plot of chunk sp-cl-fig7](../figures/sp-cl-fig7-1.png)
+![plot of chunk sp-cl-fig7](figure/sp-cl-fig7-1.png)
 
 The above plot can also be useful to understand which specific principal components explain/capture information about different cell types/lineages.
 
@@ -341,7 +341,7 @@ The above plot can also be useful to understand which specific principal compone
 pca_feature_cor_plot(seu, features = names(lineage))
 ```
 
-![plot of chunk sp-cl-fig8](../figures/sp-cl-fig8-1.png)
+![plot of chunk sp-cl-fig8](figure/sp-cl-fig8-1.png)
 
 
 # Harmony integration
@@ -435,14 +435,14 @@ dim_plot(seu, group.by = "seurat_clusters", pt.size = 2,
          col_pal = SeuratPipe:::discrete_col_pal) & NoAxes()
 ```
 
-![plot of chunk sp-har-fig1](../figures/sp-har-fig1-1.png)
+![plot of chunk sp-har-fig1](figure/sp-har-fig1-1.png)
 
 
 ```r
 dim_plot(seu, group.by = "condition", split.by = "condition", ncol = 2)
 ```
 
-![plot of chunk sp-har-fig2](../figures/sp-har-fig2-1.png)
+![plot of chunk sp-har-fig2](figure/sp-har-fig2-1.png)
 
 
 ```r
@@ -451,7 +451,7 @@ feature_plot(seu, features = c("LYZ", "NKG7"),
              ncol = 2, legend.position = "top")
 ```
 
-![plot of chunk sp-har-fig3](../figures/sp-har-fig3-1.png)
+![plot of chunk sp-har-fig3](figure/sp-har-fig3-1.png)
 
 # Session Info
 This vignette was compiled using the following packages:
