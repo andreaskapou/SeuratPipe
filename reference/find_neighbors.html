@@ -54,25 +54,34 @@ If yes, it takes maximum columns of 'reduction' object.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">find_neighbors</span><span class="op">(</span><span class="va">seu</span>, <span class="va">dims</span>, <span class="va">reduction</span>, <span class="va">...</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">find_neighbors</span><span class="op">(</span><span class="va">seu</span>, <span class="va">dims</span>, <span class="va">reduction</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>seu</dt>
 <dd><p>Seurat object (required).</p></dd>
+
+
 <dt>dims</dt>
 <dd><p>Vector denoting which dimensions to use as input
 features, e.g. dims = 1:30</p></dd>
+
+
 <dt>reduction</dt>
 <dd><p>Reduction object to run UMAP. E.g. can be 'pca'
 or 'harmony' for integrated data (required).</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional named parameters to Seurat FindNeighbors function.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Seurat object.</p>
+    
+
+<p>Seurat object.</p>
     </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
@@ -88,7 +97,7 @@ or 'harmony' for integrated data (required).</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
     </footer></div>

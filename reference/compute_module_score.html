@@ -51,25 +51,36 @@ compute module scores based on a group of genes of interest.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">compute_module_score</span><span class="op">(</span><span class="va">seu</span>, <span class="va">features</span>, <span class="va">name</span>, seed <span class="op">=</span> <span class="fl">1</span>, <span class="va">...</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">compute_module_score</span><span class="op">(</span><span class="va">seu</span>, <span class="va">features</span>, <span class="va">name</span>, seed <span class="op">=</span> <span class="fl">1</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>seu</dt>
 <dd><p>Seurat object (required).</p></dd>
+
+
 <dt>features</dt>
 <dd><p>Vector of features (e.g. genes) to compute module score.</p></dd>
+
+
 <dt>name</dt>
 <dd><p>Name of module score to be stored in metadata slot.</p></dd>
+
+
 <dt>seed</dt>
 <dd><p>Set a random seed, for reproducibility.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional parameters passed to Seurat's AddModuleScore.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A ggplot2 object.</p>
+    
+
+<p>A ggplot2 object.</p>
     </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
@@ -85,7 +96,7 @@ compute module scores based on a group of genes of interest.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
     </footer></div>

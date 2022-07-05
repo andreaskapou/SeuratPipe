@@ -60,7 +60,7 @@
 
 
 <script src="SeuratPipe_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
-  <main id="main"><div class="page-header">
+  <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>SeuratPipe for scRNA-seq analysis</h1>
                         <h4 data-toc-skip class="author">Andreas C. Kapourani</h4>
             <address class="author_afil">
@@ -107,21 +107,21 @@
 <h2 id="seuratpipe-installation">SeuratPipe installation<a class="anchor" aria-label="anchor" href="#seuratpipe-installation"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># install.packages("remotes")</span>
-
-<span class="co"># To install the stable release</span>
-<span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"andreaskapou/SeuratPipe@release/v1.0.0"</span><span class="op">)</span>
-
-<span class="co"># To install the latest source version (not recommended)</span>
-<span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"andreaskapou/SeuratPipe"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
+<span></span>
+<span><span class="co"># To install the stable release</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"andreaskapou/SeuratPipe@release/v1.0.0"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># To install the latest source version (not recommended)</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"andreaskapou/SeuratPipe"</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="scrublet-python-installation">Scrublet Python installation<a class="anchor" aria-label="anchor" href="#scrublet-python-installation"></a>
 </h3>
 <p>Scrublet is a method for doublet detection, Github page: <a href="https://github.com/swolock/scrublet" class="external-link">https://github.com/swolock/scrublet</a>.</p>
 <p>The method is implemented in Python, hence when installing <code>SeuratPipe</code>, the Scrublet package cannot be installed automatically. We can try to install and run Scrublet within R using the <code>reticulate</code> package. I wrote a helper function to ease installation of Scrublet. In R type:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">SeuratPipe</span><span class="fu">::</span><span class="fu"><a href="../reference/install_scrublet.html">install_scrublet</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co"># type ?install_scrublet for more details</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">SeuratPipe</span><span class="fu">::</span><span class="fu"><a href="../reference/install_scrublet.html">install_scrublet</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co"># type ?install_scrublet for more details</span></span></code></pre></div>
 <p>If this fails, you need to follow details in <code>reticulate</code> package on how to install any Python package on your machine. If you have any issues with installation, you can still use the SeuratPipe package, although you have to set <code>use_scrublet = FALSE</code>, i.e. do not perform any doublet detection in your analysis.</p>
 </div>
 </div>
@@ -132,8 +132,8 @@
 <p>Next, we will use the <strong>IFNB</strong> dataset, which contains two samples (control and stimulated cells) to perform data integration with <strong>Harmony</strong>.</p>
 <p>First we load required packages</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://satijalab.org/seurat" class="external-link">Seurat</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://andreaskapou.github.io/SeuratPipe/">SeuratPipe</a></span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://satijalab.org/seurat" class="external-link">Seurat</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://andreaskapou.github.io/SeuratPipe/">SeuratPipe</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="running-qc-pipeline">Running QC pipeline<a class="anchor" aria-label="anchor" href="#running-qc-pipeline"></a>
@@ -160,47 +160,47 @@
 </table>
 <p>Settings for QC</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Assume 10x data are in 'data' and we have metadata file 'meta_pbmc3k.csv'</span>
-<span class="va">io</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>
-<span class="va">io</span><span class="op">$</span><span class="va">data_dir</span> <span class="op">&lt;-</span> <span class="st">"data/"</span>
-<span class="va">io</span><span class="op">$</span><span class="va">out_dir</span> <span class="op">&lt;-</span> <span class="st">"pbmc_results/qc/"</span>
-<span class="va">io</span><span class="op">$</span><span class="va">tenx_dir</span> <span class="op">&lt;-</span> <span class="st">"/outs/"</span> <span class="co"># Assume whole-cell RNA-seq</span>
-<span class="va">io</span><span class="op">$</span><span class="va">meta_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">io</span><span class="op">$</span><span class="va">data_dir</span>, <span class="st">"/meta_pbmc3k.csv"</span><span class="op">)</span>
-
-<span class="co"># Opts</span>
-<span class="va">opts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>
-<span class="va">opts</span><span class="op">$</span><span class="va">nfeat_thresh</span> <span class="op">&lt;-</span> <span class="fl">200</span>
-<span class="va">opts</span><span class="op">$</span><span class="va">mito_thresh</span> <span class="op">&lt;-</span> <span class="fl">5</span>
-<span class="va">opts</span><span class="op">$</span><span class="va">meta_colnames</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"donor"</span>, <span class="st">"condition"</span>, <span class="st">"pass_qc"</span><span class="op">)</span>
-<span class="va">opts</span><span class="op">$</span><span class="va">qc_to_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nFeature_RNA"</span>, <span class="st">"percent.mito"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Assume 10x data are in 'data' and we have metadata file 'meta_pbmc3k.csv'</span></span>
+<span><span class="va">io</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">io</span><span class="op">$</span><span class="va">data_dir</span> <span class="op">&lt;-</span> <span class="st">"data/"</span></span>
+<span><span class="va">io</span><span class="op">$</span><span class="va">out_dir</span> <span class="op">&lt;-</span> <span class="st">"pbmc_results/qc/"</span></span>
+<span><span class="va">io</span><span class="op">$</span><span class="va">tenx_dir</span> <span class="op">&lt;-</span> <span class="st">"/outs/"</span> <span class="co"># Assume whole-cell RNA-seq</span></span>
+<span><span class="va">io</span><span class="op">$</span><span class="va">meta_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">io</span><span class="op">$</span><span class="va">data_dir</span>, <span class="st">"/meta_pbmc3k.csv"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Opts</span></span>
+<span><span class="va">opts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">opts</span><span class="op">$</span><span class="va">nfeat_thresh</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
+<span><span class="va">opts</span><span class="op">$</span><span class="va">mito_thresh</span> <span class="op">&lt;-</span> <span class="fl">5</span></span>
+<span><span class="va">opts</span><span class="op">$</span><span class="va">meta_colnames</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"donor"</span>, <span class="st">"condition"</span>, <span class="st">"pass_qc"</span><span class="op">)</span></span>
+<span><span class="va">opts</span><span class="op">$</span><span class="va">qc_to_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nFeature_RNA"</span>, <span class="st">"percent.mito"</span><span class="op">)</span></span></code></pre></div>
 <p>We can perform all QC pipeline steps using a single wrapper function <code>run_qc_pipeline</code> as shown below. This function will also generate all the QC plots.</p>
 <p><strong>NOTE</strong>: The wrapper will also store an <code>.rds</code> file, named (<code>seu_qc.rds</code>) which contains the Seurat object and the <code>opts</code> we defined for our analysis. This is done for reproducibility purposes (see <code>Cluster analysis</code> section how to read this file).</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Run pipeline, note you can define additional parameters</span>
-<span class="co"># type ?run_qc_pipeline for help.</span>
-<span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_qc_pipeline.html">run_qc_pipeline</a></span><span class="op">(</span>
-  data_dir <span class="op">=</span> <span class="va">io</span><span class="op">$</span><span class="va">data_dir</span>, 
-  sample_meta <span class="op">=</span> <span class="cn">NULL</span>, 
-  sample_meta_filename <span class="op">=</span> <span class="va">io</span><span class="op">$</span><span class="va">meta_file</span>,
-  nfeat_thresh <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">nfeat_thresh</span>, 
-  mito_thresh <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">mito_thresh</span>,
-  meta_colnames <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">meta_colnames</span>,
-  out_dir <span class="op">=</span> <span class="va">io</span><span class="op">$</span><span class="va">out_dir</span>,
-  qc_to_plot <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">qc_to_plot</span>,
-  use_scrublet <span class="op">=</span> <span class="cn">FALSE</span>, 
-  use_soupx <span class="op">=</span> <span class="cn">FALSE</span>, 
-  tenx_dir <span class="op">=</span> <span class="va">io</span><span class="op">$</span><span class="va">tenx_dir</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## [1] "Sample  pbmc1 ... \n"</span></code></pre>
+<code class="sourceCode R"><span><span class="co"># Run pipeline, note you can define additional parameters</span></span>
+<span><span class="co"># type ?run_qc_pipeline for help.</span></span>
+<span><span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_qc_pipeline.html">run_qc_pipeline</a></span><span class="op">(</span></span>
+<span>  data_dir <span class="op">=</span> <span class="va">io</span><span class="op">$</span><span class="va">data_dir</span>, </span>
+<span>  sample_meta <span class="op">=</span> <span class="cn">NULL</span>, </span>
+<span>  sample_meta_filename <span class="op">=</span> <span class="va">io</span><span class="op">$</span><span class="va">meta_file</span>,</span>
+<span>  nfeat_thresh <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">nfeat_thresh</span>, </span>
+<span>  mito_thresh <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">mito_thresh</span>,</span>
+<span>  meta_colnames <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">meta_colnames</span>,</span>
+<span>  out_dir <span class="op">=</span> <span class="va">io</span><span class="op">$</span><span class="va">out_dir</span>,</span>
+<span>  qc_to_plot <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">qc_to_plot</span>,</span>
+<span>  use_scrublet <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>  use_soupx <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>  tenx_dir <span class="op">=</span> <span class="va">io</span><span class="op">$</span><span class="va">tenx_dir</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] "Sample  pbmc1 ... \n"</span></span></code></pre>
 <p>A template for running QC pipeline using <code>SeuratPipe</code> can be found here: <a href="https://github.com/andreaskapou/SeuratPipe_tutorial/blob/main/template_qc_pipeline.R" class="external-link">https://github.com/andreaskapou/SeuratPipe_tutorial/blob/main/template_qc_pipeline.R</a></p>
 <div class="section level3">
 <h3 id="advanced">Advanced<a class="anchor" aria-label="anchor" href="#advanced"></a>
 </h3>
 <p>If you want more control over QC analysis, the above function wraps the following commands and generates plots.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># First create Seurat</span>
-<span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_seurat_object.html">create_seurat_object</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span>
-<span class="co"># Then perform filtering</span>
-<span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu">filter_seurat_object</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># First create Seurat</span></span>
+<span><span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_seurat_object.html">create_seurat_object</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span><span class="co"># Then perform filtering</span></span>
+<span><span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu">filter_seurat_object</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -208,42 +208,42 @@
 </h2>
 <p>It is <strong>advised</strong> to have different files for different analysis tasks, here QC and clustering. Because, most likely you will perform QC once (or two), but clustering (and other downstream tasks) multiple times. This is the reason we store the QCed Seurat object so we can read it directly from the disk.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Define again I/O and opts settings</span>
-<span class="va">io</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>
-<span class="va">io</span><span class="op">$</span><span class="va">base_dir</span> <span class="op">&lt;-</span> <span class="st">"pbmc_results/"</span>
-<span class="va">io</span><span class="op">$</span><span class="va">out_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">io</span><span class="op">$</span><span class="va">base_dir</span>, <span class="st">"/cluster/"</span><span class="op">)</span>
-<span class="co"># Read Seurat object stored after QC</span>
-<span class="va">seu_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span>file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">io</span><span class="op">$</span><span class="va">base_dir</span>, <span class="st">"/qc/seu_qc.rds"</span><span class="op">)</span><span class="op">)</span>
-<span class="va">seu</span> <span class="op">&lt;-</span> <span class="va">seu_obj</span><span class="op">$</span><span class="va">seu</span>   <span class="co"># Extract Seurat object</span>
-<span class="va">opts</span> <span class="op">&lt;-</span> <span class="va">seu_obj</span><span class="op">$</span><span class="va">opts</span> <span class="co"># Extract opts from QC (for reproducibility)</span>
-
-<span class="co"># Clustering opts</span>
-
-<span class="co"># Number of PCs, can be a vector: c(30, 50)</span>
-<span class="va">opts</span><span class="op">$</span><span class="va">npcs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">30</span><span class="op">)</span>
-<span class="co"># PCs to perform UMAP and clustering, e.g c(30, 40)</span>
-<span class="va">opts</span><span class="op">$</span><span class="va">ndims</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">25</span><span class="op">)</span>
-<span class="co"># Clustering resolutions</span>
-<span class="va">opts</span><span class="op">$</span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0.2</span>, to <span class="op">=</span> <span class="fl">0.2</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>
-<span class="co"># QC information to plot</span>
-<span class="va">opts</span><span class="op">$</span><span class="va">qc_to_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nFeature_RNA"</span>, <span class="st">"percent.mito"</span><span class="op">)</span>
-<span class="co"># Metadata columns to plot</span>
-<span class="va">opts</span><span class="op">$</span><span class="va">meta_to_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"condition"</span>, <span class="st">"sample"</span><span class="op">)</span>
-<span class="co"># Maximum cutoff values for plotting continuous features</span>
-<span class="va">opts</span><span class="op">$</span><span class="va">max.cutoff</span> <span class="op">&lt;-</span> <span class="st">"q98"</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Define again I/O and opts settings</span></span>
+<span><span class="va">io</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">io</span><span class="op">$</span><span class="va">base_dir</span> <span class="op">&lt;-</span> <span class="st">"pbmc_results/"</span></span>
+<span><span class="va">io</span><span class="op">$</span><span class="va">out_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">io</span><span class="op">$</span><span class="va">base_dir</span>, <span class="st">"/cluster/"</span><span class="op">)</span></span>
+<span><span class="co"># Read Seurat object stored after QC</span></span>
+<span><span class="va">seu_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span>file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">io</span><span class="op">$</span><span class="va">base_dir</span>, <span class="st">"/qc/seu_qc.rds"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">seu</span> <span class="op">&lt;-</span> <span class="va">seu_obj</span><span class="op">$</span><span class="va">seu</span>   <span class="co"># Extract Seurat object</span></span>
+<span><span class="va">opts</span> <span class="op">&lt;-</span> <span class="va">seu_obj</span><span class="op">$</span><span class="va">opts</span> <span class="co"># Extract opts from QC (for reproducibility)</span></span>
+<span></span>
+<span><span class="co"># Clustering opts</span></span>
+<span></span>
+<span><span class="co"># Number of PCs, can be a vector: c(30, 50)</span></span>
+<span><span class="va">opts</span><span class="op">$</span><span class="va">npcs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">30</span><span class="op">)</span></span>
+<span><span class="co"># PCs to perform UMAP and clustering, e.g c(30, 40)</span></span>
+<span><span class="va">opts</span><span class="op">$</span><span class="va">ndims</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">25</span><span class="op">)</span></span>
+<span><span class="co"># Clustering resolutions</span></span>
+<span><span class="va">opts</span><span class="op">$</span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0.2</span>, to <span class="op">=</span> <span class="fl">0.2</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
+<span><span class="co"># QC information to plot</span></span>
+<span><span class="va">opts</span><span class="op">$</span><span class="va">qc_to_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nFeature_RNA"</span>, <span class="st">"percent.mito"</span><span class="op">)</span></span>
+<span><span class="co"># Metadata columns to plot</span></span>
+<span><span class="va">opts</span><span class="op">$</span><span class="va">meta_to_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"condition"</span>, <span class="st">"sample"</span><span class="op">)</span></span>
+<span><span class="co"># Maximum cutoff values for plotting continuous features</span></span>
+<span><span class="va">opts</span><span class="op">$</span><span class="va">max.cutoff</span> <span class="op">&lt;-</span> <span class="st">"q98"</span></span></code></pre></div>
 <p>In <code>SeuratPipe</code> we can also define module groups, consisting of known marker genes, that can help in potentially annotating cell populations.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Define modules for lineage and cell cycle</span>
-<span class="va">lineage</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lin_CD4 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"IL7R"</span>, <span class="st">"CCR7"</span><span class="op">)</span>,
-                lin_Monocyte <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD14"</span>, <span class="st">"LYZ"</span>, <span class="st">"FCGR3A"</span><span class="op">)</span>,
-                lin_NK <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GNLY"</span>, <span class="st">"NKG7"</span><span class="op">)</span><span class="op">)</span>
-<span class="co"># Take a random subset from Seurat's cycle genes</span>
-<span class="va">cell_cycle</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cc_s <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PCNA"</span>, <span class="st">"RRM1"</span>, <span class="st">"POLA1"</span>, <span class="st">"USP1"</span><span class="op">)</span>,
-                   cc_g2m <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"HMGB2"</span>, <span class="st">"MKI67"</span>, <span class="st">"TMPO"</span>, <span class="st">"CTCF"</span><span class="op">)</span><span class="op">)</span>
-
-<span class="co"># Group all modules in named list to pass to SeuratPipe functions</span>
-<span class="va">opts</span><span class="op">$</span><span class="va">modules_group</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lineage <span class="op">=</span> <span class="va">lineage</span>,
-                           cell_cycle <span class="op">=</span> <span class="va">cell_cycle</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Define modules for lineage and cell cycle</span></span>
+<span><span class="va">lineage</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lin_CD4 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"IL7R"</span>, <span class="st">"CCR7"</span><span class="op">)</span>,</span>
+<span>                lin_Monocyte <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD14"</span>, <span class="st">"LYZ"</span>, <span class="st">"FCGR3A"</span><span class="op">)</span>,</span>
+<span>                lin_NK <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GNLY"</span>, <span class="st">"NKG7"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># Take a random subset from Seurat's cycle genes</span></span>
+<span><span class="va">cell_cycle</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cc_s <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PCNA"</span>, <span class="st">"RRM1"</span>, <span class="st">"POLA1"</span>, <span class="st">"USP1"</span><span class="op">)</span>,</span>
+<span>                   cc_g2m <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"HMGB2"</span>, <span class="st">"MKI67"</span>, <span class="st">"TMPO"</span>, <span class="st">"CTCF"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Group all modules in named list to pass to SeuratPipe functions</span></span>
+<span><span class="va">opts</span><span class="op">$</span><span class="va">modules_group</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lineage <span class="op">=</span> <span class="va">lineage</span>,</span>
+<span>                           cell_cycle <span class="op">=</span> <span class="va">cell_cycle</span><span class="op">)</span></span></code></pre></div>
 <p>Here we show how to perform the most common analysis pipeline in Seurat for cell type identification. The wrapper function performs the following steps:</p>
 <ol style="list-style-type: decimal">
 <li>Data processing, e.g. Log normalisation and scaling.</li>
@@ -253,107 +253,107 @@
 </ol>
 <p><strong>NOTE</strong>: If multiple <code>npcs</code> and <code>ndims</code> are given as input, the updated Seurat object with the last setting will be returned.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Run pipeline, note you can define additional parameters</span>
-<span class="co"># type ?run_cluster_pipeline for help.</span>
-<span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_cluster_pipeline.html">run_cluster_pipeline</a></span><span class="op">(</span>
-  seu_obj <span class="op">=</span> <span class="va">seu</span>, 
-  out_dir <span class="op">=</span> <span class="va">io</span><span class="op">$</span><span class="va">out_dir</span>, 
-  npcs <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">npcs</span>,
-  ndims <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">ndims</span>, 
-  res <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">res</span>,
-  modules_group <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">modules_group</span>,
-  metadata_to_plot <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">meta_to_plot</span>,
-  qc_to_plot <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">qc_to_plot</span>, 
-  max.cutoff <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">max.cutoff</span>,
-  pcs_to_remove <span class="op">=</span> <span class="cn">NULL</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## Res 0.2 </span>
-<span class="co">## Modularity Optimizer version 1.3.0 by Ludo Waltman and Nees Jan van Eck</span>
-<span class="co">## </span>
-<span class="co">## Number of nodes: 2642</span>
-<span class="co">## Number of edges: 127025</span>
-<span class="co">## </span>
-<span class="co">## Running Louvain algorithm...</span>
-<span class="co">## Maximum modularity in 10 random starts: 0.9328</span>
-<span class="co">## Number of communities: 6</span>
-<span class="co">## Elapsed time: 0 seconds</span></code></pre>
+<code class="sourceCode R"><span><span class="co"># Run pipeline, note you can define additional parameters</span></span>
+<span><span class="co"># type ?run_cluster_pipeline for help.</span></span>
+<span><span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_cluster_pipeline.html">run_cluster_pipeline</a></span><span class="op">(</span></span>
+<span>  seu_obj <span class="op">=</span> <span class="va">seu</span>, </span>
+<span>  out_dir <span class="op">=</span> <span class="va">io</span><span class="op">$</span><span class="va">out_dir</span>, </span>
+<span>  npcs <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">npcs</span>,</span>
+<span>  ndims <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">ndims</span>, </span>
+<span>  res <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">res</span>,</span>
+<span>  modules_group <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">modules_group</span>,</span>
+<span>  metadata_to_plot <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">meta_to_plot</span>,</span>
+<span>  qc_to_plot <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">qc_to_plot</span>, </span>
+<span>  max.cutoff <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">max.cutoff</span>,</span>
+<span>  pcs_to_remove <span class="op">=</span> <span class="cn">NULL</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Res 0.2 </span></span>
+<span><span class="co">## Modularity Optimizer version 1.3.0 by Ludo Waltman and Nees Jan van Eck</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Number of nodes: 2642</span></span>
+<span><span class="co">## Number of edges: 127025</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Running Louvain algorithm...</span></span>
+<span><span class="co">## Maximum modularity in 10 random starts: 0.9328</span></span>
+<span><span class="co">## Number of communities: 6</span></span>
+<span><span class="co">## Elapsed time: 0 seconds</span></span></code></pre>
 <p>A template for running clustering pipeline using <code>SeuratPipe</code> can be found here: <a href="https://github.com/andreaskapou/SeuratPipe_tutorial/blob/main/template_cluster_pipeline.R" class="external-link">https://github.com/andreaskapou/SeuratPipe_tutorial/blob/main/template_cluster_pipeline.R</a></p>
 <div class="section level3">
 <h3 id="advanced-1">Advanced<a class="anchor" aria-label="anchor" href="#advanced-1"></a>
 </h3>
 <p>If you want more control over the clustering pipeline, the above function wraps the following functions. The code below works for a single choice of <code>npcs</code> and <code>ndims</code> whereas the wrapper function allows multiple values to be passed as a vector.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Process and PCA</span>
-<span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/lognormalize_and_pca.html">lognormalize_and_pca</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span>
-<span class="co"># UMAP</span>
-<span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_umap.html">run_umap</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span>
-<span class="co"># QC plots on dimensional reduced space</span>
-<span class="fu"><a href="../reference/dimred_qc_plots.html">dimred_qc_plots</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span>
-<span class="co"># Module score analysis</span>
-<span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/module_score_analysis.html">module_score_analysis</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span>
-<span class="co"># Clustering</span>
-<span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cluster_analysis.html">cluster_analysis</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Process and PCA</span></span>
+<span><span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/lognormalize_and_pca.html">lognormalize_and_pca</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span><span class="co"># UMAP</span></span>
+<span><span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_umap.html">run_umap</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span><span class="co"># QC plots on dimensional reduced space</span></span>
+<span><span class="fu"><a href="../reference/dimred_qc_plots.html">dimred_qc_plots</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span><span class="co"># Module score analysis</span></span>
+<span><span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/module_score_analysis.html">module_score_analysis</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span><span class="co"># Clustering</span></span>
+<span><span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cluster_analysis.html">cluster_analysis</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div>
 <p>Users can have even more control over <code>cluster_analysis</code>, and the main functions to perform clustering are the following:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Find neighbors</span>
-<span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/find_neighbors.html">find_neighbors</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span>
-<span class="co"># Clustering with specific resolution</span>
-<span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/find_clusters.html">find_clusters</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span>
-<span class="co"># Identify marker genes</span>
-<span class="va">markers</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/find_all_markers.html">find_all_markers</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Find neighbors</span></span>
+<span><span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/find_neighbors.html">find_neighbors</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span><span class="co"># Clustering with specific resolution</span></span>
+<span><span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/find_clusters.html">find_clusters</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span><span class="co"># Identify marker genes</span></span>
+<span><span class="va">markers</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/find_all_markers.html">find_all_markers</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div>
 <p>Note that the <strong>naming convention</strong> is to use exactly the same function names as Seurat package, but using underscores instead of <strong>CamelCase</strong>, which is the default in Seurat. The same holds for the plotting functions (see examples in next section).</p>
 <p>In case we had a <code>list</code> of Seurat objects and wanted to perform clustering analysis for each sample independently, the code would look something like this:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw">for</span> <span class="op">(</span><span class="va">s</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">seu</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
-  <span class="va">sample_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">io</span><span class="op">$</span><span class="va">out_dir</span>, <span class="st">"/"</span>, <span class="va">s</span>, <span class="st">"/"</span><span class="op">)</span>
-  <span class="va">seu</span><span class="op">[[</span><span class="va">s</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_cluster_pipeline.html">run_cluster_pipeline</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span>
-<span class="op">}</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">s</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">seu</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">sample_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">io</span><span class="op">$</span><span class="va">out_dir</span>, <span class="st">"/"</span>, <span class="va">s</span>, <span class="st">"/"</span><span class="op">)</span></span>
+<span>  <span class="va">seu</span><span class="op">[[</span><span class="va">s</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_cluster_pipeline.html">run_cluster_pipeline</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="plotting-visualisation">Plotting / Visualisation<a class="anchor" aria-label="anchor" href="#plotting-visualisation"></a>
 </h3>
 <p><code>SeuratPipe</code> also provides tailored functions to generate high quality plots, by adapting Seurat’s built in plotting functions.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># UMAP plot</span>
-<span class="fu"><a href="../reference/dim_plot.html">dim_plot</a></span><span class="op">(</span><span class="va">seu</span>, reduction <span class="op">=</span> <span class="st">"umap"</span>, group.by <span class="op">=</span> <span class="st">"seurat_clusters"</span>, pt.size <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># UMAP plot</span></span>
+<span><span class="fu"><a href="../reference/dim_plot.html">dim_plot</a></span><span class="op">(</span><span class="va">seu</span>, reduction <span class="op">=</span> <span class="st">"umap"</span>, group.by <span class="op">=</span> <span class="st">"seurat_clusters"</span>, pt.size <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <img src="figure/sp-cl-fig1-1.png" alt=""><p class="caption">plot of chunk sp-cl-fig1</p>
 </div>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># UMAP plot using SeuratPipe colour palette</span>
-<span class="fu"><a href="../reference/dim_plot.html">dim_plot</a></span><span class="op">(</span><span class="va">seu</span>, reduction <span class="op">=</span> <span class="st">"umap"</span>, group.by <span class="op">=</span> <span class="st">"seurat_clusters"</span>, 
-         col_pal <span class="op">=</span> <span class="fu">SeuratPipe</span><span class="fu">:::</span><span class="va">discrete_col_pal</span>, pt.size <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># UMAP plot using SeuratPipe colour palette</span></span>
+<span><span class="fu"><a href="../reference/dim_plot.html">dim_plot</a></span><span class="op">(</span><span class="va">seu</span>, reduction <span class="op">=</span> <span class="st">"umap"</span>, group.by <span class="op">=</span> <span class="st">"seurat_clusters"</span>, </span>
+<span>         col_pal <span class="op">=</span> <span class="fu">SeuratPipe</span><span class="fu">:::</span><span class="va">discrete_col_pal</span>, pt.size <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <img src="figure/sp-cl-fig2-1.png" alt=""><p class="caption">plot of chunk sp-cl-fig2</p>
 </div>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Plotting specific genes</span>
-<span class="fu"><a href="../reference/feature_plot.html">feature_plot</a></span><span class="op">(</span><span class="va">seu</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"LYZ"</span>, <span class="st">"NKG7"</span><span class="op">)</span>, 
-             ncol <span class="op">=</span> <span class="fl">2</span>, legend.position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Plotting specific genes</span></span>
+<span><span class="fu"><a href="../reference/feature_plot.html">feature_plot</a></span><span class="op">(</span><span class="va">seu</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"LYZ"</span>, <span class="st">"NKG7"</span><span class="op">)</span>, </span>
+<span>             ncol <span class="op">=</span> <span class="fl">2</span>, legend.position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <img src="figure/sp-cl-fig3-1.png" alt=""><p class="caption">plot of chunk sp-cl-fig3</p>
 </div>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Plotting lineage module scores as feature plot</span>
-<span class="fu"><a href="../reference/feature_plot.html">feature_plot</a></span><span class="op">(</span><span class="va">seu</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">lineage</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">&amp;</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/SeuratTheme.html" class="external-link">NoAxes</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Plotting lineage module scores as feature plot</span></span>
+<span><span class="fu"><a href="../reference/feature_plot.html">feature_plot</a></span><span class="op">(</span><span class="va">seu</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">lineage</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">&amp;</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/SeuratTheme.html" class="external-link">NoAxes</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <img src="figure/sp-cl-fig4-1.png" alt=""><p class="caption">plot of chunk sp-cl-fig4</p>
 </div>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Plotting lineage module scores as dot plot</span>
-<span class="fu"><a href="../reference/dot_plot.html">dot_plot</a></span><span class="op">(</span><span class="va">seu</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">lineage</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Plotting lineage module scores as dot plot</span></span>
+<span><span class="fu"><a href="../reference/dot_plot.html">dot_plot</a></span><span class="op">(</span><span class="va">seu</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">lineage</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <img src="figure/sp-cl-fig5-1.png" alt=""><p class="caption">plot of chunk sp-cl-fig5</p>
 </div>
 <p>We can also check if specific technical factors are correlated with specific principal components.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/pca_feature_cor_plot.html">pca_feature_cor_plot</a></span><span class="op">(</span><span class="va">seu</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nFeature_RNA"</span>, <span class="st">"percent.mito"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/pca_feature_cor_plot.html">pca_feature_cor_plot</a></span><span class="op">(</span><span class="va">seu</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nFeature_RNA"</span>, <span class="st">"percent.mito"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <img src="figure/sp-cl-fig7-1.png" alt=""><p class="caption">plot of chunk sp-cl-fig7</p>
 </div>
 <p>The above plot can also be useful to understand which specific principal components explain/capture information about different cell types/lineages.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Correlation of lineage scores with PCs</span>
-<span class="fu"><a href="../reference/pca_feature_cor_plot.html">pca_feature_cor_plot</a></span><span class="op">(</span><span class="va">seu</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">lineage</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Correlation of lineage scores with PCs</span></span>
+<span><span class="fu"><a href="../reference/pca_feature_cor_plot.html">pca_feature_cor_plot</a></span><span class="op">(</span><span class="va">seu</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">lineage</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <img src="figure/sp-cl-fig8-1.png" alt=""><p class="caption">plot of chunk sp-cl-fig8</p>
 </div>
@@ -368,56 +368,56 @@
 </h3>
 <p>Note that parameters are almost identical to <code>run_cluster_pipeline</code>, with minor differences, such as the <code>run_harmony_pipeline</code> can accept a list of Seurat objects (i.e. multiple samples), and internally processes and merges the data. If you already have merged and processed your data, the pipeline accepts a single Seurat object and will skip the merging step.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># I/O</span>
-<span class="va">io</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>
-<span class="va">io</span><span class="op">$</span><span class="va">base_dir</span> <span class="op">&lt;-</span> <span class="st">"ifnb_results/"</span>
-<span class="va">io</span><span class="op">$</span><span class="va">out_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">io</span><span class="op">$</span><span class="va">base_dir</span>, <span class="st">"/integrate/"</span><span class="op">)</span>
-<span class="co"># Read QCed Seurat object</span>
-<span class="va">seu_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span>file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">io</span><span class="op">$</span><span class="va">base_dir</span>, <span class="st">"/qc/seu_qc.rds"</span><span class="op">)</span><span class="op">)</span>
-<span class="va">seu</span> <span class="op">&lt;-</span> <span class="va">seu_obj</span><span class="op">$</span><span class="va">seu</span>   <span class="co"># Extract (list of) Seurat objects</span>
-<span class="va">opts</span> <span class="op">&lt;-</span> <span class="va">seu_obj</span><span class="op">$</span><span class="va">opts</span> <span class="co"># Extract opts from QC (here empty list)</span>
-
-<span class="co"># Clustering opts</span>
-
-<span class="co"># Number of PCs</span>
-<span class="va">opts</span><span class="op">$</span><span class="va">npcs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50</span><span class="op">)</span>
-<span class="co"># Harmony dims for UMAP and clustering</span>
-<span class="va">opts</span><span class="op">$</span><span class="va">ndims</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">40</span><span class="op">)</span>
-<span class="co"># Clustering resolutions</span>
-<span class="va">opts</span><span class="op">$</span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>
-<span class="co"># Batch ID to perform integration</span>
-<span class="va">opts</span><span class="op">$</span><span class="va">batch_id</span> <span class="op">&lt;-</span> <span class="st">"sample"</span>
-<span class="co"># QC information to plot</span>
-<span class="va">opts</span><span class="op">$</span><span class="va">qc_to_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nFeature_RNA"</span>, <span class="st">"percent.mito"</span><span class="op">)</span>
-<span class="co"># Metadata columns to plot</span>
-<span class="va">opts</span><span class="op">$</span><span class="va">meta_to_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"condition"</span><span class="op">)</span>
-<span class="co"># Maximum number of Harmony iterations</span>
-<span class="va">opts</span><span class="op">$</span><span class="va">max.iter.harmony</span> <span class="op">&lt;-</span> <span class="fl">50</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># I/O</span></span>
+<span><span class="va">io</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">io</span><span class="op">$</span><span class="va">base_dir</span> <span class="op">&lt;-</span> <span class="st">"ifnb_results/"</span></span>
+<span><span class="va">io</span><span class="op">$</span><span class="va">out_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">io</span><span class="op">$</span><span class="va">base_dir</span>, <span class="st">"/integrate/"</span><span class="op">)</span></span>
+<span><span class="co"># Read QCed Seurat object</span></span>
+<span><span class="va">seu_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span>file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">io</span><span class="op">$</span><span class="va">base_dir</span>, <span class="st">"/qc/seu_qc.rds"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">seu</span> <span class="op">&lt;-</span> <span class="va">seu_obj</span><span class="op">$</span><span class="va">seu</span>   <span class="co"># Extract (list of) Seurat objects</span></span>
+<span><span class="va">opts</span> <span class="op">&lt;-</span> <span class="va">seu_obj</span><span class="op">$</span><span class="va">opts</span> <span class="co"># Extract opts from QC (here empty list)</span></span>
+<span></span>
+<span><span class="co"># Clustering opts</span></span>
+<span></span>
+<span><span class="co"># Number of PCs</span></span>
+<span><span class="va">opts</span><span class="op">$</span><span class="va">npcs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50</span><span class="op">)</span></span>
+<span><span class="co"># Harmony dims for UMAP and clustering</span></span>
+<span><span class="va">opts</span><span class="op">$</span><span class="va">ndims</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">40</span><span class="op">)</span></span>
+<span><span class="co"># Clustering resolutions</span></span>
+<span><span class="va">opts</span><span class="op">$</span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
+<span><span class="co"># Batch ID to perform integration</span></span>
+<span><span class="va">opts</span><span class="op">$</span><span class="va">batch_id</span> <span class="op">&lt;-</span> <span class="st">"sample"</span></span>
+<span><span class="co"># QC information to plot</span></span>
+<span><span class="va">opts</span><span class="op">$</span><span class="va">qc_to_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nFeature_RNA"</span>, <span class="st">"percent.mito"</span><span class="op">)</span></span>
+<span><span class="co"># Metadata columns to plot</span></span>
+<span><span class="va">opts</span><span class="op">$</span><span class="va">meta_to_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"condition"</span><span class="op">)</span></span>
+<span><span class="co"># Maximum number of Harmony iterations</span></span>
+<span><span class="va">opts</span><span class="op">$</span><span class="va">max.iter.harmony</span> <span class="op">&lt;-</span> <span class="fl">50</span></span></code></pre></div>
 <p>Next we are ready to perform the full Harmony integration pipeline and obtain our final clusters.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Run pipeline, note you can define additional parameters</span>
-<span class="co"># type ?run_harmony_pipeline for help.</span>
-<span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_harmony_pipeline.html">run_harmony_pipeline</a></span><span class="op">(</span>
-  seu_obj <span class="op">=</span> <span class="va">seu</span>, 
-  batch_id <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">batch_id</span>,
-  out_dir <span class="op">=</span> <span class="va">io</span><span class="op">$</span><span class="va">out_dir</span>, 
-  npcs <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">npcs</span>,
-  ndims <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">ndims</span>, 
-  res <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">res</span>, modules_group <span class="op">=</span> <span class="cn">NULL</span>, 
-  metadata_to_plot <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">meta_to_plot</span>,
-  max.iter.harmony <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">max.iter.harmony</span>,
-  qc_to_plot <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">qc_to_plot</span>, 
-  plot_cluster_markers <span class="op">=</span> <span class="cn">FALSE</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## Res 0.1 </span>
-<span class="co">## Modularity Optimizer version 1.3.0 by Ludo Waltman and Nees Jan van Eck</span>
-<span class="co">## </span>
-<span class="co">## Number of nodes: 13999</span>
-<span class="co">## Number of edges: 548086</span>
-<span class="co">## </span>
-<span class="co">## Running Louvain algorithm...</span>
-<span class="co">## Maximum modularity in 10 random starts: 0.9674</span>
-<span class="co">## Number of communities: 9</span>
-<span class="co">## Elapsed time: 1 seconds</span></code></pre>
+<code class="sourceCode R"><span><span class="co"># Run pipeline, note you can define additional parameters</span></span>
+<span><span class="co"># type ?run_harmony_pipeline for help.</span></span>
+<span><span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_harmony_pipeline.html">run_harmony_pipeline</a></span><span class="op">(</span></span>
+<span>  seu_obj <span class="op">=</span> <span class="va">seu</span>, </span>
+<span>  batch_id <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">batch_id</span>,</span>
+<span>  out_dir <span class="op">=</span> <span class="va">io</span><span class="op">$</span><span class="va">out_dir</span>, </span>
+<span>  npcs <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">npcs</span>,</span>
+<span>  ndims <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">ndims</span>, </span>
+<span>  res <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">res</span>, modules_group <span class="op">=</span> <span class="cn">NULL</span>, </span>
+<span>  metadata_to_plot <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">meta_to_plot</span>,</span>
+<span>  max.iter.harmony <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">max.iter.harmony</span>,</span>
+<span>  qc_to_plot <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="va">qc_to_plot</span>, </span>
+<span>  plot_cluster_markers <span class="op">=</span> <span class="cn">FALSE</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Res 0.1 </span></span>
+<span><span class="co">## Modularity Optimizer version 1.3.0 by Ludo Waltman and Nees Jan van Eck</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Number of nodes: 13999</span></span>
+<span><span class="co">## Number of edges: 548086</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Running Louvain algorithm...</span></span>
+<span><span class="co">## Maximum modularity in 10 random starts: 0.9674</span></span>
+<span><span class="co">## Number of communities: 9</span></span>
+<span><span class="co">## Elapsed time: 1 seconds</span></span></code></pre>
 <p>A template for running Harmony integration pipeline using <code>SeuratPipe</code> can be found here: <a href="https://github.com/andreaskapou/SeuratPipe_tutorial/blob/main/template_harmony_pipeline.R" class="external-link">https://github.com/andreaskapou/SeuratPipe_tutorial/blob/main/template_harmony_pipeline.R</a></p>
 </div>
 <div class="section level3">
@@ -425,35 +425,35 @@
 </h3>
 <p>If you want more control over the Harmony integration pipeline, the above function wraps the following functions. The code below works for a single choice of <code>npcs</code> and <code>ndims</code> whereas the wrapper function allows multiple values to be passed as a vector.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Harmony analysis</span>
-<span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/harmony_analysis.html">harmony_analysis</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span>
-<span class="co"># UMAP</span>
-<span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_umap.html">run_umap</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span>
-<span class="co"># QC plots on dimensional reduced space</span>
-<span class="fu"><a href="../reference/dimred_qc_plots.html">dimred_qc_plots</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span>
-<span class="co"># Module score analysis</span>
-<span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/module_score_analysis.html">module_score_analysis</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span>
-<span class="co"># Clustering</span>
-<span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cluster_analysis.html">cluster_analysis</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Harmony analysis</span></span>
+<span><span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/harmony_analysis.html">harmony_analysis</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span><span class="co"># UMAP</span></span>
+<span><span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_umap.html">run_umap</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span><span class="co"># QC plots on dimensional reduced space</span></span>
+<span><span class="fu"><a href="../reference/dimred_qc_plots.html">dimred_qc_plots</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span><span class="co"># Module score analysis</span></span>
+<span><span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/module_score_analysis.html">module_score_analysis</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span><span class="co"># Clustering</span></span>
+<span><span class="va">seu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cluster_analysis.html">cluster_analysis</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="visualistion">Visualistion<a class="anchor" aria-label="anchor" href="#visualistion"></a>
 </h3>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/dim_plot.html">dim_plot</a></span><span class="op">(</span><span class="va">seu</span>, group.by <span class="op">=</span> <span class="st">"seurat_clusters"</span>, pt.size <span class="op">=</span> <span class="fl">2</span>,
-         col_pal <span class="op">=</span> <span class="fu">SeuratPipe</span><span class="fu">:::</span><span class="va">discrete_col_pal</span><span class="op">)</span> <span class="op">&amp;</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/SeuratTheme.html" class="external-link">NoAxes</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/dim_plot.html">dim_plot</a></span><span class="op">(</span><span class="va">seu</span>, group.by <span class="op">=</span> <span class="st">"seurat_clusters"</span>, pt.size <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>         col_pal <span class="op">=</span> <span class="fu">SeuratPipe</span><span class="fu">:::</span><span class="va">discrete_col_pal</span><span class="op">)</span> <span class="op">&amp;</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/SeuratTheme.html" class="external-link">NoAxes</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <img src="figure/sp-har-fig1-1.png" alt=""><p class="caption">plot of chunk sp-har-fig1</p>
 </div>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/dim_plot.html">dim_plot</a></span><span class="op">(</span><span class="va">seu</span>, group.by <span class="op">=</span> <span class="st">"condition"</span>, split.by <span class="op">=</span> <span class="st">"condition"</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/dim_plot.html">dim_plot</a></span><span class="op">(</span><span class="va">seu</span>, group.by <span class="op">=</span> <span class="st">"condition"</span>, split.by <span class="op">=</span> <span class="st">"condition"</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <img src="figure/sp-har-fig2-1.png" alt=""><p class="caption">plot of chunk sp-har-fig2</p>
 </div>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Plotting specific genes</span>
-<span class="fu"><a href="../reference/feature_plot.html">feature_plot</a></span><span class="op">(</span><span class="va">seu</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"LYZ"</span>, <span class="st">"NKG7"</span><span class="op">)</span>, 
-             ncol <span class="op">=</span> <span class="fl">2</span>, legend.position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Plotting specific genes</span></span>
+<span><span class="fu"><a href="../reference/feature_plot.html">feature_plot</a></span><span class="op">(</span><span class="va">seu</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"LYZ"</span>, <span class="st">"NKG7"</span><span class="op">)</span>, </span>
+<span>             ncol <span class="op">=</span> <span class="fl">2</span>, legend.position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <img src="figure/sp-har-fig3-1.png" alt=""><p class="caption">plot of chunk sp-har-fig3</p>
 </div>
@@ -464,67 +464,67 @@
 </h2>
 <p>This vignette was compiled using the following packages:</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## R version 4.2.0 (2022-04-22)</span>
-<span class="co">## Platform: x86_64-apple-darwin17.0 (64-bit)</span>
-<span class="co">## Running under: macOS Big Sur/Monterey 10.16</span>
-<span class="co">## </span>
-<span class="co">## Matrix products: default</span>
-<span class="co">## BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib</span>
-<span class="co">## LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib</span>
-<span class="co">## </span>
-<span class="co">## locale:</span>
-<span class="co">## [1] en_GB.UTF-8/en_GB.UTF-8/en_GB.UTF-8/C/en_GB.UTF-8/en_GB.UTF-8</span>
-<span class="co">## </span>
-<span class="co">## attached base packages:</span>
-<span class="co">## [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
-<span class="co">## </span>
-<span class="co">## other attached packages:</span>
-<span class="co">## [1] SeuratPipe_1.0.0   sp_1.4-7           SeuratObject_4.1.0 Seurat_4.1.1      </span>
-<span class="co">## [5] BiocStyle_2.24.0  </span>
-<span class="co">## </span>
-<span class="co">## loaded via a namespace (and not attached):</span>
-<span class="co">##   [1] Rtsne_0.16            colorspace_2.0-3      deldir_1.0-6         </span>
-<span class="co">##   [4] ellipsis_0.3.2        ggridges_0.5.3        spatstat.data_2.2-0  </span>
-<span class="co">##   [7] farver_2.1.0          leiden_0.4.2          listenv_0.8.0        </span>
-<span class="co">##  [10] ggrepel_0.9.1         RSpectra_0.16-1       fansi_1.0.3          </span>
-<span class="co">##  [13] codetools_0.2-18      splines_4.2.0         knitr_1.39           </span>
-<span class="co">##  [16] polyclip_1.10-0       jsonlite_1.8.0        ica_1.0-2            </span>
-<span class="co">##  [19] cluster_2.1.3         png_0.1-7             rgeos_0.5-9          </span>
-<span class="co">##  [22] pheatmap_1.0.12       uwot_0.1.11           shiny_1.7.1          </span>
-<span class="co">##  [25] sctransform_0.3.3     spatstat.sparse_2.1-1 BiocManager_1.30.18  </span>
-<span class="co">##  [28] compiler_4.2.0        httr_1.4.3            assertthat_0.2.1     </span>
-<span class="co">##  [31] Matrix_1.4-1          fastmap_1.1.0         lazyeval_0.2.2       </span>
-<span class="co">##  [34] limma_3.52.1          cli_3.3.0             later_1.3.0          </span>
-<span class="co">##  [37] htmltools_0.5.2       tools_4.2.0           igraph_1.3.1         </span>
-<span class="co">##  [40] gtable_0.3.0          glue_1.6.2            RANN_2.6.1           </span>
-<span class="co">##  [43] reshape2_1.4.4        dplyr_1.0.9           Rcpp_1.0.8.3         </span>
-<span class="co">##  [46] scattermore_0.8       vctrs_0.4.1           nlme_3.1-157         </span>
-<span class="co">##  [49] progressr_0.10.0      lmtest_0.9-40         spatstat.random_2.2-0</span>
-<span class="co">##  [52] xfun_0.31             stringr_1.4.0         globals_0.15.0       </span>
-<span class="co">##  [55] mime_0.12             miniUI_0.1.1.1        lifecycle_1.0.1      </span>
-<span class="co">##  [58] irlba_2.3.5           gtools_3.9.2          goftest_1.2-3        </span>
-<span class="co">##  [61] future_1.25.0         MASS_7.3-57           zoo_1.8-10           </span>
-<span class="co">##  [64] scales_1.2.0          spatstat.core_2.4-4   promises_1.2.0.1     </span>
-<span class="co">##  [67] spatstat.utils_2.3-1  parallel_4.2.0        RColorBrewer_1.1-3   </span>
-<span class="co">##  [70] yaml_2.3.5            reticulate_1.25       pbapply_1.5-0        </span>
-<span class="co">##  [73] gridExtra_2.3         ggplot2_3.3.6         rpart_4.1.16         </span>
-<span class="co">##  [76] stringi_1.7.6         highr_0.9             harmony_0.1.0        </span>
-<span class="co">##  [79] rlang_1.0.2           pkgconfig_2.0.3       matrixStats_0.62.0   </span>
-<span class="co">##  [82] evaluate_0.15         lattice_0.20-45       ROCR_1.0-11          </span>
-<span class="co">##  [85] purrr_0.3.4           tensor_1.5            labeling_0.4.2       </span>
-<span class="co">##  [88] patchwork_1.1.1       htmlwidgets_1.5.4     cowplot_1.1.1        </span>
-<span class="co">##  [91] tidyselect_1.1.2      parallelly_1.31.1     RcppAnnoy_0.0.19     </span>
-<span class="co">##  [94] plyr_1.8.7            magrittr_2.0.3        R6_2.5.1             </span>
-<span class="co">##  [97] generics_0.1.2        DBI_1.1.2             withr_2.5.0          </span>
-<span class="co">## [100] mgcv_1.8-40           pillar_1.7.0          fitdistrplus_1.1-8   </span>
-<span class="co">## [103] survival_3.3-1        abind_1.4-5           tibble_3.1.7         </span>
-<span class="co">## [106] future.apply_1.9.0    crayon_1.5.1          KernSmooth_2.23-20   </span>
-<span class="co">## [109] utf8_1.2.2            spatstat.geom_2.4-0   plotly_4.10.0        </span>
-<span class="co">## [112] rmarkdown_2.14        viridis_0.6.2         grid_4.2.0           </span>
-<span class="co">## [115] data.table_1.14.2     digest_0.6.29         xtable_1.8-4         </span>
-<span class="co">## [118] tidyr_1.2.0           httpuv_1.6.5          munsell_0.5.0        </span>
-<span class="co">## [121] viridisLite_0.4.0</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## R version 4.2.0 (2022-04-22)</span></span>
+<span><span class="co">## Platform: x86_64-apple-darwin17.0 (64-bit)</span></span>
+<span><span class="co">## Running under: macOS Big Sur/Monterey 10.16</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Matrix products: default</span></span>
+<span><span class="co">## BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib</span></span>
+<span><span class="co">## LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## locale:</span></span>
+<span><span class="co">## [1] en_GB.UTF-8/en_GB.UTF-8/en_GB.UTF-8/C/en_GB.UTF-8/en_GB.UTF-8</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## attached base packages:</span></span>
+<span><span class="co">## [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## other attached packages:</span></span>
+<span><span class="co">## [1] SeuratPipe_1.0.0   sp_1.4-7           SeuratObject_4.1.0 Seurat_4.1.1      </span></span>
+<span><span class="co">## [5] BiocStyle_2.24.0  </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## loaded via a namespace (and not attached):</span></span>
+<span><span class="co">##   [1] Rtsne_0.16            colorspace_2.0-3      deldir_1.0-6         </span></span>
+<span><span class="co">##   [4] ellipsis_0.3.2        ggridges_0.5.3        spatstat.data_2.2-0  </span></span>
+<span><span class="co">##   [7] farver_2.1.0          leiden_0.4.2          listenv_0.8.0        </span></span>
+<span><span class="co">##  [10] ggrepel_0.9.1         RSpectra_0.16-1       fansi_1.0.3          </span></span>
+<span><span class="co">##  [13] codetools_0.2-18      splines_4.2.0         knitr_1.39           </span></span>
+<span><span class="co">##  [16] polyclip_1.10-0       jsonlite_1.8.0        ica_1.0-2            </span></span>
+<span><span class="co">##  [19] cluster_2.1.3         png_0.1-7             rgeos_0.5-9          </span></span>
+<span><span class="co">##  [22] pheatmap_1.0.12       uwot_0.1.11           shiny_1.7.1          </span></span>
+<span><span class="co">##  [25] sctransform_0.3.3     spatstat.sparse_2.1-1 BiocManager_1.30.18  </span></span>
+<span><span class="co">##  [28] compiler_4.2.0        httr_1.4.3            assertthat_0.2.1     </span></span>
+<span><span class="co">##  [31] Matrix_1.4-1          fastmap_1.1.0         lazyeval_0.2.2       </span></span>
+<span><span class="co">##  [34] limma_3.52.1          cli_3.3.0             later_1.3.0          </span></span>
+<span><span class="co">##  [37] htmltools_0.5.2       tools_4.2.0           igraph_1.3.1         </span></span>
+<span><span class="co">##  [40] gtable_0.3.0          glue_1.6.2            RANN_2.6.1           </span></span>
+<span><span class="co">##  [43] reshape2_1.4.4        dplyr_1.0.9           Rcpp_1.0.8.3         </span></span>
+<span><span class="co">##  [46] scattermore_0.8       vctrs_0.4.1           nlme_3.1-157         </span></span>
+<span><span class="co">##  [49] progressr_0.10.0      lmtest_0.9-40         spatstat.random_2.2-0</span></span>
+<span><span class="co">##  [52] xfun_0.31             stringr_1.4.0         globals_0.15.0       </span></span>
+<span><span class="co">##  [55] mime_0.12             miniUI_0.1.1.1        lifecycle_1.0.1      </span></span>
+<span><span class="co">##  [58] irlba_2.3.5           gtools_3.9.2          goftest_1.2-3        </span></span>
+<span><span class="co">##  [61] future_1.25.0         MASS_7.3-57           zoo_1.8-10           </span></span>
+<span><span class="co">##  [64] scales_1.2.0          spatstat.core_2.4-4   promises_1.2.0.1     </span></span>
+<span><span class="co">##  [67] spatstat.utils_2.3-1  parallel_4.2.0        RColorBrewer_1.1-3   </span></span>
+<span><span class="co">##  [70] yaml_2.3.5            reticulate_1.25       pbapply_1.5-0        </span></span>
+<span><span class="co">##  [73] gridExtra_2.3         ggplot2_3.3.6         rpart_4.1.16         </span></span>
+<span><span class="co">##  [76] stringi_1.7.6         highr_0.9             harmony_0.1.0        </span></span>
+<span><span class="co">##  [79] rlang_1.0.2           pkgconfig_2.0.3       matrixStats_0.62.0   </span></span>
+<span><span class="co">##  [82] evaluate_0.15         lattice_0.20-45       ROCR_1.0-11          </span></span>
+<span><span class="co">##  [85] purrr_0.3.4           tensor_1.5            labeling_0.4.2       </span></span>
+<span><span class="co">##  [88] patchwork_1.1.1       htmlwidgets_1.5.4     cowplot_1.1.1        </span></span>
+<span><span class="co">##  [91] tidyselect_1.1.2      parallelly_1.31.1     RcppAnnoy_0.0.19     </span></span>
+<span><span class="co">##  [94] plyr_1.8.7            magrittr_2.0.3        R6_2.5.1             </span></span>
+<span><span class="co">##  [97] generics_0.1.2        DBI_1.1.2             withr_2.5.0          </span></span>
+<span><span class="co">## [100] mgcv_1.8-40           pillar_1.7.0          fitdistrplus_1.1-8   </span></span>
+<span><span class="co">## [103] survival_3.3-1        abind_1.4-5           tibble_3.1.7         </span></span>
+<span><span class="co">## [106] future.apply_1.9.0    crayon_1.5.1          KernSmooth_2.23-20   </span></span>
+<span><span class="co">## [109] utf8_1.2.2            spatstat.geom_2.4-0   plotly_4.10.0        </span></span>
+<span><span class="co">## [112] rmarkdown_2.14        viridis_0.6.2         grid_4.2.0           </span></span>
+<span><span class="co">## [115] data.table_1.14.2     digest_0.6.29         xtable_1.8-4         </span></span>
+<span><span class="co">## [118] tidyr_1.2.0           httpuv_1.6.5          munsell_0.5.0        </span></span>
+<span><span class="co">## [121] viridisLite_0.4.0</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="acknowledgments">Acknowledgments<a class="anchor" aria-label="anchor" href="#acknowledgments"></a>
@@ -545,7 +545,7 @@
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
     </footer>

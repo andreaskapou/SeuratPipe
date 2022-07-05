@@ -60,49 +60,68 @@ it assumes the Seurat object contains 'condition', 'sample' and
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">heatmap_plot</span><span class="op">(</span>
-  <span class="va">seu</span>,
-  <span class="va">markers</span>,
-  topn_genes <span class="op">=</span> <span class="fl">10</span>,
-  diff_cluster_pct <span class="op">=</span> <span class="fl">0.1</span>,
-  pval_adj <span class="op">=</span> <span class="fl">0.05</span>,
-  filename <span class="op">=</span> <span class="cn">NULL</span>,
-  col_pal <span class="op">=</span> <span class="cn">NULL</span>,
-  heatmap_downsample_cols <span class="op">=</span> <span class="cn">NULL</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">heatmap_plot</span><span class="op">(</span></span>
+<span>  <span class="va">seu</span>,</span>
+<span>  <span class="va">markers</span>,</span>
+<span>  topn_genes <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  diff_cluster_pct <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>  pval_adj <span class="op">=</span> <span class="fl">0.05</span>,</span>
+<span>  filename <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  col_pal <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  heatmap_downsample_cols <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>seu</dt>
 <dd><p>Seurat object (required).</p></dd>
+
+
 <dt>markers</dt>
 <dd><p>Data frame with marker genes for each cluster.
 Expects a format as the output of Seurat's FindAllMarkers.</p></dd>
+
+
 <dt>topn_genes</dt>
 <dd><p>Top N marker genes to plot for each cluster.</p></dd>
+
+
 <dt>diff_cluster_pct</dt>
 <dd><p>Retain marker genes per cluster if their
 <code>pct.1 - pct.2 &gt; diff_cluster_pct</code>, i.e. they show cluster
 specific expression. Set to -Inf, to ignore this additional filtering.</p></dd>
+
+
 <dt>pval_adj</dt>
 <dd><p>Adjusted p-value threshold to consider marker genes per cluster.</p></dd>
+
+
 <dt>filename</dt>
 <dd><p>Filename for saving the heatmap plot. If null, the heatmap
 is just plotted in device.</p></dd>
+
+
 <dt>col_pal</dt>
 <dd><p>Discrete colour palette to use, default is Hue palette
 (hue_pal) from 'scales' package.</p></dd>
+
+
 <dt>heatmap_downsample_cols</dt>
 <dd><p>If numberic, it will downsamples the columns of
 the heatmap plot, so a big specific cluster doesn't dominate the heatmap.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional parameters passed to 'pheatmap' function</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A ggplot2 object.</p>
+    
+
+<p>A ggplot2 object.</p>
     </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
@@ -118,7 +137,7 @@ the heatmap plot, so a big specific cluster doesn't dominate the heatmap.</p></d
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
     </footer></div>

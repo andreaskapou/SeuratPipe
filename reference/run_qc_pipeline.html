@@ -63,26 +63,26 @@ criteria 4. Generate correspond QC plots.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">run_qc_pipeline</span><span class="op">(</span>
-  <span class="va">data_dir</span>,
-  <span class="va">sample_meta</span>,
-  sample_meta_filename <span class="op">=</span> <span class="cn">NULL</span>,
-  nfeat_thresh <span class="op">=</span> <span class="fl">500</span>,
-  mito_thresh <span class="op">=</span> <span class="fl">5</span>,
-  meta_colnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"donor"</span>, <span class="st">"condition"</span>, <span class="st">"pass_qc"</span><span class="op">)</span>,
-  out_dir <span class="op">=</span> <span class="cn">NULL</span>,
-  qc_to_plot <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nFeature_RNA"</span>, <span class="st">"nCount_RNA"</span>, <span class="st">"percent.mito"</span><span class="op">)</span>,
-  use_scrublet <span class="op">=</span> <span class="cn">TRUE</span>,
-  use_soupx <span class="op">=</span> <span class="cn">FALSE</span>,
-  tenx_dir <span class="op">=</span> <span class="st">"premrna_outs"</span>,
-  tenx_counts_dir <span class="op">=</span> <span class="st">"filtered_feature_bc_matrix"</span>,
-  obj_filename <span class="op">=</span> <span class="st">"seu_qc"</span>,
-  expected_doublet_rate <span class="op">=</span> <span class="fl">0.06</span>,
-  force_reanalysis <span class="op">=</span> <span class="cn">TRUE</span>,
-  min.cells <span class="op">=</span> <span class="fl">10</span>,
-  min.features <span class="op">=</span> <span class="fl">100</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">run_qc_pipeline</span><span class="op">(</span></span>
+<span>  <span class="va">data_dir</span>,</span>
+<span>  <span class="va">sample_meta</span>,</span>
+<span>  sample_meta_filename <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  nfeat_thresh <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>  mito_thresh <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  meta_colnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"donor"</span>, <span class="st">"condition"</span>, <span class="st">"pass_qc"</span><span class="op">)</span>,</span>
+<span>  out_dir <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  qc_to_plot <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nFeature_RNA"</span>, <span class="st">"nCount_RNA"</span>, <span class="st">"percent.mito"</span><span class="op">)</span>,</span>
+<span>  use_scrublet <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  use_soupx <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  tenx_dir <span class="op">=</span> <span class="st">"premrna_outs"</span>,</span>
+<span>  tenx_counts_dir <span class="op">=</span> <span class="st">"filtered_feature_bc_matrix"</span>,</span>
+<span>  obj_filename <span class="op">=</span> <span class="st">"seu_qc"</span>,</span>
+<span>  expected_doublet_rate <span class="op">=</span> <span class="fl">0.06</span>,</span>
+<span>  force_reanalysis <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  min.cells <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  min.features <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -90,55 +90,92 @@ criteria 4. Generate correspond QC plots.</p>
     <dl><dt>data_dir</dt>
 <dd><p>Parent directory where all sample 10x files are stored.
 Think of it as project directory.</p></dd>
+
+
 <dt>sample_meta</dt>
 <dd><p>Sample metadata information in a Data.frame like object.
 Columns should at least contain 'sample', 'donor', 'condition' and 'pass_qc'.</p></dd>
+
+
 <dt>sample_meta_filename</dt>
 <dd><p>Filename of sample metadata information, same as 'meta'
 parameter above. User should provide one of 'meta' or 'meta_filename'.</p></dd>
+
+
 <dt>nfeat_thresh</dt>
 <dd><p>Filter cells that have less than 'nfeat_thresh' counts
 expressed.</p></dd>
+
+
 <dt>mito_thresh</dt>
 <dd><p>Filter cells with more than 'mito_thresh'% counts.</p></dd>
+
+
 <dt>meta_colnames</dt>
 <dd><p>Sample metadata column names to store in Seurat metadata.</p></dd>
+
+
 <dt>out_dir</dt>
 <dd><p>Output directory for storing analysis results.</p></dd>
+
+
 <dt>qc_to_plot</dt>
 <dd><p>Vector of features in metadata to plot.</p></dd>
+
+
 <dt>use_scrublet</dt>
 <dd><p>Logical, wether to use Scrublet for doublet detection.</p></dd>
+
+
 <dt>use_soupx</dt>
 <dd><p>Logical, wether to use SoupX for ambient RNA removal.</p></dd>
+
+
 <dt>tenx_dir</dt>
 <dd><p>Name of 10x base directory, e.g. with outputs after running
 cellranger. Default 'premrna_outs', i.e. assumes single-nuclei RNA-seq.</p></dd>
+
+
 <dt>tenx_counts_dir</dt>
 <dd><p>Name of 10x directory where count matrices are stored.
 Default 'filtered_feature_bc_matrix'</p></dd>
+
+
 <dt>obj_filename</dt>
 <dd><p>Filename of the stored Seurat object, default 'seu_qc'.</p></dd>
+
+
 <dt>expected_doublet_rate</dt>
 <dd><p>The expected fraction of transcriptomes that
 are doublets, typically 0.05 - 0.1</p></dd>
+
+
 <dt>force_reanalysis</dt>
 <dd><p>Logical, if intermediate file 'seu_preqc.rds' (with
 created Seurat object) exists and force_reanalysis = FALSE, read object
 instead of re-running whole analysis with soupX. Added for computing time
 efficiency purposes and intermediate object will be created only when
 'use_soupx = TRUE'.</p></dd>
+
+
 <dt>min.cells</dt>
 <dd><p>Include features/genes detected in at least this many cells.</p></dd>
+
+
 <dt>min.features</dt>
 <dd><p>Include cells where at least this many features/genes
 are detected.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional named parameters passed to Seurat, Scrublet or SoupX.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>List of Seurat objects as the length of the number of samples in
+    
+
+<p>List of Seurat objects as the length of the number of samples in
 the sample metadata file. If a single sample, return a Seurat object
 instead of a list.</p>
     </div>
@@ -156,7 +193,7 @@ instead of a list.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
     </footer></div>

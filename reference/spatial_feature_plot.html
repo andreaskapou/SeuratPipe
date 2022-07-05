@@ -51,64 +51,91 @@ providing additional plotting options.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">spatial_feature_plot</span><span class="op">(</span>
-  <span class="va">seu</span>,
-  features <span class="op">=</span> <span class="st">"nFeature_Spatial"</span>,
-  title <span class="op">=</span> <span class="cn">NULL</span>,
-  alpha <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.9</span><span class="op">)</span>,
-  pt.size.factor <span class="op">=</span> <span class="fl">1.1</span>,
-  ncol <span class="op">=</span> <span class="cn">NULL</span>,
-  max.cutoff <span class="op">=</span> <span class="st">"q98"</span>,
-  min.cutoff <span class="op">=</span> <span class="cn">NA</span>,
-  crop <span class="op">=</span> <span class="cn">FALSE</span>,
-  col_pal <span class="op">=</span> <span class="st">"inferno"</span>,
-  legend.position <span class="op">=</span> <span class="st">"top"</span>,
-  combine <span class="op">=</span> <span class="cn">TRUE</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">spatial_feature_plot</span><span class="op">(</span></span>
+<span>  <span class="va">seu</span>,</span>
+<span>  features <span class="op">=</span> <span class="st">"nFeature_Spatial"</span>,</span>
+<span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  alpha <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.9</span><span class="op">)</span>,</span>
+<span>  pt.size.factor <span class="op">=</span> <span class="fl">1.1</span>,</span>
+<span>  ncol <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  max.cutoff <span class="op">=</span> <span class="st">"q98"</span>,</span>
+<span>  min.cutoff <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  crop <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  col_pal <span class="op">=</span> <span class="st">"inferno"</span>,</span>
+<span>  legend.position <span class="op">=</span> <span class="st">"top"</span>,</span>
+<span>  combine <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>seu</dt>
 <dd><p>Seurat object (required).</p></dd>
+
+
 <dt>features</dt>
 <dd><p>Vector of features to plot.</p></dd>
+
+
 <dt>title</dt>
 <dd><p>Plot title</p></dd>
+
+
 <dt>alpha</dt>
 <dd><p>Controls opacity of spots. Provide as a vector specifying the
 min and max range of values (between 0 and 1).</p></dd>
+
+
 <dt>pt.size.factor</dt>
 <dd><p>Scale the size of the spots.</p></dd>
+
+
 <dt>ncol</dt>
 <dd><p>Number of columns for display when having multiple features.</p></dd>
+
+
 <dt>max.cutoff</dt>
 <dd><p>Vector of maximum cutoff values for each feature, may
 specify quantile in the form of 'q##' where '##' is the quantile
 (eg, 'q1', 'q10').</p></dd>
+
+
 <dt>min.cutoff</dt>
 <dd><p>Vector of minimum cutoff values for each feature, may
 specify quantile in the form of 'q##' where '##' is the quantile
 (eg, 'q1', 'q10').</p></dd>
+
+
 <dt>crop</dt>
 <dd><p>Crop the plot in to focus on points plotted. Set to FALSE to
 show entire background image.</p></dd>
+
+
 <dt>col_pal</dt>
 <dd><p>Continuous colour palette to use from viridis package,
 default "inferno".</p></dd>
+
+
 <dt>legend.position</dt>
 <dd><p>Position of legend, default "right" (set to "none"
 for clean plot).</p></dd>
+
+
 <dt>combine</dt>
 <dd><p>Combine plots into a single patchworked ggplot object.
 If FALSE, return a list of ggplot objects</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional parameters passed to Seurat's SpatialFeaturePlot.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A ggplot2 object.</p>
+    
+
+<p>A ggplot2 object.</p>
     </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
@@ -124,7 +151,7 @@ If FALSE, return a list of ggplot objects</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
     </footer></div>

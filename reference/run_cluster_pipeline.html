@@ -60,140 +60,210 @@ requires a single Seurat object/sample.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">run_cluster_pipeline</span><span class="op">(</span>
-  <span class="va">seu_obj</span>,
-  <span class="va">out_dir</span>,
-  npcs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50</span><span class="op">)</span>,
-  ndims <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">30</span><span class="op">)</span>,
-  res <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.3</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>,
-  modules_group <span class="op">=</span> <span class="cn">NULL</span>,
-  metadata_to_plot <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sample"</span>, <span class="st">"condition"</span><span class="op">)</span>,
-  qc_to_plot <span class="op">=</span> <span class="cn">NULL</span>,
-  logfc.threshold <span class="op">=</span> <span class="fl">0.5</span>,
-  min.pct <span class="op">=</span> <span class="fl">0.25</span>,
-  only.pos <span class="op">=</span> <span class="cn">TRUE</span>,
-  topn_genes <span class="op">=</span> <span class="fl">10</span>,
-  diff_cluster_pct <span class="op">=</span> <span class="fl">0.1</span>,
-  pval_adj <span class="op">=</span> <span class="fl">0.05</span>,
-  pcs_to_remove <span class="op">=</span> <span class="cn">NULL</span>,
-  plot_cluster_markers <span class="op">=</span> <span class="cn">TRUE</span>,
-  max.cutoff <span class="op">=</span> <span class="st">"q98"</span>,
-  min.cutoff <span class="op">=</span> <span class="cn">NA</span>,
-  n_hvgs <span class="op">=</span> <span class="fl">3000</span>,
-  seed <span class="op">=</span> <span class="fl">1</span>,
-  label <span class="op">=</span> <span class="cn">TRUE</span>,
-  label.size <span class="op">=</span> <span class="fl">8</span>,
-  pt.size <span class="op">=</span> <span class="fl">1.4</span>,
-  fig.res <span class="op">=</span> <span class="fl">200</span>,
-  cont_col_pal <span class="op">=</span> <span class="cn">NULL</span>,
-  discrete_col_pal <span class="op">=</span> <span class="cn">NULL</span>,
-  cont_alpha <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.9</span><span class="op">)</span>,
-  discrete_alpha <span class="op">=</span> <span class="fl">0.9</span>,
-  pt.size.factor <span class="op">=</span> <span class="fl">1.1</span>,
-  spatial_col_pal <span class="op">=</span> <span class="st">"inferno"</span>,
-  crop <span class="op">=</span> <span class="cn">FALSE</span>,
-  plot_spatial_markers <span class="op">=</span> <span class="cn">FALSE</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">run_cluster_pipeline</span><span class="op">(</span></span>
+<span>  <span class="va">seu_obj</span>,</span>
+<span>  <span class="va">out_dir</span>,</span>
+<span>  npcs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50</span><span class="op">)</span>,</span>
+<span>  ndims <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">30</span><span class="op">)</span>,</span>
+<span>  res <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.3</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>,</span>
+<span>  modules_group <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  metadata_to_plot <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sample"</span>, <span class="st">"condition"</span><span class="op">)</span>,</span>
+<span>  qc_to_plot <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  logfc.threshold <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  min.pct <span class="op">=</span> <span class="fl">0.25</span>,</span>
+<span>  only.pos <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  topn_genes <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  diff_cluster_pct <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>  pval_adj <span class="op">=</span> <span class="fl">0.05</span>,</span>
+<span>  pcs_to_remove <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  plot_cluster_markers <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  max.cutoff <span class="op">=</span> <span class="st">"q98"</span>,</span>
+<span>  min.cutoff <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  n_hvgs <span class="op">=</span> <span class="fl">3000</span>,</span>
+<span>  seed <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  label <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  label.size <span class="op">=</span> <span class="fl">8</span>,</span>
+<span>  pt.size <span class="op">=</span> <span class="fl">1.4</span>,</span>
+<span>  fig.res <span class="op">=</span> <span class="fl">200</span>,</span>
+<span>  cont_col_pal <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  discrete_col_pal <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cont_alpha <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.9</span><span class="op">)</span>,</span>
+<span>  discrete_alpha <span class="op">=</span> <span class="fl">0.9</span>,</span>
+<span>  pt.size.factor <span class="op">=</span> <span class="fl">1.1</span>,</span>
+<span>  spatial_col_pal <span class="op">=</span> <span class="st">"inferno"</span>,</span>
+<span>  crop <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  plot_spatial_markers <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>seu_obj</dt>
 <dd><p>Seurat object (required).</p></dd>
+
+
 <dt>out_dir</dt>
 <dd><p>Output directory for storing analysis results.</p></dd>
+
+
 <dt>npcs</dt>
 <dd><p>Number of principal components, can be a vector e.g. c(50, 70).</p></dd>
+
+
 <dt>ndims</dt>
 <dd><p>Top PCA dimensions to perform UMAP and clustering,
 can be a vector e.g. c(50, 70).</p></dd>
+
+
 <dt>res</dt>
 <dd><p>Vector with clustering resolutions (e.g. seq(0.1, 0.6, by = 0.1)).</p></dd>
+
+
 <dt>modules_group</dt>
 <dd><p>Group of modules (named list of lists) storing features
 (e.g. genes) to compute module score for each identified cluster. This step
 can be useful for annotating the different clusters by saving dot/feature
 plots for each group.</p></dd>
+
+
 <dt>metadata_to_plot</dt>
 <dd><p>Vector with metadata names to plot, they should be
 present in the meta.data slot of the Seurat object.</p></dd>
+
+
 <dt>qc_to_plot</dt>
 <dd><p>Vector with QC names to plot, they should be
 present in the meta.data slot of the Seurat object.</p></dd>
+
+
 <dt>logfc.threshold</dt>
 <dd><p>Limit testing to genes which show, on average, at
 least X-fold difference (log-scale) between the two groups of cells.</p></dd>
+
+
 <dt>min.pct</dt>
 <dd><p>Only test genes that are detected in a minimum fraction of
 min.pct cells in either of the two populations.</p></dd>
+
+
 <dt>only.pos</dt>
 <dd><p>Only return positive markers (TRUE by default).</p></dd>
+
+
 <dt>topn_genes</dt>
 <dd><p>Top cluster marker genes to use for plotting (in heatmap and
 feature plots), default is 10.</p></dd>
+
+
 <dt>diff_cluster_pct</dt>
 <dd><p>Retain marker genes per cluster if their
 <code>pct.1 - pct.2 &gt; diff_cluster_pct</code>, i.e. they show cluster
 specific expression. Set to -Inf, to ignore this additional filtering.</p></dd>
+
+
 <dt>pval_adj</dt>
 <dd><p>Adjusted p-value threshold to consider marker genes per cluster.</p></dd>
+
+
 <dt>pcs_to_remove</dt>
 <dd><p>Which PCs should be removed prior to performing clustering.
 Possibly due to being correlated with technical/batch effects. If NULL,
 all PCs are used.</p></dd>
+
+
 <dt>plot_cluster_markers</dt>
 <dd><p>Logical, wheather to create feature plots with
 'topn_genes' cluster markers. Added mostly to reduce number of files
 (and size) in analysis folders. Default is TRUE.</p></dd>
+
+
 <dt>max.cutoff</dt>
 <dd><p>Maximum cutoff values for plotting each continuous
 feature, e.g. gene expression levels. May specify quantile in the form of
 'q##' where '##' is the quantile (eg, 'q1', 'q10').</p></dd>
+
+
 <dt>min.cutoff</dt>
 <dd><p>Maximum cutoff values for plotting each continuous
 feature, e.g. gene expression levels. May specify quantile in the form of
 'q##' where '##' is the quantile (eg, 'q1', 'q10').</p></dd>
+
+
 <dt>n_hvgs</dt>
 <dd><p>Number of highly variable genes (HVGs) to compute, which will
 be used as input to PCA.</p></dd>
+
+
 <dt>seed</dt>
 <dd><p>Set a random seed, for reproducibility.</p></dd>
+
+
 <dt>label</dt>
 <dd><p>Whether to label the clusters in 'plot_reduction' space.</p></dd>
+
+
 <dt>label.size</dt>
 <dd><p>Sets size of labels.</p></dd>
+
+
 <dt>pt.size</dt>
 <dd><p>Adjust point size for plotting.</p></dd>
+
+
 <dt>fig.res</dt>
 <dd><p>Figure resolution in ppi (see 'png' function).</p></dd>
+
+
 <dt>cont_col_pal</dt>
 <dd><p>Continuous colour palette to use, default "RdYlBu".</p></dd>
+
+
 <dt>discrete_col_pal</dt>
 <dd><p>Discrete colour palette to use, default is Hue palette
 (hue_pal) from 'scales' package.</p></dd>
+
+
 <dt>cont_alpha</dt>
-<dd><p>Controls opacity of spots. Provide as a vector specifying the
+<dd><p>(Spatial) Controls opacity of spots. Provide as a vector specifying the
 min and max range of values (between 0 and 1).</p></dd>
+
+
 <dt>discrete_alpha</dt>
-<dd><p>Controls opacity of spots. Provide a single alpha value.</p></dd>
+<dd><p>(Spatial) Controls opacity of spots. Provide a single alpha value.</p></dd>
+
+
 <dt>pt.size.factor</dt>
-<dd><p>Scale the size of the spots.</p></dd>
+<dd><p>(Spatial) Scale the size of the spots.</p></dd>
+
+
 <dt>spatial_col_pal</dt>
-<dd><p>Continuous colour palette to use from viridis package to
+<dd><p>(Spatial) Continuous colour palette to use from viridis package to
 colour spots on tissue, default "inferno".</p></dd>
+
+
 <dt>crop</dt>
-<dd><p>Crop the plot in to focus on spots that passed QC plotted. Set to FALSE to
+<dd><p>(Spatial) Crop the plot in to focus on spots that passed QC plotted. Set to FALSE to
 show entire background image.</p></dd>
+
+
 <dt>plot_spatial_markers</dt>
-<dd><p>Logical, whether to create spatial feature plots
+<dd><p>(Spatial) Logical, whether to create spatial feature plots
 with expression of individual genes.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional named parameters passed to Seurat functions.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An updated Seurat object. Note that if multiple <code>npcs</code> and <code>ndims</code>are given, only the last setting will be returned. All analysis results are
+    
+
+<p>An updated Seurat object. Note that if multiple <code>npcs</code> and <code>ndims</code></p>
+
+
+<p>are given, only the last setting will be returned. All analysis results are
 also stored on disk.</p>
     </div>
     <div class="section level2">
@@ -210,7 +280,7 @@ also stored on disk.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
     </footer></div>

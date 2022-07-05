@@ -54,60 +54,89 @@ dataset is also shown in the background as smaller points.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">subset_dim_plot</span><span class="op">(</span>
-  <span class="va">seu</span>,
-  <span class="va">subset.by</span>,
-  reduction <span class="op">=</span> <span class="st">"umap"</span>,
-  ncol <span class="op">=</span> <span class="cn">NULL</span>,
-  col_pal <span class="op">=</span> <span class="cn">NULL</span>,
-  pt.size <span class="op">=</span> <span class="fl">2</span>,
-  pt.stroke <span class="op">=</span> <span class="fl">0.05</span>,
-  pt.shape <span class="op">=</span> <span class="fl">21</span>,
-  pt.alpha <span class="op">=</span> <span class="fl">1</span>,
-  back.pt.size <span class="op">=</span> <span class="fl">0.5</span>,
-  back.pt.alpha <span class="op">=</span> <span class="fl">0.1</span>,
-  back.pt.color <span class="op">=</span> <span class="st">"grey"</span>,
-  combine <span class="op">=</span> <span class="cn">TRUE</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">subset_dim_plot</span><span class="op">(</span></span>
+<span>  <span class="va">seu</span>,</span>
+<span>  <span class="va">subset.by</span>,</span>
+<span>  reduction <span class="op">=</span> <span class="st">"umap"</span>,</span>
+<span>  ncol <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  col_pal <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pt.size <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  pt.stroke <span class="op">=</span> <span class="fl">0.05</span>,</span>
+<span>  pt.shape <span class="op">=</span> <span class="fl">21</span>,</span>
+<span>  pt.alpha <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  back.pt.size <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  back.pt.alpha <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>  back.pt.color <span class="op">=</span> <span class="st">"grey"</span>,</span>
+<span>  combine <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>seu</dt>
 <dd><p>Seurat object</p></dd>
+
+
 <dt>subset.by</dt>
 <dd><p>Metadata column whose unique values will generate split
 dim plots.</p></dd>
+
+
 <dt>reduction</dt>
 <dd><p>Dimensionality reduction to use.</p></dd>
+
+
 <dt>ncol</dt>
 <dd><p>Number of columns for display when having multiple features.</p></dd>
+
+
 <dt>col_pal</dt>
 <dd><p>Discrete colour palette to use.</p></dd>
+
+
 <dt>pt.size</dt>
 <dd><p>Adjust point size for plotting.</p></dd>
+
+
 <dt>pt.stroke</dt>
 <dd><p>Stroke value for each point.</p></dd>
+
+
 <dt>pt.shape</dt>
 <dd><p>Adjust point shape for plotting.</p></dd>
+
+
 <dt>pt.alpha</dt>
 <dd><p>Adjust alpha value for each point.</p></dd>
+
+
 <dt>back.pt.size</dt>
 <dd><p>Adjust background point size for plotting.</p></dd>
+
+
 <dt>back.pt.alpha</dt>
 <dd><p>Adjust opacity for background points.</p></dd>
+
+
 <dt>back.pt.color</dt>
 <dd><p>Colour for background points.</p></dd>
+
+
 <dt>combine</dt>
 <dd><p>Combine plots into a single patchworked ggplot object.
 If FALSE, return a list of ggplot objects</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional parameters passed to ggplot2::geom_point.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A ggplot2 object.</p>
+    
+
+<p>A ggplot2 object.</p>
     </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
@@ -123,7 +152,7 @@ If FALSE, return a list of ggplot objects</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
     </footer></div>

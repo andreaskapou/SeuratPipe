@@ -81,77 +81,99 @@ lineage annotation.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">cluster_analysis</span><span class="op">(</span>
-  <span class="va">seu</span>,
-  dims <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">20</span>,
-  res <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>,
-  logfc.threshold <span class="op">=</span> <span class="fl">0.5</span>,
-  min.pct <span class="op">=</span> <span class="fl">0.25</span>,
-  only.pos <span class="op">=</span> <span class="cn">TRUE</span>,
-  topn_genes <span class="op">=</span> <span class="fl">10</span>,
-  diff_cluster_pct <span class="op">=</span> <span class="fl">0.1</span>,
-  pval_adj <span class="op">=</span> <span class="fl">0.05</span>,
-  plot_dir <span class="op">=</span> <span class="cn">NULL</span>,
-  plot_cluster_markers <span class="op">=</span> <span class="cn">TRUE</span>,
-  modules_group <span class="op">=</span> <span class="cn">NULL</span>,
-  cluster_reduction <span class="op">=</span> <span class="st">"pca"</span>,
-  plot_reduction <span class="op">=</span> <span class="st">"umap"</span>,
-  max.cutoff <span class="op">=</span> <span class="st">"q98"</span>,
-  min.cutoff <span class="op">=</span> <span class="cn">NA</span>,
-  seed <span class="op">=</span> <span class="fl">1</span>,
-  force_reanalysis <span class="op">=</span> <span class="cn">TRUE</span>,
-  label <span class="op">=</span> <span class="cn">TRUE</span>,
-  label.size <span class="op">=</span> <span class="fl">8</span>,
-  legend.position <span class="op">=</span> <span class="st">"right"</span>,
-  pt.size <span class="op">=</span> <span class="fl">1.4</span>,
-  cont_col_pal <span class="op">=</span> <span class="cn">NULL</span>,
-  discrete_col_pal <span class="op">=</span> <span class="cn">NULL</span>,
-  fig.res <span class="op">=</span> <span class="fl">200</span>,
-  heatmap_downsample_cols <span class="op">=</span> <span class="cn">NULL</span>,
-  cont_alpha <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.9</span><span class="op">)</span>,
-  discrete_alpha <span class="op">=</span> <span class="fl">0.9</span>,
-  pt.size.factor <span class="op">=</span> <span class="fl">1.1</span>,
-  spatial_col_pal <span class="op">=</span> <span class="st">"inferno"</span>,
-  crop <span class="op">=</span> <span class="cn">FALSE</span>,
-  plot_spatial_markers <span class="op">=</span> <span class="cn">FALSE</span>,
-  spatial_legend_position <span class="op">=</span> <span class="st">"top"</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">cluster_analysis</span><span class="op">(</span></span>
+<span>  <span class="va">seu</span>,</span>
+<span>  dims <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">20</span>,</span>
+<span>  res <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>,</span>
+<span>  logfc.threshold <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  min.pct <span class="op">=</span> <span class="fl">0.25</span>,</span>
+<span>  only.pos <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  topn_genes <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  diff_cluster_pct <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>  pval_adj <span class="op">=</span> <span class="fl">0.05</span>,</span>
+<span>  plot_dir <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  plot_cluster_markers <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  modules_group <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cluster_reduction <span class="op">=</span> <span class="st">"pca"</span>,</span>
+<span>  plot_reduction <span class="op">=</span> <span class="st">"umap"</span>,</span>
+<span>  max.cutoff <span class="op">=</span> <span class="st">"q98"</span>,</span>
+<span>  min.cutoff <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  seed <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  force_reanalysis <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  label <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  label.size <span class="op">=</span> <span class="fl">8</span>,</span>
+<span>  legend.position <span class="op">=</span> <span class="st">"right"</span>,</span>
+<span>  pt.size <span class="op">=</span> <span class="fl">1.4</span>,</span>
+<span>  cont_col_pal <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  discrete_col_pal <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fig.res <span class="op">=</span> <span class="fl">200</span>,</span>
+<span>  heatmap_downsample_cols <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cont_alpha <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.9</span><span class="op">)</span>,</span>
+<span>  discrete_alpha <span class="op">=</span> <span class="fl">0.9</span>,</span>
+<span>  pt.size.factor <span class="op">=</span> <span class="fl">1.1</span>,</span>
+<span>  spatial_col_pal <span class="op">=</span> <span class="st">"inferno"</span>,</span>
+<span>  crop <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  plot_spatial_markers <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  spatial_legend_position <span class="op">=</span> <span class="st">"top"</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>seu</dt>
 <dd><p>Seurat object (required).</p></dd>
+
+
 <dt>dims</dt>
 <dd><p>Vector denoting dimensions to use for nearest neighnors and
 clustering (from 'cluster_reduction' parameter below).</p></dd>
+
+
 <dt>res</dt>
 <dd><p>Vector with clustering resolutions (e.g. seq(0.1, 0.6, by = 0.1)).</p></dd>
+
+
 <dt>logfc.threshold</dt>
 <dd><p>Limit testing to genes which show, on average, at
 least X-fold difference (log-scale) between the two groups of cells.</p></dd>
+
+
 <dt>min.pct</dt>
 <dd><p>Only test genes that are detected in a minimum fraction of
 min.pct cells in either of the two populations.</p></dd>
+
+
 <dt>only.pos</dt>
 <dd><p>Only return positive markers (TRUE by default).</p></dd>
+
+
 <dt>topn_genes</dt>
 <dd><p>Top cluster marker genes to use for plot (in heatmap and
 feature plots), default is 10.</p></dd>
+
+
 <dt>diff_cluster_pct</dt>
 <dd><p>Retain marker genes per cluster if their
 <code>pct.1 - pct.2 &gt; diff_cluster_pct</code>, i.e. they show cluster
 specific expression. Set to -Inf, to ignore this additional filtering.</p></dd>
+
+
 <dt>pval_adj</dt>
 <dd><p>Adjusted p-value threshold to consider marker genes per cluster.</p></dd>
+
+
 <dt>plot_dir</dt>
 <dd><p>Directory to save generated plots. If NULL, plots are
 not saved.</p></dd>
+
+
 <dt>plot_cluster_markers</dt>
 <dd><p>Logical, whether to create feature plots with
 'topn_genes' cluster markers. Added mostly to reduce number of files (and size)
 in analysis folders. Default is TRUE.</p></dd>
+
+
 <dt>modules_group</dt>
 <dd><p>Group of modules (named list of lists) storing features
 (e.g. genes) to compute module score for each identified cluster. This step
@@ -159,74 +181,121 @@ can be useful for annotating the different clusters by saving dot
 plots for each group. Assumes that we already have computed the modules e.g.
 by calling the 'module_score_analysis' function. If 'plot_dir' is NULL,
 no plots will be generated.</p></dd>
+
+
 <dt>cluster_reduction</dt>
 <dd><p>Dimensionality reduction to use for performing
 clustering. Default is 'pca', should be set to 'harmony' if we perform data
 integration.</p></dd>
+
+
 <dt>plot_reduction</dt>
 <dd><p>Dimensionality reduction to use for plotting
 functions. Default is 'umap'.</p></dd>
+
+
 <dt>max.cutoff</dt>
 <dd><p>Vector of maximum cutoff values for each feature,
 may specify quantile in the form of 'q##' where '##' is the quantile
 (eg, 'q1', 'q10').</p></dd>
+
+
 <dt>min.cutoff</dt>
 <dd><p>Vector of minimum cutoff values for each feature,
 may specify quantile in the form of 'q##' where '##' is the quantile
 (eg, 'q1', 'q10').</p></dd>
+
+
 <dt>seed</dt>
 <dd><p>Set a random seed, for reproducibility.</p></dd>
+
+
 <dt>force_reanalysis</dt>
 <dd><p>Logical, if cluster marker genes file
 exists and force_reanalysis = FALSE, run identification of cluster markers.
 Otherwise, read cluster markers from file. Added for computing time
 efficiency purposes.</p></dd>
+
+
 <dt>label</dt>
 <dd><p>Whether to label the clusters in 'plot_reduction' space.</p></dd>
+
+
 <dt>label.size</dt>
 <dd><p>Sets size of labels.</p></dd>
+
+
 <dt>legend.position</dt>
 <dd><p>Position of legend, default "right" (set to "none"
 for clean plot).</p></dd>
+
+
 <dt>pt.size</dt>
 <dd><p>Adjust point size for plotting.</p></dd>
+
+
 <dt>cont_col_pal</dt>
 <dd><p>Continuous colour palette to use, default "RdYlBu".</p></dd>
+
+
 <dt>discrete_col_pal</dt>
 <dd><p>Discrete colour palette to use, default is Hue palette
 (hue_pal) from 'scales' package.</p></dd>
+
+
 <dt>fig.res</dt>
 <dd><p>Figure resolution in ppi (see 'png' function).</p></dd>
+
+
 <dt>heatmap_downsample_cols</dt>
-<dd><p>If numberic, it will downsamples the columns of
-the heatmap plot, so a big specific cluster doesn't dominate the heatmap.</p></dd>
+<dd><p>If numeric, it will downsample the columns of
+the heatmap plot, so a large specific cluster doesn't dominate the heatmap.</p></dd>
+
+
 <dt>cont_alpha</dt>
-<dd><p>Controls opacity of spots. Provide as a vector specifying the
+<dd><p>(Spatial) Controls opacity of spots. Provide as a vector specifying the
 min and max range of values (between 0 and 1).</p></dd>
+
+
 <dt>discrete_alpha</dt>
-<dd><p>Controls opacity of spots. Provide a single alpha value.</p></dd>
+<dd><p>(Spatial) Controls opacity of spots. Provide a single alpha value.</p></dd>
+
+
 <dt>pt.size.factor</dt>
-<dd><p>Scale the size of the spots.</p></dd>
+<dd><p>(Spatial) Scale the size of the spots.</p></dd>
+
+
 <dt>spatial_col_pal</dt>
-<dd><p>Continuous colour palette to use from viridis package to
+<dd><p>(Spatial) Continuous colour palette to use from viridis package to
 colour spots on tissue, default "inferno".</p></dd>
+
+
 <dt>crop</dt>
-<dd><p>Crop the plot in to focus on spots that passed QC. Set to FALSE to
+<dd><p>(Spatial) Crop the plot in to focus on spots that passed QC. Set to FALSE to
 show entire background image.</p></dd>
+
+
 <dt>plot_spatial_markers</dt>
-<dd><p>Logical, whether to create spatial feature plots
+<dd><p>(Spatial) Logical, whether to create spatial feature plots
 with expression of individual genes.</p></dd>
+
+
 <dt>spatial_legend_position</dt>
-<dd><p>Position of legend for spatial plots,
+<dd><p>(Spatial) Position of legend for spatial plots,
 default "top" (set to "none" for clean plot).</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional named parameters passed to Seurat
 analysis and plotting functions, such as FindClusters, FindAllMarkers,
 DimPlot and FeaturePlot.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Updated Seurat object clustered cells</p>
+    
+
+<p>Updated Seurat object clustered cells</p>
     </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
@@ -242,7 +311,7 @@ DimPlot and FeaturePlot.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
     </footer></div>

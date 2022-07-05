@@ -54,28 +54,35 @@ mitochondrial percentage.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">qc_filter_seurat_object</span><span class="op">(</span><span class="va">seu</span>, <span class="va">nfeat_thresh</span>, <span class="va">mito_thresh</span><span class="op">)</span>
-
-<span class="co"># S3 method for list</span>
-<span class="fu">qc_filter_seurat_object</span><span class="op">(</span><span class="va">seu</span>, <span class="va">nfeat_thresh</span>, <span class="va">mito_thresh</span><span class="op">)</span>
-
-<span class="co"># S3 method for Seurat</span>
-<span class="fu">qc_filter_seurat_object</span><span class="op">(</span><span class="va">seu</span>, <span class="va">nfeat_thresh</span>, <span class="va">mito_thresh</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">qc_filter_seurat_object</span><span class="op">(</span><span class="va">seu</span>, <span class="va">nfeat_thresh</span>, <span class="va">mito_thresh</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for list</span></span>
+<span><span class="fu">qc_filter_seurat_object</span><span class="op">(</span><span class="va">seu</span>, <span class="va">nfeat_thresh</span>, <span class="va">mito_thresh</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu">qc_filter_seurat_object</span><span class="op">(</span><span class="va">seu</span>, <span class="va">nfeat_thresh</span>, <span class="va">mito_thresh</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>seu</dt>
 <dd><p>Seurat object or list of Seurat objects(required).</p></dd>
+
+
 <dt>nfeat_thresh</dt>
 <dd><p>Filter cells that have less than 'nfeat_thresh' counts
 expressed.</p></dd>
+
+
 <dt>mito_thresh</dt>
 <dd><p>Filter cells with more than 'mito_thresh'% counts.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>List of QC filtered Seurat objects. If a single sample, returns
+    
+
+<p>List of QC filtered Seurat objects. If a single sample, returns
 a QC filtered Seurat object instead of a list.</p>
     </div>
     <div class="section level2">
@@ -92,7 +99,7 @@ a QC filtered Seurat object instead of a list.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
     </footer></div>
