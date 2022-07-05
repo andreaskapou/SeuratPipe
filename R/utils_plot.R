@@ -26,11 +26,10 @@
 #' @author C.A.Kapourani \email{C.A.Kapourani@@ed.ac.uk}
 #'
 #' @export
-dim_plot <- function(seu, reduction = "umap", group.by = "active.ident",
-                     split.by = NULL, ncol = NULL, legend.position = "right",
-                     col_pal = NULL, dims_plot = c(1, 2), pt.size = 1.4,
-                     label = FALSE, label.size = 7, combine = TRUE, pt.shape = 21,
-                     pt.stroke = 0.1, pt.alpha = 1, ...) {
+dim_plot <- function(
+    seu, reduction = "umap", group.by = "active.ident", split.by = NULL, ncol = NULL,
+    legend.position = "right", col_pal = NULL, dims_plot = c(1, 2), pt.size = 1.4,
+    label = FALSE, label.size = 7, combine = TRUE, pt.shape = 21, pt.stroke = 0.05, pt.alpha = 1, ...) {
 
   # Environment parameters
   env_params <- names(as.list(environment()))
@@ -486,7 +485,7 @@ subset_feature_plot <- function(
 dim_plot_tailored <- function(
     seu, group.by, reduction = "umap", legend.position = "right",
     col_pal = NULL, label = FALSE, label.size = 7, pt.size = 1.4, pt.shape = 21,
-    pt.stroke = 0.1, pt.alpha = 1, ...) {
+    pt.stroke = 0.05, pt.alpha = 1, ...) {
 
   dot_params <- rlang::list2(...)
   params <- dot_params[which(names(dot_params) %in% methods::formalArgs(ggplot2::geom_point))]

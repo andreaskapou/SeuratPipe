@@ -566,6 +566,35 @@ run_harmony <- function(object, group.by.vars, reduction = 'pca',
 }
 
 
+#' Add UMAP embedding in Seurat object
+#'
+#' Add UMAP embedding in existing Seurat object. This is the case when running
+#' the pipeline and then you want to attach the stored UMAP embedding, stored
+#' as CSV file, instead of recomputing the UMAP.
+#'
+#' @param seu Seurat object
+#' @param embedding UMAP embedding. If a character, the function will assume a
+#' filename is given and will read the corresponding UMAP embedding. Otherwise,
+#' it assumes a UMAP embedding matrix is provided as input containing only the
+#' embeddings as columns.
+#'
+#' @export
+add_umap_embedding <- function(seu, embedding) {
+  # If character assume we are given a file name
+  if (is.character(embedding)) {
+    embedding <- read.csv(file = embedding) |>
+      tibble::column_to_rownames(var = "X") |> as.matrix()
+  }
+  if (NROW(embedding) != NCOL(seu)) {
+    stop("Embedding matrix not equal to number of cells in Seurat object.")
+  }
+  # Create DimReducObject
+  seu@reductions$umap <- Seurat::CreateDimReducObject(
+    embeddings = embedding, assay = Seurat::DefaultAssay(object = seu), key = "UMAP_")
+  return(seu)
+}
+
+
 #' Install Scrublet Python Package
 #'
 #' Install Scrublet Python package into a virtualenv or conda env.

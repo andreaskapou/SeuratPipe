@@ -14,7 +14,7 @@ dim_plot_tailored(
   label.size = 7,
   pt.size = 1.4,
   pt.shape = 21,
-  pt.stroke = 0.1,
+  pt.stroke = 0.05,
   pt.alpha = 1,
   ...
 )

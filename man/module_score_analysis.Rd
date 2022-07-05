@@ -63,21 +63,21 @@ specifying x- and y-dimensions.}
 
 \item{fig.res}{Figure resolution in ppi (see 'png' function).}
 
-\item{alpha}{Controls opacity of spots. Provide as a vector specifying the
+\item{alpha}{(Spatial) Controls opacity of spots. Provide as a vector specifying the
 min and max range of values (between 0 and 1).}
 
-\item{pt.size.factor}{Scale the size of the spots.}
+\item{pt.size.factor}{(Spatial) Scale the size of the spots.}
 
-\item{spatial_col_pal}{Continuous colour palette to use from viridis package to
+\item{spatial_col_pal}{(Spatial) Continuous colour palette to use from viridis package to
 colour spots on tissue, default "inferno".}
 
-\item{crop}{Crop the plot in to focus on spots that passed QC. Set to FALSE to
+\item{crop}{(Spatial) Crop the plot in to focus on spots that passed QC. Set to FALSE to
 show entire background image.}
 
-\item{plot_spatial_markers}{Logical, whether to create spatial feature plots
+\item{plot_spatial_markers}{(Spatial) Logical, whether to create spatial feature plots
 with expression of individual genes.}
 
-\item{spatial_legend_position}{Position of legend for spatial plots,
+\item{spatial_legend_position}{(Spatial) Position of legend for spatial plots,
 default "top" (set to "none" for clean plot).}
 
 \item{...}{Additional named parameters passed to Seurat's AddModuleScore

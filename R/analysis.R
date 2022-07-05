@@ -159,6 +159,12 @@ harmony_analysis <- function(
   # Process merged data and run PCA
   seu <- lognormalize_and_pca(seu, npcs = npcs, n_hvgs = n_hvgs, ...)
 
+  png(paste0(plot_dir, "hvgs.png"), width = 10, height = 5,
+      res = fig.res, units = "in")
+  print(Seurat::LabelPoints(plot = Seurat::VariableFeaturePlot(seu),
+                            points = head(Seurat::VariableFeatures(seu), 10), repel = TRUE))
+  dev.off()
+
   # Run Harmony
   set.seed(seed) # Set seed due to Harmony being stochastic
   seu <- eval(rlang::expr(run_harmony(
@@ -166,14 +172,15 @@ harmony_analysis <- function(
                      max.iter.harmony = max.iter.harmony, !!!params)))
 
   # Plots
+  ndim <- ifelse(npcs > 9, 9, npcs)
   png(paste0(plot_dir, "pca_heatmap.png"), width = 15, height = 15,
       res = fig.res, units = "in")
-  Seurat::DimHeatmap(seu, dims = 1:9, nfeatures = 30, cells = 300,
+  Seurat::DimHeatmap(seu, dims = 1:ndim, nfeatures = 30, cells = 300,
                      reduction = "pca", balanced = TRUE)
   dev.off()
   png(paste0(plot_dir, "harmony_heatmap.png"), width = 15, height = 15,
       res = fig.res, units = "in")
-  Seurat::DimHeatmap(seu, dims = 1:9, nfeatures = 30, cells = 300,
+  Seurat::DimHeatmap(seu, dims = 1:ndim, nfeatures = 30, cells = 300,
                      reduction = "harmony", balanced = TRUE)
   dev.off()
   png(paste0(plot_dir, "pca_elbow.png"), width = 10, height = 6,
@@ -203,7 +210,7 @@ harmony_analysis <- function(
 #' @param col_pal Continuous colour palette to use, default "RdYlBu".
 #' @param dims_plot Dimensions to plot, must be a two-length numeric vector
 #' specifying x- and y-dimensions.
-#' @param alpha Controls opacity of spots. Provide as a vector specifying the
+#' @param alpha (Spatial) Controls opacity of spots. Provide as a vector specifying the
 #' min and max range of values (between 0 and 1).
 #' @param ... Additional named parameters passed to Seurat's AddModuleScore
 #' and FeaturePlot
@@ -368,19 +375,19 @@ module_score_analysis <- function(
 #' @param discrete_col_pal Discrete colour palette to use, default is Hue palette
 #' (hue_pal) from 'scales' package.
 #' @param fig.res Figure resolution in ppi (see 'png' function).
-#' @param heatmap_downsample_cols If numberic, it will downsamples the columns of
-#' the heatmap plot, so a big specific cluster doesn't dominate the heatmap.
-#' @param cont_alpha Controls opacity of spots. Provide as a vector specifying the
+#' @param heatmap_downsample_cols If numeric, it will downsample the columns of
+#' the heatmap plot, so a large specific cluster doesn't dominate the heatmap.
+#' @param cont_alpha (Spatial) Controls opacity of spots. Provide as a vector specifying the
 #' min and max range of values (between 0 and 1).
-#' @param discrete_alpha Controls opacity of spots. Provide a single alpha value.
-#' @param pt.size.factor Scale the size of the spots.
-#' @param spatial_col_pal Continuous colour palette to use from viridis package to
+#' @param discrete_alpha (Spatial) Controls opacity of spots. Provide a single alpha value.
+#' @param pt.size.factor (Spatial) Scale the size of the spots.
+#' @param spatial_col_pal (Spatial) Continuous colour palette to use from viridis package to
 #' colour spots on tissue, default "inferno".
-#' @param crop Crop the plot in to focus on spots that passed QC. Set to FALSE to
+#' @param crop (Spatial) Crop the plot in to focus on spots that passed QC. Set to FALSE to
 #' show entire background image.
-#' @param plot_spatial_markers Logical, whether to create spatial feature plots
+#' @param plot_spatial_markers (Spatial) Logical, whether to create spatial feature plots
 #' with expression of individual genes.
-#' @param spatial_legend_position Position of legend for spatial plots,
+#' @param spatial_legend_position (Spatial) Position of legend for spatial plots,
 #' default "top" (set to "none" for clean plot).
 #' @param ... Additional named parameters passed to Seurat
 #' analysis and plotting functions, such as FindClusters, FindAllMarkers,

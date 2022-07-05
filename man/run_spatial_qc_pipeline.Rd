@@ -58,10 +58,10 @@ specify quantile in the form of 'q##' where '##' is the quantile
 specify quantile in the form of 'q##' where '##' is the quantile
 (eg, 'q1', 'q10').}
 
-\item{spatial_col_pal}{Continuous colour palette to use from viridis package to
+\item{spatial_col_pal}{(Spatial) Continuous colour palette to use from viridis package to
 colour spots on tissue, default "inferno".}
 
-\item{crop}{Crop the plot in to focus on points plotted. Set to FALSE to
+\item{crop}{(Spatial) Crop the plot in to focus on points plotted. Set to FALSE to
 show entire background image.}
 
 \item{tenx_dir}{Name of 10x base directory, e.g. with outputs after running

@@ -18,7 +18,7 @@ dim_plot(
   label.size = 7,
   combine = TRUE,
   pt.shape = 21,
-  pt.stroke = 0.1,
+  pt.stroke = 0.05,
   pt.alpha = 1,
   ...
 )

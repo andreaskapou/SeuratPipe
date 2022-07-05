@@ -274,15 +274,15 @@ run_qc_pipeline <- function(
 #' @param cont_col_pal Continuous colour palette to use, default "RdYlBu".
 #' @param discrete_col_pal Discrete colour palette to use, default is Hue palette
 #' (hue_pal) from 'scales' package.
-#' @param cont_alpha Controls opacity of spots. Provide as a vector specifying the
+#' @param cont_alpha (Spatial) Controls opacity of spots. Provide as a vector specifying the
 #' min and max range of values (between 0 and 1).
-#' @param discrete_alpha Controls opacity of spots. Provide a single alpha value.
-#' @param pt.size.factor Scale the size of the spots.
-#' @param spatial_col_pal Continuous colour palette to use from viridis package to
+#' @param discrete_alpha (Spatial) Controls opacity of spots. Provide a single alpha value.
+#' @param pt.size.factor (Spatial) Scale the size of the spots.
+#' @param spatial_col_pal (Spatial) Continuous colour palette to use from viridis package to
 #' colour spots on tissue, default "inferno".
-#' @param crop Crop the plot in to focus on spots that passed QC plotted. Set to FALSE to
+#' @param crop (Spatial) Crop the plot in to focus on spots that passed QC plotted. Set to FALSE to
 #' show entire background image.
-#' @param plot_spatial_markers Logical, whether to create spatial feature plots
+#' @param plot_spatial_markers (Spatial) Logical, whether to create spatial feature plots
 #' with expression of individual genes.
 #' @param ... Additional named parameters passed to Seurat's or Harmony
 #' functions.
@@ -512,7 +512,7 @@ run_cluster_pipeline <- function(
     dev.off()
     png(paste0(qc_dir, "pca_elbow.png"), width = 12, height = 8,
         res = fig.res, units = "in")
-    print(Seurat::ElbowPlot(seu, ndims = npcs, reduction = "pca"))
+    print(Seurat::ElbowPlot(seu, ndims = npc, reduction = "pca"))
     dev.off()
 
     # Explore the data

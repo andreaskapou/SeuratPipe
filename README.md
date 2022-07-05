@@ -1,6 +1,6 @@
 # SeuratPipe
 
-he aim of the `SeuratPipe` package is to streamline and provide a __reproducible__ computational analysis pipeline for single cell genomics. It aims to remove technical details from the user, enabling wet lab researchers to have an ‘initial look’ at the data themselves.
+The aim of the `SeuratPipe` package is to streamline and provide a __reproducible__ computational analysis pipeline for single cell genomics. It aims to remove technical details from the user, enabling wet lab researchers to have an ‘initial look’ at the data themselves.
 
 The package is publicly available on Github [https://github.com/andreaskapou/SeuratPipe](https://github.com/andreaskapou/SeuratPipe).
 

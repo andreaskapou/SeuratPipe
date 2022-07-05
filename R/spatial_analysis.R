@@ -18,9 +18,9 @@
 #' @param min.cutoff Vector of minimum cutoff values for each feature, may
 #' specify quantile in the form of 'q##' where '##' is the quantile
 #' (eg, 'q1', 'q10').
-#' @param spatial_col_pal Continuous colour palette to use from viridis package to
+#' @param spatial_col_pal (Spatial) Continuous colour palette to use from viridis package to
 #' colour spots on tissue, default "inferno".
-#' @param crop Crop the plot in to focus on points plotted. Set to FALSE to
+#' @param crop (Spatial) Crop the plot in to focus on points plotted. Set to FALSE to
 #' show entire background image.
 #' @inheritParams run_qc_pipeline
 #'

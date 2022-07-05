@@ -118,26 +118,26 @@ for clean plot).}
 
 \item{fig.res}{Figure resolution in ppi (see 'png' function).}
 
-\item{heatmap_downsample_cols}{If numberic, it will downsamples the columns of
-the heatmap plot, so a big specific cluster doesn't dominate the heatmap.}
+\item{heatmap_downsample_cols}{If numeric, it will downsample the columns of
+the heatmap plot, so a large specific cluster doesn't dominate the heatmap.}
 
-\item{cont_alpha}{Controls opacity of spots. Provide as a vector specifying the
+\item{cont_alpha}{(Spatial) Controls opacity of spots. Provide as a vector specifying the
 min and max range of values (between 0 and 1).}
 
-\item{discrete_alpha}{Controls opacity of spots. Provide a single alpha value.}
+\item{discrete_alpha}{(Spatial) Controls opacity of spots. Provide a single alpha value.}
 
-\item{pt.size.factor}{Scale the size of the spots.}
+\item{pt.size.factor}{(Spatial) Scale the size of the spots.}
 
-\item{spatial_col_pal}{Continuous colour palette to use from viridis package to
+\item{spatial_col_pal}{(Spatial) Continuous colour palette to use from viridis package to
 colour spots on tissue, default "inferno".}
 
-\item{crop}{Crop the plot in to focus on spots that passed QC. Set to FALSE to
+\item{crop}{(Spatial) Crop the plot in to focus on spots that passed QC. Set to FALSE to
 show entire background image.}
 
-\item{plot_spatial_markers}{Logical, whether to create spatial feature plots
+\item{plot_spatial_markers}{(Spatial) Logical, whether to create spatial feature plots
 with expression of individual genes.}
 
-\item{spatial_legend_position}{Position of legend for spatial plots,
+\item{spatial_legend_position}{(Spatial) Position of legend for spatial plots,
 default "top" (set to "none" for clean plot).}
 
 \item{...}{Additional named parameters passed to Seurat
