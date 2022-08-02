@@ -353,6 +353,12 @@ subset_feature_plot <- function(
   params <- dot_params[which(names(dot_params) %in% methods::formalArgs(ggplot2::geom_point))]
   params <- params[which(!(names(params) %in% c("shape", "size", "stroke", "alpha") ) )]
 
+  params_gg_col <- dot_params[which(names(dot_params) %in% methods::formalArgs(ggplot2::scale_colour_distiller))]
+  params_gg_col <- params_gg_col[which(!(names(params_gg_col) %in% c("palette", "limits") ) )]
+
+  params_gg_fill <- dot_params[which(names(dot_params) %in% methods::formalArgs(ggplot2::scale_fill_distiller))]
+  params_gg_fill <- params_gg_fill[which(!(names(params_gg_fill) %in% c("palette", "limits") ) )]
+
   # Extract dimensionally reduced data from full object
   dim_dt <- as.data.frame(seu@reductions[[reduction]]@cell.embeddings)
   # Keep only specified dimensions and provide generic column names
@@ -424,6 +430,9 @@ subset_feature_plot <- function(
     gg_list[[s]] <- local({
       s <- s
       dim_subset <- as.data.frame(dim_dt_list[[s]])
+      # Order dataframe so higher expressed cells are plotted last
+      dim_subset <- dim_subset[order(dim_subset[, 3]), ]
+
       gg <- ggplot2::ggplot(dim_dt, ggplot2::aes(x = dim_dt[, 1], y = dim_dt[, 2])) +
         ggplot2::geom_point(size = back.pt.size, alpha = back.pt.alpha,
                             color = back.pt.color) +
@@ -433,8 +442,8 @@ subset_feature_plot <- function(
                                           fill = dim_subset[, 3]),
                             shape = pt.shape, size = pt.size, stroke = pt.stroke,
                             alpha = pt.alpha, !!!params))) +
-        ggplot2::scale_fill_distiller(palette = col_pal, limits = c(min.use, max.use)) +
-        ggplot2::scale_colour_distiller(palette = col_pal, limits = c(min.use, max.use)) +
+        eval(rlang::expr(ggplot2::scale_fill_distiller(palette = col_pal, limits = c(min.use, max.use), !!!params_gg_fill))) +
+        eval(rlang::expr(ggplot2::scale_colour_distiller(palette = col_pal, limits = c(min.use, max.use), !!!params_gg_col))) +
         ggplot2::scale_x_continuous(name = NULL, minor_breaks = NULL,
                                     limits = xlim) +
         ggplot2::scale_y_continuous(name = NULL, minor_breaks = NULL,
@@ -588,6 +597,12 @@ feature_plot_tailored <- function(seu, feature, max.cutoff = "q98", min.cutoff =
   params <- dot_params[which(names(dot_params) %in% methods::formalArgs(ggplot2::geom_point))]
   params <- params[which(!(names(params) %in% c("shape", "size", "stroke", "alpha") ) )]
 
+  params_gg_col <- dot_params[which(names(dot_params) %in% methods::formalArgs(ggplot2::scale_colour_distiller))]
+  params_gg_col <- params_gg_col[which(!(names(params_gg_col) %in% c("palette", "limits") ) )]
+
+  params_gg_fill <- dot_params[which(names(dot_params) %in% methods::formalArgs(ggplot2::scale_fill_distiller))]
+  params_gg_fill <- params_gg_fill[which(!(names(params_gg_fill) %in% c("palette", "limits") ) )]
+
   # Extract dimensionally reduced data from full object
   dim_dt <- as.data.frame(seu@reductions[[reduction]]@cell.embeddings)
   # Keep only specified dimensions and provide generic column names
@@ -629,6 +644,8 @@ feature_plot_tailored <- function(seu, feature, max.cutoff = "q98", min.cutoff =
   data.feature[data.feature < min.use] <- min.use
   data.feature[data.feature > max.use] <- max.use
   dim_dt[, 3] <- data.feature
+  # Order dataframe so higher expressed cells are plotted last
+  dim_dt <- dim_dt[order(dim_dt[, 3]), ]
 
   if (is.null(col_pal)) { col_pal = "RdYlBu" }
 
@@ -643,12 +660,10 @@ feature_plot_tailored <- function(seu, feature, max.cutoff = "q98", min.cutoff =
                                              fill = dim_dt[, 3])) +
     eval(rlang::expr(ggplot2::geom_point(shape = pt.shape, size = pt.size, stroke = pt.stroke,
                         alpha = pt.alpha, !!!params))) +
-    ggplot2::scale_fill_distiller(palette = col_pal, limits = c(min.use, max.use)) +
-    ggplot2::scale_colour_distiller(palette = col_pal, limits = c(min.use, max.use)) +
-    ggplot2::scale_x_continuous(name = NULL, minor_breaks = NULL,
-                                limits = xlim) +
-    ggplot2::scale_y_continuous(name = NULL, minor_breaks = NULL,
-                                limits = ylim) +
+    eval(rlang::expr(ggplot2::scale_fill_distiller(palette = col_pal, limits = c(min.use, max.use), !!!params_gg_fill))) +
+    eval(rlang::expr(ggplot2::scale_colour_distiller(palette = col_pal, limits = c(min.use, max.use), !!!params_gg_col))) +
+    ggplot2::scale_x_continuous(name = NULL, minor_breaks = NULL, limits = xlim) +
+    ggplot2::scale_y_continuous(name = NULL, minor_breaks = NULL, limits = ylim) +
     ggplot2::labs(fill = feature, title = NULL) +
     ggplot2::theme_classic() +
     ggplot2::theme(legend.position = legend.position,
