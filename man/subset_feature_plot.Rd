@@ -23,6 +23,7 @@ subset_feature_plot(
   back.pt.alpha = 0.1,
   back.pt.color = "grey",
   combine = TRUE,
+  order_points_by_value = TRUE,
   ...
 )
 }
@@ -67,6 +68,10 @@ for clean plot).}
 
 \item{combine}{Combine plots into a single patchworked ggplot object.
 If FALSE, return a list of ggplot objects}
+
+\item{order_points_by_value}{Logical, should points be ordered by their value
+(e.g. expression levels), which corresponds to plotting on top cells that
+have high expression, instead of getting 'buried' by lowly expressed cells.}
 
 \item{...}{Additional parameters passed to ggplot2::geom_point.}
 }

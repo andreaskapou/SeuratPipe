@@ -336,6 +336,9 @@ subset_dim_plot <- function(
 #' @param back.pt.color Colour for background points.
 #' @param combine Combine plots into a single patchworked ggplot object.
 #'    If FALSE, return a list of ggplot objects
+#' @param order_points_by_value Logical, should points be ordered by their value
+#' (e.g. expression levels), which corresponds to plotting on top cells that
+#' have high expression, instead of getting 'buried' by lowly expressed cells.
 #' @param ... Additional parameters passed to ggplot2::geom_point.
 #'
 #' @return A ggplot2 object.
@@ -347,7 +350,7 @@ subset_feature_plot <- function(
     seu, subset.by, feature, max.cutoff = "q98", min.cutoff = NA,
     reduction = "umap", slot = "data", ncol = NULL, col_pal = NULL,
     legend.position = "right", pt.size = 2, pt.stroke = 0.05, pt.shape = 21, pt.alpha = 1,
-    back.pt.size = 0.5, back.pt.alpha = 0.1, back.pt.color = "grey", combine = TRUE, ...) {
+    back.pt.size = 0.5, back.pt.alpha = 0.1, back.pt.color = "grey", combine = TRUE, order_points_by_value = TRUE, ...) {
 
   dot_params <- rlang::list2(...)
   params <- dot_params[which(names(dot_params) %in% methods::formalArgs(ggplot2::geom_point))]
@@ -430,8 +433,10 @@ subset_feature_plot <- function(
     gg_list[[s]] <- local({
       s <- s
       dim_subset <- as.data.frame(dim_dt_list[[s]])
-      # Order dataframe so higher expressed cells are plotted last
-      dim_subset <- dim_subset[order(dim_subset[, 3]), ]
+      if (order_points_by_value) {
+        # Order dataframe so higher expressed cells are plotted last
+        dim_subset <- dim_subset[order(dim_subset[, 3]), ]
+      }
 
       gg <- ggplot2::ggplot(dim_dt, ggplot2::aes(x = dim_dt[, 1], y = dim_dt[, 2])) +
         ggplot2::geom_point(size = back.pt.size, alpha = back.pt.alpha,
@@ -582,6 +587,9 @@ dim_plot_tailored <- function(
 #' @param pt.alpha Adjust alpha value for each point.
 #' @param legend.position Position of legend, default "right" (set to "none"
 #' for clean plot).
+#' @param order_points_by_value Logical, should points be ordered by their value
+#' (e.g. expression levels), which corresponds to plotting on top cells that
+#' have high expression, instead of getting 'buried' by lowly expressed cells.
 #' @param ... Additional parameters passed to ggplot2::geom_point.
 #'
 #' @return A ggplot2 object.
@@ -591,7 +599,7 @@ dim_plot_tailored <- function(
 #' @export
 feature_plot_tailored <- function(seu, feature, max.cutoff = "q98", min.cutoff = NA,
     reduction = "umap", slot = "data", col_pal = NULL, legend.position = "right",
-    pt.size = 2, pt.shape = 21, pt.stroke = 0.05, pt.alpha = 1, ...) {
+    pt.size = 2, pt.shape = 21, pt.stroke = 0.05, pt.alpha = 1, order_points_by_value = TRUE, ...) {
 
   dot_params <- rlang::list2(...)
   params <- dot_params[which(names(dot_params) %in% methods::formalArgs(ggplot2::geom_point))]
@@ -644,8 +652,11 @@ feature_plot_tailored <- function(seu, feature, max.cutoff = "q98", min.cutoff =
   data.feature[data.feature < min.use] <- min.use
   data.feature[data.feature > max.use] <- max.use
   dim_dt[, 3] <- data.feature
-  # Order dataframe so higher expressed cells are plotted last
-  dim_dt <- dim_dt[order(dim_dt[, 3]), ]
+
+  if (order_points_by_value) {
+    # Order dataframe so higher expressed cells are plotted last
+    dim_dt <- dim_dt[order(dim_dt[, 3]), ]
+  }
 
   if (is.null(col_pal)) { col_pal = "RdYlBu" }
 

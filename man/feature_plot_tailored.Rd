@@ -17,6 +17,7 @@ feature_plot_tailored(
   pt.shape = 21,
   pt.stroke = 0.05,
   pt.alpha = 1,
+  order_points_by_value = TRUE,
   ...
 )
 }
@@ -47,6 +48,10 @@ for clean plot).}
 \item{pt.stroke}{Stroke value for each point.}
 
 \item{pt.alpha}{Adjust alpha value for each point.}
+
+\item{order_points_by_value}{Logical, should points be ordered by their value
+(e.g. expression levels), which corresponds to plotting on top cells that
+have high expression, instead of getting 'buried' by lowly expressed cells.}
 
 \item{...}{Additional parameters passed to ggplot2::geom_point.}
 }
