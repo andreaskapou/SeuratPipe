@@ -67,6 +67,7 @@ looking plot.</p>
 <span>  pt.shape <span class="op">=</span> <span class="fl">21</span>,</span>
 <span>  pt.stroke <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  pt.alpha <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  order_points_by_value <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -122,6 +123,12 @@ for clean plot).</p></dd>
 
 <dt>pt.alpha</dt>
 <dd><p>Adjust alpha value for each point.</p></dd>
+
+
+<dt>order_points_by_value</dt>
+<dd><p>Logical, should points be ordered by their value
+(e.g. expression levels), which corresponds to plotting on top cells that
+have high expression, instead of getting 'buried' by lowly expressed cells.</p></dd>
 
 
 <dt>...</dt>
