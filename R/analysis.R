@@ -528,7 +528,8 @@ cluster_analysis <- function(
               width = plot_dim$width, height = plot_dim$height, res = 100,
               units = "in")
           plot(Seurat::VlnPlot(seu, features = genes, ncol = plot_dim$ncols,
-                               pt.size = 0.03))
+                               pt.size = 0) &
+                 ggplot2::geom_jitter(height = 0, size = 0.1, show.legend = FALSE, alpha = 0.1))
           dev.off()
 
           # If assay is "Spatial" plot expression on tissue as well

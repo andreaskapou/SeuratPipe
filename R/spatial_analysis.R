@@ -76,7 +76,8 @@ run_spatial_qc_pipeline <- function(
         useDingbats = FALSE)
     for (s in names(seu)) {
       print(Seurat::VlnPlot(seu[[s]], features = qc_to_plot,
-                            ncol = plot_dim$ncols, pt.size = 0.05))
+                            ncol = plot_dim$ncols, pt.size = 0) &
+              ggplot2::geom_jitter(height = 0, size = 0.1, show.legend = FALSE, alpha = 0.1))
     }
     dev.off()
 
@@ -148,7 +149,8 @@ run_spatial_qc_pipeline <- function(
           useDingbats = FALSE)
       for (s in names(seu)) {
         print(Seurat::VlnPlot(seu[[s]], features = qc_to_plot,
-                              ncol = spat_plot_dim$ncols, pt.size = 0.05))
+                              ncol = spat_plot_dim$ncols, pt.size = 0) &
+                ggplot2::geom_jitter(height = 0, size = 0.1, show.legend = FALSE, alpha = 0.1))
       }
       dev.off()
 

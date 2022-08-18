@@ -59,6 +59,10 @@ dim_plot <- function(
   xlim <- c(min(dim_dt[,1]) - 0.5, max(dim_dt[,1]) + 0.5)
   ylim <- c(min(dim_dt[,2]) - 0.5, max(dim_dt[,2]) + 0.5)
 
+  if (is.null(seu@meta.data[[group.by]])) {
+    stop("Error: 'group.by' entry not present in metadata")
+  }
+
   if (!(is.character(seu@meta.data[[group.by]]) ||
         is.factor(seu@meta.data[[group.by]]) ||
         is.logical(seu@meta.data[[group.by]]) ) ) {
@@ -66,6 +70,9 @@ dim_plot <- function(
   }
   if (!is.null(split.by)) {
     label <- FALSE
+    if (is.null(seu@meta.data[[split.by]])) {
+      stop("Error: 'group.by' entry not present in metadata")
+    }
     if (!(is.character(seu@meta.data[[split.by]]) ||
           is.factor(seu@meta.data[[split.by]]) ||
           is.logical(seu@meta.data[[split.by]]) ) ) {
@@ -103,10 +110,8 @@ dim_plot <- function(
             fill = ggplot2::guide_legend(override.aes = list(size = 2))) &
     ggplot2::scale_fill_manual(name = NULL, values = col_pal) &
     ggplot2::scale_colour_manual(name = NULL, values = col_pal) &
-    ggplot2::scale_x_continuous(name = NULL, minor_breaks = NULL,
-                                limits = xlim) &
-    ggplot2::scale_y_continuous(name = NULL, minor_breaks = NULL,
-                                limits = ylim)
+    ggplot2::xlim(xlim[1], xlim[2]) &
+    ggplot2::ylim(ylim[1], ylim[2])
 
   if (label) {
     # Compute cluster centres
@@ -182,20 +187,22 @@ feature_plot <- function(
 
   key_height = 0.6
   key_width = 0.2
+  legend_text <- 6
   if (legend.position == "top") {
     key_height = 0.2
     key_width = 0.7
+    legend_text <- 5
   }
 
   t <- eval(rlang::expr(Seurat::FeaturePlot(
-    object = seu, features = features, reduction = reduction, max.cutoff = max.cutoff,
+    object = seu, features = features, reduction = reduction, dims = dims_plot, max.cutoff = max.cutoff,
     min.cutoff = min.cutoff, ncol = ncol, combine = combine, pt.size = NULL, !!!params)))
   t <- t &
     ggplot2::theme(legend.position = legend.position,
           legend.key.size = ggplot2::unit(0.7,"line"),
           legend.key.height = ggplot2::unit(key_height, 'cm'),
           legend.key.width = ggplot2::unit(key_width, "cm"),
-          legend.text = ggplot2::element_text(size = 5),
+          legend.text = ggplot2::element_text(size = legend_text),
           axis.line = ggplot2::element_line(colour = "black", size = 1.25,
                                             linetype = "solid"),
           axis.text.x = ggplot2::element_blank(),
@@ -207,10 +214,8 @@ feature_plot <- function(
     #           size = pt.size, stroke = 0) &
     ggplot2::scale_colour_distiller(palette = col_pal) &
     ggplot2::scale_fill_distiller(palette = col_pal) &
-    ggplot2::scale_x_continuous(name = NULL, minor_breaks = NULL,
-                                limits = xlim) &
-    ggplot2::scale_y_continuous(name = NULL, minor_breaks = NULL,
-                                limits = ylim)
+    ggplot2::xlim(xlim[1], xlim[2]) &
+    ggplot2::ylim(ylim[1], ylim[2])
   return(t)
 }
 
@@ -289,10 +294,8 @@ subset_dim_plot <- function(
                             alpha = pt.alpha, !!!params))) +
         ggplot2::scale_fill_manual(name = NULL, values = col_pal) +
         ggplot2::scale_colour_manual(name = NULL, values = col_pal) +
-        ggplot2::scale_x_continuous(name = NULL, minor_breaks = NULL,
-                                    limits = xlim) +
-        ggplot2::scale_y_continuous(name = NULL, minor_breaks = NULL,
-                                    limits = ylim) +
+        ggplot2::xlim(xlim[1], xlim[2]) +
+        ggplot2::ylim(ylim[1], ylim[2]) +
         ggplot2::labs(title = s) +
         ggplot2::theme_classic() +
         ggplot2::theme(legend.position = "none",
@@ -423,9 +426,11 @@ subset_feature_plot <- function(
 
   key_height = 0.6
   key_width = 0.2
+  legend_text <- 6
   if (legend.position == "top") {
     key_height = 0.2
     key_width = 0.7
+    legend_text <- 5
   }
 
   gg_list <- list()
@@ -449,17 +454,15 @@ subset_feature_plot <- function(
                             alpha = pt.alpha, !!!params))) +
         eval(rlang::expr(ggplot2::scale_fill_distiller(palette = col_pal, limits = c(min.use, max.use), !!!params_gg_fill))) +
         eval(rlang::expr(ggplot2::scale_colour_distiller(palette = col_pal, limits = c(min.use, max.use), !!!params_gg_col))) +
-        ggplot2::scale_x_continuous(name = NULL, minor_breaks = NULL,
-                                    limits = xlim) +
-        ggplot2::scale_y_continuous(name = NULL, minor_breaks = NULL,
-                                    limits = ylim) +
+        ggplot2::xlim(xlim[1], xlim[2]) +
+        ggplot2::ylim(ylim[1], ylim[2]) +
         ggplot2::labs(fill = feature, title = s) +
         ggplot2::theme_classic() +
         ggplot2::theme(legend.position = legend.position,
                        legend.key.size = ggplot2::unit(0.7, "line"),
                        legend.key.height = ggplot2::unit(key_height, "cm"),
                        legend.key.width = ggplot2::unit(key_width, "cm"),
-                       legend.text = ggplot2::element_text(size = 3),
+                       legend.text = ggplot2::element_text(size = legend_text),
                        plot.title = ggplot2::element_text(face = "bold", hjust = 0.5))
       return(gg)
     })
@@ -518,6 +521,10 @@ dim_plot_tailored <- function(
   dim_dt[, 3] <- Seurat::FetchData(object = seu, vars = group.by)
   colnames(dim_dt) <- c("D1", "D2", "groupby")
 
+  if (is.null(seu@meta.data[[group.by]])) {
+    stop("Error: 'group.by' entry not present in metadata")
+  }
+
   if (!(is.character(seu@meta.data[[group.by]]) ||
         is.factor(seu@meta.data[[group.by]]) ||
         is.logical(seu@meta.data[[group.by]]) ) ) {
@@ -537,10 +544,8 @@ dim_plot_tailored <- function(
                         alpha = pt.alpha, ggplot2::aes(fill = groupby), !!!params))) +
     ggplot2::scale_fill_manual(name = NULL, values = col_pal) +
     ggplot2::scale_colour_manual(name = NULL, values = col_pal) +
-    ggplot2::scale_x_continuous(name = NULL, minor_breaks = NULL,
-                                limits = xlim) +
-    ggplot2::scale_y_continuous(name = NULL, minor_breaks = NULL,
-                                limits = ylim) +
+    ggplot2::xlim(xlim[1], xlim[2]) +
+    ggplot2::ylim(ylim[1], ylim[2]) +
     ggplot2::theme_classic() +
     ggplot2::theme(legend.position = legend.position,
                    legend.key.size = ggplot2::unit(1.3,"line"),
@@ -662,9 +667,11 @@ feature_plot_tailored <- function(seu, feature, max.cutoff = "q98", min.cutoff =
 
   key_height = 0.6
   key_width = 0.2
+  legend_text <- 6
   if (legend.position == "top") {
     key_height = 0.2
     key_width = 0.7
+    legend_text <- 5
   }
 
   gg <- ggplot2::ggplot(dim_dt, ggplot2::aes(x = dim_dt[, 1], y = dim_dt[, 2],
@@ -673,15 +680,15 @@ feature_plot_tailored <- function(seu, feature, max.cutoff = "q98", min.cutoff =
                         alpha = pt.alpha, !!!params))) +
     eval(rlang::expr(ggplot2::scale_fill_distiller(palette = col_pal, limits = c(min.use, max.use), !!!params_gg_fill))) +
     eval(rlang::expr(ggplot2::scale_colour_distiller(palette = col_pal, limits = c(min.use, max.use), !!!params_gg_col))) +
-    ggplot2::scale_x_continuous(name = NULL, minor_breaks = NULL, limits = xlim) +
-    ggplot2::scale_y_continuous(name = NULL, minor_breaks = NULL, limits = ylim) +
+    ggplot2::xlim(xlim[1], xlim[2]) +
+    ggplot2::ylim(ylim[1], ylim[2]) +
     ggplot2::labs(fill = feature, title = NULL) +
     ggplot2::theme_classic() +
     ggplot2::theme(legend.position = legend.position,
                    legend.key.size = ggplot2::unit(0.7, "line"),
                    legend.key.height = ggplot2::unit(key_height, "cm"),
                    legend.key.width = ggplot2::unit(key_width, "cm"),
-                   legend.text = ggplot2::element_text(size = 3),
+                   legend.text = ggplot2::element_text(size = legend_text),
                    plot.title = ggplot2::element_text(face = "bold", hjust = 0.5))
   return(gg)
 }
@@ -728,10 +735,14 @@ spatial_dim_plot <- function(
 
   assertthat::assert_that(!is.null(group.by))
 
+  if (is.null(seu@meta.data[[group.by]])) {
+    stop("Error: 'group.by' entry not present in metadata")
+  }
+
   if (!(is.character(seu@meta.data[[group.by]]) ||
         is.factor(seu@meta.data[[group.by]]) ||
         is.logical(seu@meta.data[[group.by]]) ) ) {
-    stop("Error: 'group.by' should not be continuous in metadata slot")
+    stop("Error: 'group.by' should not be continuous in metadata")
   }
 
   group <- as.factor(seu@meta.data[[group.by]])
@@ -807,9 +818,11 @@ spatial_feature_plot <- function(
 
   key_height = 0.6
   key_width = 0.2
+  legend_text <- 6
   if (legend.position == "top") {
     key_height = 0.2
     key_width = 0.8
+    legend_text <- 5
   }
 
   t <- eval(rlang::expr(Seurat::SpatialFeaturePlot(
@@ -820,7 +833,7 @@ spatial_feature_plot <- function(
                    legend.key.size = ggplot2::unit(0.7,"line"),
                    legend.key.height = ggplot2::unit(key_height, 'cm'),
                    legend.key.width = ggplot2::unit(key_width, "cm"),
-                   legend.text = ggplot2::element_text(size = 5)) &
+                   legend.text = ggplot2::element_text(size = legend_text)) &
     viridis::scale_fill_viridis(option = col_pal) &
     ggplot2::ggtitle(label = title)
   return(t)
@@ -907,6 +920,39 @@ pca_feature_cor_plot <- function(seu, features) {
   }
 }
 
+# contribution_barplot <- function(seu, feature_x, feature_y, is_stacked_barplot = FALSE, col_pal = NULL) {
+#   if (length(unique(seu[[feature_y]][, 1])) > 1) {
+#     if (is.null(col_pal)) {
+#       if (nlevels(seu[[feature_y]][, 1]) > 35) {
+#         col_pal <- scales::hue_pal()(nlevels(seu[[feature_y]][, 1]))
+#       } else {
+#         col_pal <- .internal_col_pal()[1:nlevels(seu[[feature_y]][, 1])]
+#       }
+#       names(col_pal) <- levels(seu[[feature_y]][, 1])
+#     }
+#
+#     if (is_stacked_barplot)
+#
+#     cl_condition <- seu@meta.data |> dplyr::group_by(seurat_clusters, sample) |>
+#       dplyr::summarise(n = dplyr::n()) |> dplyr::mutate(freq = n / sum(n))
+#
+#     png(paste0(plot_dir, "hist_sample_contr_per_cluster_res", r, ".png"),
+#         width = 7 + 0.3*nlevels(seu@meta.data[["seurat_clusters"]]),
+#         height = 5, res = 150, units = "in")
+#     plot(ggplot2::ggplot(data = cl_condition,
+#                          ggplot2::aes(x = seurat_clusters, y = freq, fill = sample)) +
+#            ggplot2::geom_bar(stat = "identity", color="black") +
+#            ggplot2::theme_classic() +
+#            ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, vjust = 1, hjust = 1),
+#                           plot.title = ggplot2::element_text(hjust = 0.5, face = "bold", size = 12)) +
+#            ggplot2::xlab(NULL) + ggplot2::ylab("Cluster contribution") + ggplot2::ggtitle(NULL) +
+#            ggplot2::scale_fill_manual(values = col_pal))
+#     dev.off()
+#   } else {
+#     return(ggplot2::ggplot())
+#   }
+# }
+
 
 #' @title Tailored dot plot
 #'
@@ -932,12 +978,10 @@ dot_plot <-  function(seu, features, group.by = NULL, labels = NULL,
                       legend.position = "right", col_pal = NULL, ...) {
   dot_params <- rlang::list2(...)
   params_seu <- dot_params[which(names(dot_params) %in% methods::formalArgs(Seurat::DotPlot))]
-  params_gg <- dot_params[which(names(dot_params) %in% methods::formalArgs(ggplot2::scale_colour_distiller))]
-  if (!("limits" %in% names(params_gg))) {
-    limits <- c(-2.5, 2.5)
-  }
+  params_gg <- dot_params[which(names(dot_params) %in% c(methods::formalArgs(ggplot2::scale_colour_distiller),
+                                                         "limits"))]
   params_seu <- params_seu[which(!(names(params_seu) %in% c("features", "group.by") ) )]
-  params_gg <- params_gg[which(!(names(params_gg) %in% c("name", "type", "palette", "limits") ) )]
+  params_gg <- params_gg[which(!(names(params_gg) %in% c("name", "type", "palette") ) )]
 
   # Keep only features that are present in the metadata
   idx <- features %in% colnames(seu@meta.data)
@@ -956,7 +1000,7 @@ dot_plot <-  function(seu, features, group.by = NULL, labels = NULL,
   p <- eval(rlang::expr(Seurat::DotPlot(seu, features = features, group.by = group.by, !!!params_seu))) +
     ggplot2::coord_flip() +
     eval(rlang::expr(ggplot2::scale_colour_distiller(name = NULL, type = "div",
-                                    palette = col_pal, limits = limits, !!!params_gg))) +
+                                    palette = col_pal, !!!params_gg))) +
     ggplot2::scale_y_discrete(name = ylab) +
     ggplot2::scale_x_discrete(name = xlab, labels = labels) +
     ggplot2::theme(legend.position = legend.position)
