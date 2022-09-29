@@ -264,13 +264,14 @@ module_score_analysis <- function(
         if (assay == "Spatial") {
           if (plot_spatial_markers) {
             spat_plot_dim <- .spatial_plot_dims(feat_len = length(features),
-                                                sample_len = length(seu@images))
+                                                sample_len = length(seu@images),
+                                                technology = class(seu@images[[1]])[1])
             pdf(paste0(plot_dir, "01_markers_spatial_", m, ".pdf"), width = spat_plot_dim$width,
                 height = spat_plot_dim$height, useDingbats = FALSE)
             print(spatial_feature_plot(
               seu, features = features, alpha = alpha, pt.size.factor = pt.size.factor,
               ncol = spat_plot_dim$ncols, max.cutoff = max.cutoff, min.cutoff = min.cutoff,
-              crop = TRUE, col_pal = spatial_col_pal, legend.position = spatial_legend_position, ...))
+              crop = crop, col_pal = spatial_col_pal, legend.position = spatial_legend_position, ...))
             dev.off()
           }
         }
@@ -292,7 +293,8 @@ module_score_analysis <- function(
       # If assay is "Spatial" plot expression on tissue as well
       if (assay == "Spatial") {
         spat_plot_dim <- .spatial_plot_dims(feat_len = length(modules),
-                                            sample_len = length(seu@images))
+                                            sample_len = length(seu@images),
+                                            technology = class(seu@images[[1]])[1])
         pdf(paste0(plot_dir, "02_score_spatial_", mg, ".pdf"), width = spat_plot_dim$width,
             height = spat_plot_dim$height, useDingbats = FALSE)
         print(spatial_feature_plot(
@@ -443,7 +445,8 @@ cluster_analysis <- function(
 
       # If assay is "Spatial" plot expression on tissue as well
       if (assay == "Spatial") {
-        spat_plot_dim <- .spatial_plot_dims(feat_len = 1, sample_len = length(seu@images))
+        spat_plot_dim <- .spatial_plot_dims(feat_len = 1, sample_len = length(seu@images),
+                                            technology = class(seu@images[[1]])[1])
         pdf(paste0(plot_dir, "z_cluster_res", r, ".pdf"), width = spat_plot_dim$width,
             height = spat_plot_dim$height, useDingbats = FALSE)
         print(spatial_dim_plot(
@@ -536,7 +539,8 @@ cluster_analysis <- function(
           if (assay == "Spatial") {
             if (plot_spatial_markers) {
               spat_plot_dim <- .spatial_plot_dims(feat_len = length(genes),
-                                                  sample_len = length(seu@images))
+                                                  sample_len = length(seu@images),
+                                                  technology = class(seu@images[[1]])[1])
               pdf(paste0(plot_dir, "01_feature_spatial_seu_res", r, "_cl", cl, ".pdf"),
                   width = spat_plot_dim$width, height = spat_plot_dim$height, useDingbats = FALSE)
               plot(spatial_feature_plot(
@@ -568,7 +572,8 @@ cluster_analysis <- function(
         # If assay is "Spatial" plot expression on tissue as well
         if (assay == "Spatial") {
           spat_plot_dim <- .spatial_plot_dims(feat_len = length(unique(top_mark$cluster)),
-                                              sample_len = length(seu@images))
+                                              sample_len = length(seu@images),
+                                              technology = class(seu@images[[1]])[1])
           pdf(paste0(plot_dir, "03_score_spatial_seu_res", r, ".pdf"),
               width = spat_plot_dim$width, height = spat_plot_dim$height, useDingbats = FALSE)
           plot(spatial_feature_plot(

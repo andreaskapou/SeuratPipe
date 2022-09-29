@@ -584,6 +584,9 @@ add_umap_embedding <- function(seu, embedding) {
   if (is.character(embedding)) {
     embedding <- read.csv(file = embedding) |>
       tibble::column_to_rownames(var = "X") |> as.matrix()
+  } else {
+    # Ensure the embedding is a matrix
+    embedding <- embedding |> as.matrix()
   }
   if (NROW(embedding) != NCOL(seu)) {
     stop("Embedding matrix not equal to number of cells in Seurat object.")
