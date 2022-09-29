@@ -738,7 +738,7 @@ install_scrublet <- function(envname = "r-reticulate", method = "auto",
 
 
 # General function for obtaining consistent spatial plotting dimensions
-.spatial_plot_dims <- function(feat_len, sample_len = 1) {
+.spatial_plot_dims <- function(feat_len, sample_len = 1, technology = "VisiumV1") {
   if (!is.numeric(feat_len)) {
     message("Invalid argument:  Setting 'feat_len' for plotting to 2")
     feat_len <- 2
@@ -760,9 +760,19 @@ install_scrublet <- function(envname = "r-reticulate", method = "auto",
       ncols <- 4
     }
   } else {
-    width <- 6 * sample_len
-    height <- 7 * feat_len
-    ncols <- 1
+    if (technology == "Visium") {
+      width <- 6 * sample_len
+      height <- 7 * feat_len
+      ncols <- 1
+    } else if (technology == "SlideSeq") {
+      width <- 6 * sample_len
+      height <- 7 * feat_len
+      ncols <- sample_len
+    } else {
+      width <- 6 * sample_len
+      height <- 7 * feat_len
+      ncols <- 1
+    }
   }
   return(list(width = width, height = height, ncols = ncols))
 }
