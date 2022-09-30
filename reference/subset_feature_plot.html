@@ -58,9 +58,9 @@ dataset is also shown in the background as smaller points.</p>
 <span>  <span class="va">seu</span>,</span>
 <span>  <span class="va">subset.by</span>,</span>
 <span>  <span class="va">feature</span>,</span>
+<span>  reduction <span class="op">=</span> <span class="st">"umap"</span>,</span>
 <span>  max.cutoff <span class="op">=</span> <span class="st">"q98"</span>,</span>
 <span>  min.cutoff <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>  reduction <span class="op">=</span> <span class="st">"umap"</span>,</span>
 <span>  slot <span class="op">=</span> <span class="st">"data"</span>,</span>
 <span>  ncol <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  col_pal <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -73,6 +73,7 @@ dataset is also shown in the background as smaller points.</p>
 <span>  back.pt.alpha <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  back.pt.color <span class="op">=</span> <span class="st">"grey"</span>,</span>
 <span>  combine <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  dims_plot <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>,</span>
 <span>  order_points_by_value <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -93,6 +94,10 @@ feature plots.</p></dd>
 <dd><p>Feature to plot.</p></dd>
 
 
+<dt>reduction</dt>
+<dd><p>Dimensionality reduction to use.</p></dd>
+
+
 <dt>max.cutoff</dt>
 <dd><p>Maximum cutoff value for feature, may specify quantile
 in the form of 'q##' where '##' is the quantile (eg, 'q1', 'q10').</p></dd>
@@ -101,10 +106,6 @@ in the form of 'q##' where '##' is the quantile (eg, 'q1', 'q10').</p></dd>
 <dt>min.cutoff</dt>
 <dd><p>Minimum cutoff value for feature, may specify quantile
 in the form of 'q##' where '##' is the quantile (eg, 'q1', 'q10').</p></dd>
-
-
-<dt>reduction</dt>
-<dd><p>Dimensionality reduction to use.</p></dd>
 
 
 <dt>slot</dt>
@@ -155,6 +156,11 @@ for clean plot).</p></dd>
 <dt>combine</dt>
 <dd><p>Combine plots into a single patchworked ggplot object.
 If FALSE, return a list of ggplot objects</p></dd>
+
+
+<dt>dims_plot</dt>
+<dd><p>Dimensions to plot, must be a two-length numeric vector
+specifying x- and y-dimensions.</p></dd>
 
 
 <dt>order_points_by_value</dt>
