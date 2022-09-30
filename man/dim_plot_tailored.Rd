@@ -16,6 +16,7 @@ dim_plot_tailored(
   pt.shape = 21,
   pt.stroke = 0.05,
   pt.alpha = 1,
+  dims_plot = c(1, 2),
   ...
 )
 }
@@ -42,6 +43,9 @@ for clean plot).}
 \item{pt.stroke}{Stroke value for each point.}
 
 \item{pt.alpha}{Adjust alpha value for each point.}
+
+\item{dims_plot}{Dimensions to plot, must be a two-length numeric vector
+specifying x- and y-dimensions.}
 
 \item{...}{Additional parameters passed to ggplot2::geom_point.}
 }

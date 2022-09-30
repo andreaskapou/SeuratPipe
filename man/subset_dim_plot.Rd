@@ -18,6 +18,7 @@ subset_dim_plot(
   back.pt.alpha = 0.1,
   back.pt.color = "grey",
   combine = TRUE,
+  dims_plot = c(1, 2),
   ...
 )
 }
@@ -49,6 +50,9 @@ dim plots.}
 
 \item{combine}{Combine plots into a single patchworked ggplot object.
 If FALSE, return a list of ggplot objects}
+
+\item{dims_plot}{Dimensions to plot, must be a two-length numeric vector
+specifying x- and y-dimensions.}
 
 \item{...}{Additional parameters passed to ggplot2::geom_point.}
 }

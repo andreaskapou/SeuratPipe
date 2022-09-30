@@ -17,6 +17,7 @@ feature_plot_tailored(
   pt.shape = 21,
   pt.stroke = 0.05,
   pt.alpha = 1,
+  dims_plot = c(1, 2),
   order_points_by_value = TRUE,
   ...
 )
@@ -48,6 +49,9 @@ for clean plot).}
 \item{pt.stroke}{Stroke value for each point.}
 
 \item{pt.alpha}{Adjust alpha value for each point.}
+
+\item{dims_plot}{Dimensions to plot, must be a two-length numeric vector
+specifying x- and y-dimensions.}
 
 \item{order_points_by_value}{Logical, should points be ordered by their value
 (e.g. expression levels), which corresponds to plotting on top cells that

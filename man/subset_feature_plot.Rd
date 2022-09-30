@@ -8,9 +8,9 @@ subset_feature_plot(
   seu,
   subset.by,
   feature,
+  reduction = "umap",
   max.cutoff = "q98",
   min.cutoff = NA,
-  reduction = "umap",
   slot = "data",
   ncol = NULL,
   col_pal = NULL,
@@ -23,6 +23,7 @@ subset_feature_plot(
   back.pt.alpha = 0.1,
   back.pt.color = "grey",
   combine = TRUE,
+  dims_plot = c(1, 2),
   order_points_by_value = TRUE,
   ...
 )
@@ -35,13 +36,13 @@ feature plots.}
 
 \item{feature}{Feature to plot.}
 
+\item{reduction}{Dimensionality reduction to use.}
+
 \item{max.cutoff}{Maximum cutoff value for feature, may specify quantile
 in the form of 'q##' where '##' is the quantile (eg, 'q1', 'q10').}
 
 \item{min.cutoff}{Minimum cutoff value for feature, may specify quantile
 in the form of 'q##' where '##' is the quantile (eg, 'q1', 'q10').}
-
-\item{reduction}{Dimensionality reduction to use.}
 
 \item{slot}{Slot to extract data from.}
 
@@ -68,6 +69,9 @@ for clean plot).}
 
 \item{combine}{Combine plots into a single patchworked ggplot object.
 If FALSE, return a list of ggplot objects}
+
+\item{dims_plot}{Dimensions to plot, must be a two-length numeric vector
+specifying x- and y-dimensions.}
 
 \item{order_points_by_value}{Logical, should points be ordered by their value
 (e.g. expression levels), which corresponds to plotting on top cells that
