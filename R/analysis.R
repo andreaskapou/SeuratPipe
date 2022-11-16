@@ -597,7 +597,11 @@ cluster_analysis <- function(
         }
         names(col_pal) <- levels(seu$condition)
       } else {
-        col_pal <- discrete_col_pal
+        if (nlevels(seu$condition) > 35) {
+          col_pal <- scales::hue_pal()(nlevels(seu$condition))
+        } else {
+          col_pal <- discrete_col_pal
+        }
       }
       cl_condition <- seu@meta.data |> dplyr::group_by(seurat_clusters, condition) |>
         dplyr::summarise(n = dplyr::n()) |> dplyr::mutate(freq = n / sum(n))
@@ -643,7 +647,11 @@ cluster_analysis <- function(
         }
         names(col_pal) <- levels(seu$sample)
       } else {
-        col_pal <- discrete_col_pal
+        if (nlevels(seu$sample) > 35) {
+          col_pal <- scales::hue_pal()(nlevels(seu$sample))
+        } else {
+          col_pal <- discrete_col_pal
+        }
       }
 
       cl_condition <- seu@meta.data |> dplyr::group_by(seurat_clusters, sample) |>
